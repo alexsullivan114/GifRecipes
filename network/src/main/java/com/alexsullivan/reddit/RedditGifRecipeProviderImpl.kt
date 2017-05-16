@@ -1,5 +1,6 @@
 package com.alexsullivan.reddit
 
+import com.alexsullivan.isImage
 import com.alexsullivan.reddit.models.RedditGifRecipe
 import io.reactivex.Observable
 
@@ -9,6 +10,10 @@ import io.reactivex.Observable
 class RedditGifRecipeProviderImpl(val service: RedditService): RedditGifRecipeProvider {
 
     override fun getRecipes(): Observable<RedditGifRecipe> {
-        return service.hotRecipes()
+        return service.hotRecipes().flatMap {
+            Observable.fromIterable(it.data.children)
+        }.filter {
+            isImage(it.url)
+        }.cast(RedditGifRecipe::class.java)
     }
 }

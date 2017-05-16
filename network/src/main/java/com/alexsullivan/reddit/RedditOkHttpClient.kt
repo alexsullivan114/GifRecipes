@@ -1,7 +1,8 @@
 package com.alexsullivan.reddit
 
 import com.alexsullivan.count
-import com.squareup.moshi.Moshi
+import com.alexsullivan.reddit.models.RedditAuth
+import com.google.gson.Gson
 import okhttp3.MediaType
 import okhttp3.Request
 import okhttp3.RequestBody
@@ -10,7 +11,6 @@ import okhttp3.RequestBody
 class RedditOkHttpClient(val deviceId: String) {
     val client: okhttp3.OkHttpClient
     var accessToken = "empty"
-    val baseUrl = "https://oauth.reddit.com/"
 
     init {
         client = okhttp3.OkHttpClient.Builder()
@@ -58,8 +58,8 @@ class RedditOkHttpClient(val deviceId: String) {
                     .build()
 
             val authResponse = client.newCall(request).execute().body().string()
-            val jsonAdapter = Moshi.Builder().build().adapter(com.alexsullivan.reddit.models.RedditAuth::class.java)
-            val auth = jsonAdapter.fromJson(authResponse)
+            val gson = Gson()
+            val auth = gson.fromJson(authResponse, RedditAuth::class.java)
             accessToken = auth.access_token
             response.request().newBuilder()
                     .header("authorization", "Bearer " + accessToken)

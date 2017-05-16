@@ -1,6 +1,6 @@
 package com.alexsullivan.reddit
 
-import com.alexsullivan.reddit.models.RedditGifRecipe
+import com.alexsullivan.reddit.models.RedditListingResponse
 import io.reactivex.Observable
 import retrofit2.http.GET
 
@@ -13,5 +13,5 @@ interface RedditService {
     }
 
     @GET("r/gifrecipes/hot")
-    fun hotRecipes(): Observable<RedditGifRecipe>
+    fun hotRecipes(): Observable<RedditListingResponse>
 }

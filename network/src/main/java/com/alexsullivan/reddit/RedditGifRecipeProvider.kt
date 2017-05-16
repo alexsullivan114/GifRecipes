@@ -11,7 +11,7 @@ import io.reactivex.Observable
  */
 interface RedditGifRecipeProvider {
 
-    companion object {}
+    companion object
 
     fun getRecipes(): Observable<RedditGifRecipe>
 }
