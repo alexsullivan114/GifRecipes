@@ -11,9 +11,13 @@ fun isImage(url: String, client: OkHttpClient = defaultClient()): Boolean {
 }
 
 fun String.massageGfycatLink(): String {
+    if (!this.contains("gfycat")) {
+        return this
+    }
+
     val splits = this.split("https://")
     if (splits.size != 2) {
-        throw RuntimeException("Received gyfcat malformed gyfcat link! " + this)
+        return this
     }
     return "https://" + "giant." + splits[1] + ".gif"
 }

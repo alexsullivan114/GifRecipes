@@ -1,4 +1,4 @@
-package com.alexsullivan
+package com.alexsullivan.reddit.network
 
 import okhttp3.Response
 

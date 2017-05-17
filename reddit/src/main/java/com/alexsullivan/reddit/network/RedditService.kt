@@ -1,8 +1,8 @@
-package com.alexsullivan.reddit
+package com.alexsullivan.reddit.network
 
 import com.alexsullivan.reddit.models.RedditListingResponse
-import io.reactivex.Observable
 import retrofit2.http.GET
+import retrofit2.http.Query
 
 /**
  * Created by Alexs on 5/10/2017.
@@ -13,5 +13,5 @@ interface RedditService {
     }
 
     @GET("r/gifrecipes/hot")
-    fun hotRecipes(): Observable<RedditListingResponse>
+    fun hotRecipes(@Query("limit") limit: Int = 100, @Query("after") after: String? = ""): io.reactivex.Observable<RedditListingResponse>
 }
