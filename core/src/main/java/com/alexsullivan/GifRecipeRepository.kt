@@ -5,8 +5,8 @@ import io.reactivex.Observable
 interface GifRecipeRepository {
 
     companion object {
-        fun default(): GifRecipeRepository {
-            return GifRecipeRepositoryImpl(GifRecipeRegistrar.providers)
+        val default: GifRecipeRepository by lazy {
+            GifRecipeRepositoryImpl(GifRecipeRegistrar.providers)
         }
     }
 
