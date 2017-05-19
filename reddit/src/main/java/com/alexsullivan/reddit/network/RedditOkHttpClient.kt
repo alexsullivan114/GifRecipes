@@ -1,7 +1,7 @@
 package com.alexsullivan.reddit.network
 
 
-class RedditOkHttpClient(deviceId: String) {
+internal class RedditOkHttpClient(deviceId: String) {
     lateinit var client: okhttp3.OkHttpClient
     var accessToken = "empty"
 

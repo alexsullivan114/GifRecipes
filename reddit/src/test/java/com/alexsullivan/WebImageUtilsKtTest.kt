@@ -12,7 +12,7 @@ class WebImageUtilsKtTest {
 
     @Test fun testGfycatLink() {
         val link = "https://gfycat.com/PitifulAggressiveGaur"
-        val desiredLink = "https://giant.gfycat.com/PitifulAggressiveGaur.gif"
+        val desiredLink = "https://thumbs.gfycat.com/PitifulAggressiveGaur-size_restricted.gif"
         Assert.assertEquals(desiredLink, link.massageGfycatLink())
     }
 

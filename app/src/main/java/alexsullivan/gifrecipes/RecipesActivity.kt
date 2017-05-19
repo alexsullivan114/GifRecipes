@@ -1,8 +1,12 @@
 package alexsullivan.gifrecipes
 
+import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import com.alexsullivan.reddit.RedditGifRecipeProvider
+import com.alexsullivan.GifRecipeRepository
+import com.facebook.drawee.backends.pipeline.Fresco
+import com.facebook.drawee.view.SimpleDraweeView
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 
 class RecipesActivity : AppCompatActivity() {
@@ -10,12 +14,19 @@ class RecipesActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_recipes)
-        RedditGifRecipeProvider.create("385ad0c4-31cc-11e7-93ae-92361f002671")
-                .consumeRecipes(5)
+        val view = findViewById(R.id.draweeView) as SimpleDraweeView
+        GifRecipeRepository.default().consumeGifRecipes(5)
                 .subscribeOn(Schedulers.io())
-                .repeat(2)
+                .take(1)
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe {
-                    print("wtf")
+                    val uri = Uri.parse(it.url)
+                    val controller = Fresco.newDraweeControllerBuilder()
+                            .setUri(uri)
+                            .setAutoPlayAnimations(true)
+                            .build();
+                    view.controller = controller
                 }
+
     }
 }

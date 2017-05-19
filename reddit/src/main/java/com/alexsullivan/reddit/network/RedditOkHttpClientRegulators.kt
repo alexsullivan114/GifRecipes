@@ -2,7 +2,7 @@ package com.alexsullivan.reddit.network
 
 import okhttp3.*
 
-class RedditAuthInterceptor(val accessTokenProvider: () -> String): Interceptor {
+internal class RedditAuthInterceptor(val accessTokenProvider: () -> String): Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
         var request = chain.request()
@@ -14,7 +14,7 @@ class RedditAuthInterceptor(val accessTokenProvider: () -> String): Interceptor 
     }
 }
 
-class RedditAuthenticator(val accessTokenConsumer: (String) -> Unit, val clientProvider: () -> OkHttpClient,
+internal class RedditAuthenticator(val accessTokenConsumer: (String) -> Unit, val clientProvider: () -> OkHttpClient,
                           val deviceId: String): Authenticator {
     override fun authenticate(route: Route, response: Response): Request? {
         if (response.count() > 5) {

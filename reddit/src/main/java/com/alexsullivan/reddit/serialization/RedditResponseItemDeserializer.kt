@@ -8,7 +8,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonParseException
 import java.lang.reflect.Type
 
-class RedditResponseItemDeserializer : JsonDeserializer<RedditListingItem> {
+internal class RedditResponseItemDeserializer : JsonDeserializer<RedditListingItem> {
 
     override fun deserialize(json: JsonElement, typeOfT: Type?, context: JsonDeserializationContext?): RedditListingItem {
         try {

@@ -3,14 +3,14 @@ package com.alexsullivan
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
-fun isImage(url: String, client: OkHttpClient = defaultClient()): Boolean {
+internal fun isImage(url: String, client: OkHttpClient = defaultClient()): Boolean {
     val request = Request.Builder().url(url).head().build()
     val response = client.newCall(request).execute()
     val contentType = response.headers().get("Content-Type")
     return contentType == "image/gif"
 }
 
-fun String.massageGfycatLink(): String {
+internal fun String.massageGfycatLink(): String {
     if (!this.contains("gfycat")) {
         return this
     }
@@ -19,7 +19,7 @@ fun String.massageGfycatLink(): String {
     if (splits.size != 2) {
         return this
     }
-    return "https://" + "giant." + splits[1] + ".gif"
+    return "https://" + "thumbs." + splits[1] + "-size_restricted.gif"
 }
 
 private fun defaultClient(): OkHttpClient {
