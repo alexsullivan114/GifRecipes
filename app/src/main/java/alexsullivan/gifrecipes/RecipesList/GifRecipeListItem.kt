@@ -1,3 +1,3 @@
 package alexsullivan.gifrecipes.RecipesList
 
-class GifRecipeListItem {}
+class GifRecipeListItem(val url: String)

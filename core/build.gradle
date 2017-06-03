@@ -7,5 +7,5 @@ dependencies {
     compile "io.reactivex.rxjava2:rxjava:2.1.0"
 }
 
-sourceCompatibility = "1.7"
-targetCompatibility = "1.7"
+sourceCompatibility = project.ext.sourceCompat
+targetCompatibility = project.ext.targetCompat

@@ -1,21 +1,24 @@
 package alexsullivan.gifrecipes.RecipesList
 
+import alexsullivan.gifrecipes.R
 import android.support.v7.widget.RecyclerView
+import android.view.LayoutInflater
 import android.view.ViewGroup
-import com.alexsullivan.GifRecipe
 
-class GifRecipesAdapter(val recipes: MutableList<GifRecipe>): RecyclerView.Adapter<GifRecipeViewHolder>() {
+class GifRecipesAdapter(val recipes: List<GifRecipeListItem>): RecyclerView.Adapter<GifRecipeViewHolder>() {
 
     override fun onBindViewHolder(holder: GifRecipeViewHolder?, position: Int) {
-        TODO("not implemented")
+        val gifRecipe = recipes[position]
+        holder?.setUrl(gifRecipe.url)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): GifRecipeViewHolder {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GifRecipeViewHolder {
+        val viewHolderLayout = LayoutInflater.from(parent.context).inflate(R.layout.recipe_item, parent, false)
+        return GifRecipeViewHolder(viewHolderLayout)
     }
 
     override fun getItemCount(): Int {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return recipes.size
     }
 
 }

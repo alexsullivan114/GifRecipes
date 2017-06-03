@@ -1,8 +1,10 @@
 package com.alexsullivan.reddit.network
 
+import okhttp3.OkHttpClient
+
 
 internal class RedditOkHttpClient(deviceId: String) {
-    lateinit var client: okhttp3.OkHttpClient
+    lateinit var client: OkHttpClient
     var accessToken = "empty"
 
     init {

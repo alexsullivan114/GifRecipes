@@ -18,6 +18,14 @@ allprojects {
     repositories {
         jcenter()
     }
+    project.ext {
+        retrofitVersion="2.2.0"
+        gsonVersion="2.8.0"
+        okHttpVersion="3.7.0"
+        junitVersion="4.12"
+        sourceCompat="1.7"
+        targetCompat="1.7"
+    }
 }
 
 task clean(type: Delete) {
