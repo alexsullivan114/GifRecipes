@@ -1,12 +1,15 @@
 package com.alexsullivan.reddit
 
 import com.alexsullivan.GifRecipe
-import com.alexsullivan.isImage
+import com.alexsullivan.ImageType
+import com.alexsullivan.isPlayingMedia
 import com.alexsullivan.reddit.models.RedditGifRecipe
 import com.alexsullivan.reddit.models.RedditListingItem
 import com.alexsullivan.reddit.network.RedditOkHttpClient
 import com.alexsullivan.reddit.network.RedditService
 import com.alexsullivan.reddit.serialization.RedditResponseItemDeserializer
+import com.alexsullivan.reddit.urlmanipulation.ImgurUrlManipulator
+import com.alexsullivan.reddit.urlmanipulation.UrlManipulator
 import com.google.gson.GsonBuilder
 import io.reactivex.Observable
 import retrofit2.Retrofit
@@ -16,8 +19,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 /**
  * Created by Alexs on 5/10/2017.
  */
-internal class RedditGifRecipeProviderImpl(val service: RedditService, val imageChecker: (String) -> Boolean,
-                                           val modelMapper: (RedditGifRecipe) -> GifRecipe): RedditGifRecipeProvider {
+internal class RedditGifRecipeProviderImpl(val service: RedditService, val urlManipulators: List<UrlManipulator>,
+                                           val medidaChecker: (String) -> Boolean): RedditGifRecipeProvider {
 
     // Gets updated with our last after value as we consume more recipes.
     var lastAfter: String? = ""
@@ -36,9 +39,7 @@ internal class RedditGifRecipeProviderImpl(val service: RedditService, val image
                     .addConverterFactory(GsonConverterFactory.create(gson))
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                     .build()
-            return RedditGifRecipeProviderImpl(retrofit.create(RedditService::class.java), { isImage(it) }, {
-                GifRecipe(it.url, it.id, it.thumbnail, it.previewUrl)
-            })
+            return RedditGifRecipeProviderImpl(retrofit.create(RedditService::class.java), listOf(ImgurUrlManipulator()), { isPlayingMedia(it) })
         }
     }
 
@@ -46,8 +47,14 @@ internal class RedditGifRecipeProviderImpl(val service: RedditService, val image
         return service.hotRecipes(limit = limit, after = lastAfter)
                 .doOnNext { lastAfter = it.data.after }
                 .flatMap { Observable.fromIterable(it.data.children) }
-                .filter { imageChecker(it.url) }
-                .map { RedditGifRecipe(it.url, it.id, it.thumbnail, it.previewUrl) }
-                .map { modelMapper(it) }
+                .map { RedditGifRecipe(it.url, it.id, ImageType.GIF, it.thumbnail, it.previewUrl, it.domain) }
+                .flatMap {
+                    var returnObservable = Observable.just(it)
+                    urlManipulators.filter { manipulator -> manipulator.matchesDomain(it.domain) }
+                            .forEach { manipulator -> returnObservable = manipulator.modifyRedditItem(it) }
+                    returnObservable
+                }
+                .filter { medidaChecker(it.url) }
+                .map { GifRecipe(it.url, it.id, it.thumbnail, it.previewUrl, it.imageType) }
     }
 }

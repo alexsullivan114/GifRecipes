@@ -1,6 +1,9 @@
 package com.alexsullivan.reddit.urlmanipulation
 
-interface UrlManipulator {
-    fun ownsUrl(url: String): Boolean
-    fun modifyUrl(url: String): String
+import com.alexsullivan.reddit.models.RedditGifRecipe
+import io.reactivex.Observable
+
+internal interface UrlManipulator {
+    fun matchesDomain(domain: String): Boolean
+    fun modifyRedditItem(item: RedditGifRecipe): Observable<RedditGifRecipe>
 }

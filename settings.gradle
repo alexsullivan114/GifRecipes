@@ -1,1 +1,1 @@
-include ':app', ':reddit', ':core'
+include ':app', ':reddit', ':core', ':imgur-core'

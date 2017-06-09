@@ -3,11 +3,11 @@ package com.alexsullivan
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
-internal fun isImage(url: String, client: OkHttpClient = defaultClient()): Boolean {
+internal fun isPlayingMedia(url: String, client: OkHttpClient = defaultClient()): Boolean {
     val request = Request.Builder().url(url).head().build()
     val response = client.newCall(request).execute()
     val contentType = response.headers().get("Content-Type")
-    return contentType == "image/gif"
+    return contentType == "image/gif" || contentType == "video/mp4"
 }
 
 internal fun String.massageGfycatLink(): String {

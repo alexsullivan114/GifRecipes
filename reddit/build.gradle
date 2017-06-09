@@ -4,6 +4,7 @@ apply plugin: 'kotlin'
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile project(':core')
+    compile project(':imgur-core')
     compile "com.squareup.retrofit2:retrofit:$project.ext.retrofitVersion"
     compile "com.squareup.retrofit2:converter-gson:$project.ext.retrofitVersion"
     compile "com.squareup.retrofit2:adapter-rxjava2:$project.ext.retrofitVersion"
