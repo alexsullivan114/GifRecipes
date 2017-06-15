@@ -1,4 +1,4 @@
-package com.example
+package com.gfycat
 
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer

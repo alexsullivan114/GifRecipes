@@ -23,7 +23,7 @@ class RecipesListPresenterImpl(val gifRecipeRepository: GifRecipeRepository): Re
                 .observeOn(AndroidSchedulers.mainThread())
                 // First push out our loading screen...
                 .doOnSubscribe { stateStream.onNext(RecipesListViewState.FullReload()) }
-                .map { GifRecipeListItem(it.url) }
+                .map { GifRecipeListItem(it.url, it.imageType) }
                 .toList()
                 .subscribe(
                         { stateStream.onNext(RecipesListViewState.GifList(it))},

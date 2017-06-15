@@ -9,7 +9,7 @@ class GifRecipesAdapter(val recipes: List<GifRecipeListItem>): RecyclerView.Adap
 
     override fun onBindViewHolder(holder: GifRecipeViewHolder?, position: Int) {
         val gifRecipe = recipes[position]
-        holder?.setUrl(gifRecipe.url)
+        holder?.setUrl(gifRecipe.url, gifRecipe.imageType)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GifRecipeViewHolder {

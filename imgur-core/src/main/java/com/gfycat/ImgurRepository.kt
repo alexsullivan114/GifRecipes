@@ -1,4 +1,4 @@
-package com.example
+package com.gfycat
 
 import com.google.gson.GsonBuilder
 import io.reactivex.Observable
@@ -7,7 +7,7 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 
-class ImgurRepository(val service: ImgurService) {
+class ImgurRepository(private val service: ImgurService) {
 
     companion object Factory {
         fun create(): ImgurRepository {

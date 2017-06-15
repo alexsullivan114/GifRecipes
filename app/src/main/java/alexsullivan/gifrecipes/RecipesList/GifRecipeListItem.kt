@@ -1,3 +1,5 @@
 package alexsullivan.gifrecipes.RecipesList
 
-class GifRecipeListItem(val url: String)
+import com.alexsullivan.ImageType
+
+class GifRecipeListItem(val url: String, val imageType: ImageType)

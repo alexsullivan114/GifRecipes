@@ -5,7 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/GifRecipes.iml" filepath="$PROJECT_DIR$/GifRecipes.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/core/core.iml" filepath="$PROJECT_DIR$/core/core.iml" />
-      <module fileurl="file://$PROJECT_DIR$/imgur-core/imgur-core.iml" filepath="$PROJECT_DIR$/imgur-core/imgur-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/gfycat-core/gfycat-core.iml" filepath="$PROJECT_DIR$/gfycat-core/gfycat-core.iml" />
       <module fileurl="file://$PROJECT_DIR$/imgur-core/imgur-core.iml" filepath="$PROJECT_DIR$/imgur-core/imgur-core.iml" />
       <module fileurl="file://$PROJECT_DIR$/reddit/reddit.iml" filepath="$PROJECT_DIR$/reddit/reddit.iml" />
     </modules>

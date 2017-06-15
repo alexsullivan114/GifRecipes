@@ -1,6 +1,5 @@
 package com.alexsullivan.reddit.serialization
 
-import com.alexsullivan.massageGfycatLink
 import com.alexsullivan.reddit.models.RedditListingItem
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
@@ -16,7 +15,7 @@ internal class RedditResponseItemDeserializer : JsonDeserializer<RedditListingIt
             val kind = jObject.get("kind").asString
             val data = jObject.getAsJsonObject("data")
             val id = data.get("id").asString
-            var url = data.get("url").asString
+            val url = data.get("url").asString
             val thumbnail = data.get("thumbnail").asString
             val secureMedia = data.get("secure_media")
             val preview = data.getAsJsonObject("preview")
@@ -32,9 +31,6 @@ internal class RedditResponseItemDeserializer : JsonDeserializer<RedditListingIt
                 }
             }
             val domain: String = data.get("domain").asString
-            if (domain == "gfycat.com") {
-                url = url.massageGfycatLink()
-            }
             return RedditListingItem(kind, id, url, domain, thumbnail, previewUrl)
         }
         catch (exception: JsonParseException) {

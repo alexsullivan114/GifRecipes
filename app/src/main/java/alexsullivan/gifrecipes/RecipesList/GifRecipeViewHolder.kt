@@ -1,46 +1,43 @@
 package alexsullivan.gifrecipes.RecipesList
 
-import android.graphics.drawable.Animatable
 import android.support.v7.widget.RecyclerView
 import android.view.View
+import android.widget.MediaController
+import com.alexsullivan.ImageType
 import com.facebook.drawee.backends.pipeline.Fresco
-import com.facebook.drawee.controller.ControllerListener
 import com.facebook.drawee.drawable.ProgressBarDrawable
-import com.facebook.imagepipeline.image.ImageInfo
 import kotlinx.android.synthetic.main.recipe_item.view.*
 
 class GifRecipeViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
 
-    fun setUrl(url: String) {
+    fun setUrl(url: String, imageType: ImageType) {
+        if (imageType == ImageType.GIF) {
+            itemView.drawee.visibility = View.VISIBLE
+            itemView.video.visibility = View.GONE
+            setImageUrl(url)
+        }
+        else {
+            itemView.drawee.visibility = View.GONE
+            itemView.video.visibility = View.VISIBLE
+            setVideoUrl(url)
+        }
+    }
+
+    private fun setVideoUrl(url: String) {
+        val videoMediaController = MediaController(itemView.context)
+        videoMediaController.setMediaPlayer(itemView.video)
+        itemView.video.apply {
+            setVideoPath(url)
+            requestFocus()
+            start()
+        }
+    }
+
+    private fun setImageUrl(url: String) {
         val controller = Fresco.newDraweeControllerBuilder()
                 .setUri(url)
                 .setAutoPlayAnimations(true)
-                .setControllerListener(object: ControllerListener<ImageInfo>{
-                    override fun onIntermediateImageFailed(id: String?, throwable: Throwable?) {
-                        print("ff")
-                    }
-
-                    override fun onIntermediateImageSet(id: String?, imageInfo: ImageInfo?) {
-                        print("ff")
-                    }
-
-                    override fun onSubmit(id: String?, callerContext: Any?) {
-                        print("ff")
-                    }
-
-                    override fun onFinalImageSet(id: String?, imageInfo: ImageInfo?, animatable: Animatable?) {
-                        print("ff")
-                    }
-
-                    override fun onRelease(id: String?) {
-                        print("ff")
-                    }
-
-                    override fun onFailure(id: String?, throwable: Throwable?) {
-                        print("ff")
-                    }
-                })
-                .build();
+                .build()
 
         itemView.drawee.controller = controller
         itemView.drawee.hierarchy.setProgressBarImage(ProgressBarDrawable())

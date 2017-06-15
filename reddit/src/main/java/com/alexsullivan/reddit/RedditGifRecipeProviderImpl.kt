@@ -8,6 +8,7 @@ import com.alexsullivan.reddit.models.RedditListingItem
 import com.alexsullivan.reddit.network.RedditOkHttpClient
 import com.alexsullivan.reddit.network.RedditService
 import com.alexsullivan.reddit.serialization.RedditResponseItemDeserializer
+import com.alexsullivan.reddit.urlmanipulation.GfycatUrlManipulator
 import com.alexsullivan.reddit.urlmanipulation.ImgurUrlManipulator
 import com.alexsullivan.reddit.urlmanipulation.UrlManipulator
 import com.google.gson.GsonBuilder
@@ -39,7 +40,7 @@ internal class RedditGifRecipeProviderImpl(val service: RedditService, val urlMa
                     .addConverterFactory(GsonConverterFactory.create(gson))
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                     .build()
-            return RedditGifRecipeProviderImpl(retrofit.create(RedditService::class.java), listOf(ImgurUrlManipulator()), { isPlayingMedia(it) })
+            return RedditGifRecipeProviderImpl(retrofit.create(RedditService::class.java), listOf(ImgurUrlManipulator(), GfycatUrlManipulator()), { isPlayingMedia(it) })
         }
     }
 

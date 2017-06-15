@@ -2,17 +2,20 @@ package com.alexsullivan.reddit.urlmanipulation
 
 import com.alexsullivan.ImageType
 import com.alexsullivan.reddit.models.RedditGifRecipe
-import com.example.ImgurRepository
+import com.gfycat.GfycatRepository
+import com.gfycat.ImgurRepository
 import io.reactivex.Observable
 
 internal class GfycatUrlManipulator: UrlManipulator {
 
     override fun matchesDomain(domain: String): Boolean {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return domain.contains("gfycat.com")
     }
 
     override fun modifyRedditItem(item: RedditGifRecipe): Observable<RedditGifRecipe> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        val gfycatId = item.url.substringAfter(".com/").substringBefore(".")
+        return GfycatRepository.create().getImageInfo(gfycatId)
+                .map { item.copy(url = it.mp4, imageType = ImageType.VIDEO) }
     }
 }
 

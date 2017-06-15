@@ -1,6 +1,6 @@
-package com.example
+package com.gfycat
 
-import com.example.ImgurService.statics.clientId
+import com.gfycat.ImgurService.statics.clientId
 import io.reactivex.Observable
 import retrofit2.Response
 import retrofit2.http.GET
