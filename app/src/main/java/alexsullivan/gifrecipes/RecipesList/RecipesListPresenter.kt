@@ -18,7 +18,7 @@ class RecipesListPresenterImpl(val gifRecipeRepository: GifRecipeRepository): Re
     }
 
     override fun start() {
-        disposables.add(gifRecipeRepository.consumeGifRecipes(25)
+        disposables.add(gifRecipeRepository.consumeGifRecipes(25, "chicken")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 // First push out our loading screen...

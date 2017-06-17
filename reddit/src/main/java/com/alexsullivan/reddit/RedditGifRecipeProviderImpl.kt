@@ -5,6 +5,7 @@ import com.alexsullivan.ImageType
 import com.alexsullivan.isPlayingMedia
 import com.alexsullivan.reddit.models.RedditGifRecipe
 import com.alexsullivan.reddit.models.RedditListingItem
+import com.alexsullivan.reddit.models.RedditListingResponse
 import com.alexsullivan.reddit.network.RedditOkHttpClient
 import com.alexsullivan.reddit.network.RedditService
 import com.alexsullivan.reddit.serialization.RedditResponseItemDeserializer
@@ -23,8 +24,9 @@ import retrofit2.converter.gson.GsonConverterFactory
 internal class RedditGifRecipeProviderImpl(val service: RedditService, val urlManipulators: List<UrlManipulator>,
                                            val medidaChecker: (String) -> Boolean): RedditGifRecipeProvider {
 
-    // Gets updated with our last after value as we consume more recipes.
-    var lastAfter: String? = ""
+    // Hold onto a map of after values so we can pageinate. Key will be the blank string for queries
+    // without search values and the search term otherwise.
+    val afterMap = mutableMapOf<String, String>()
 
     override val id: String
         get() = "RedditProvider"
@@ -44,9 +46,23 @@ internal class RedditGifRecipeProviderImpl(val service: RedditService, val urlMa
         }
     }
 
-    override fun consumeRecipes(limit: Int): Observable<GifRecipe> {
-        return service.hotRecipes(limit = limit, after = lastAfter)
-                .doOnNext { lastAfter = it.data.after }
+    override fun consumeRecipes(limit: Int, searchTerm: String): Observable<GifRecipe> {
+        return if (!searchTerm.isEmpty()) fetchWithSearchTerm(limit, searchTerm) else fetchHot(limit)
+    }
+
+    private fun fetchWithSearchTerm(limit: Int, searchTerm: String): Observable<GifRecipe> {
+        return service.searchRecipes(searchTerm, limit = limit)
+                .flatMap { processListingResponse(it, searchTerm) }
+    }
+
+    private fun fetchHot(limit: Int): Observable<GifRecipe> {
+        return service.hotRecipes(limit = limit, after = afterMap.get(""))
+                .flatMap { processListingResponse(it, "") }
+    }
+
+    private fun processListingResponse(listing: RedditListingResponse, searchTerm: String = ""): Observable<GifRecipe> {
+        return Observable.just(listing)
+                .doOnNext { afterMap.put(searchTerm, it.data.after) }
                 .flatMap { Observable.fromIterable(it.data.children) }
                 .map { RedditGifRecipe(it.url, it.id, ImageType.GIF, it.thumbnail, it.previewUrl, it.domain) }
                 .flatMap {

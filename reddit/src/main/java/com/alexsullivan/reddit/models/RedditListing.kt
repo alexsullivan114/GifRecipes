@@ -9,4 +9,4 @@ internal data class RedditListingItem(val type: String, val id: String, val url:
 
 internal class RedditListingResponse(val kind: String, val data: RedditListingResponseData)
 
-internal class RedditListingResponseData(val modHash: String, val children: List<RedditListingItem>, val before: String?, val after: String?)
+internal class RedditListingResponseData(val modHash: String, val children: List<RedditListingItem>, val before: String?, val after: String)
