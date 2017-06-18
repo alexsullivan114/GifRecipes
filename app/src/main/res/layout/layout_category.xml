@@ -16,8 +16,7 @@
         app:layout_constraintRight_toRightOf="parent"
         android:src="@drawable/big_salmon"
         app:layout_constraintTop_toTopOf="@+id/guideline2"
-        android:layout_marginTop="8dp"
-        />
+        android:layout_marginTop="32dp"/>
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/chicken"
@@ -57,7 +56,7 @@
         app:layout_constraintRight_toRightOf="parent"
         android:src="@drawable/big_vegan"
         android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/guideline2"/>
+        app:layout_constraintBottom_toTopOf="@+id/veganLabel"/>
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/dessert"
@@ -74,5 +73,75 @@
         android:layout_height="wrap_content"
         android:id="@+id/guideline2"
         app:layout_constraintGuide_percent="0.65"
-        android:orientation="horizontal"/>
+        android:orientation="horizontal"
+        tools:layout_editor_absoluteY="369dp"
+        tools:layout_editor_absoluteX="0dp"/>
+
+    <TextView
+        android:id="@+id/veganLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Vegan"
+        android:textAlignment="center"
+        app:layout_constraintRight_toRightOf="@+id/vegan"
+        app:layout_constraintLeft_toLeftOf="@+id/vegan"
+        app:layout_constraintBaseline_toBaselineOf="@+id/vegetarianLabel"
+        app:layout_constraintHorizontal_bias="0.5"/>
+
+    <TextView
+        android:id="@+id/vegetarianLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Vegetarian"
+        android:textAlignment="center"
+        app:layout_constraintRight_toRightOf="@+id/vegetarian"
+        app:layout_constraintLeft_toLeftOf="@+id/vegetarian"
+        app:layout_constraintBaseline_toBaselineOf="@+id/desertLabel"/>
+
+    <TextView
+        android:id="@+id/desertLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Dessert"
+        android:textAlignment="center"
+        app:layout_constraintRight_toRightOf="@+id/dessert"
+        app:layout_constraintLeft_toLeftOf="@+id/dessert"
+        app:layout_constraintHorizontal_bias="0.5"
+        android:layout_marginBottom="32dp"
+        app:layout_constraintBottom_toTopOf="@+id/guideline2"
+        />
+
+    <TextView
+        android:id="@+id/chickenLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Chicken"
+        android:textAlignment="center"
+        app:layout_constraintRight_toRightOf="@+id/chicken"
+        app:layout_constraintLeft_toLeftOf="@+id/chicken"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/chicken"
+        app:layout_constraintHorizontal_bias="0.5"/>
+
+    <TextView
+        android:id="@+id/porkLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pork"
+        android:textAlignment="center"
+        app:layout_constraintRight_toRightOf="@+id/pork"
+        app:layout_constraintLeft_toLeftOf="@+id/pork"
+        app:layout_constraintBaseline_toBaselineOf="@+id/chickenLabel"/>
+
+    <TextView
+        android:id="@+id/salmonLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Salmon"
+        android:textAlignment="center"
+        app:layout_constraintRight_toRightOf="@+id/salmon"
+        app:layout_constraintLeft_toLeftOf="@+id/salmon"
+        app:layout_constraintBaseline_toBaselineOf="@+id/porkLabel"
+        app:layout_constraintHorizontal_bias="0.5"/>
+
 </android.support.constraint.ConstraintLayout>
