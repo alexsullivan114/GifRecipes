@@ -6,7 +6,7 @@ import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import com.alexsullivan.GifRecipeRepository
-import kotlinx.android.synthetic.main.activity_recipes.*
+import kotlinx.android.synthetic.main.layout_recipes.*
 
 
 class RecipesListActivity : BaseActivity<RecipesListViewState>() {
@@ -17,7 +17,7 @@ class RecipesListActivity : BaseActivity<RecipesListViewState>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_recipes)
+        setContentView(R.layout.layout_recipes)
         gifList.layoutManager = LinearLayoutManager(this)
     }
 

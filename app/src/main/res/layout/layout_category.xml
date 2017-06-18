@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:layout_editor_absoluteY="81dp"
+    tools:layout_editor_absoluteX="0dp">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/salmon"
+        android:layout_width="150dp"
+        android:layout_height="85dp"
+        app:layout_constraintLeft_toRightOf="@+id/pork"
+        app:layout_constraintRight_toRightOf="parent"
+        android:src="@drawable/big_salmon"
+        app:layout_constraintTop_toTopOf="@+id/guideline2"
+        android:layout_marginTop="8dp"
+        />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/chicken"
+        android:layout_width="150dp"
+        android:layout_height="85dp"
+        android:src="@drawable/big_chicken"
+        app:layout_constraintBottom_toBottomOf="@+id/pork"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/pork"
+        />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/pork"
+        android:layout_width="150dp"
+        android:layout_height="85dp"
+        android:src="@drawable/big_pork"
+        app:layout_constraintLeft_toRightOf="@+id/chicken"
+        app:layout_constraintRight_toLeftOf="@+id/salmon"
+        app:layout_constraintBottom_toBottomOf="@+id/salmon"
+        />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/vegetarian"
+        android:layout_width="150dp"
+        android:layout_height="85dp"
+        app:layout_constraintLeft_toRightOf="@+id/dessert"
+        app:layout_constraintRight_toLeftOf="@+id/vegan"
+        android:src="@drawable/big_vegetarian"
+        app:layout_constraintBottom_toBottomOf="@+id/vegan"
+        app:layout_constraintVertical_chainStyle="packed"/>
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/vegan"
+        android:layout_width="150dp"
+        android:layout_height="85dp"
+        app:layout_constraintLeft_toRightOf="@+id/vegetarian"
+        app:layout_constraintRight_toRightOf="parent"
+        android:src="@drawable/big_vegan"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/guideline2"/>
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/dessert"
+        android:layout_width="150dp"
+        android:layout_height="85dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@+id/vegetarian"
+        android:src="@drawable/big_dessert"
+        app:layout_constraintVertical_bias="0.501"
+        app:layout_constraintBottom_toBottomOf="@+id/vegetarian"/>
+
+    <android.support.constraint.Guideline
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/guideline2"
+        app:layout_constraintGuide_percent="0.65"
+        android:orientation="horizontal"/>
+</android.support.constraint.ConstraintLayout>
