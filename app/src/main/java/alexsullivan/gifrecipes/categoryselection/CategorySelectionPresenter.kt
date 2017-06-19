@@ -23,7 +23,6 @@ class CategorySelectionPresenterImpl(val repository: GifRecipeRepository) : Cate
         // TODO: Make like a "top" thing in the reddit repo
         disposables.add(repository.consumeGifRecipes(5)
                 .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
                 // First push out our loading screen...
                 .doOnSubscribe { stateStream.onNext(CategorySelectionViewState.FetchingGifs()) }
                 .map {
@@ -32,6 +31,7 @@ class CategorySelectionPresenterImpl(val repository: GifRecipeRepository) : Cate
                     HotGifRecipeItem(bitmap, it.url)
                 }
                 .toList()
+                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         { stateStream.onNext(CategorySelectionViewState.GifList(it))},
                         { stateStream.onNext(CategorySelectionViewState.Error())}))
