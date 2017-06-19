@@ -1,25 +1,21 @@
-package alexsullivan.gifrecipes.animations
+package alexsullivan.gifrecipes.categoryselection
 
 import android.support.v4.view.ViewPager
 import android.view.View
+import kotlinx.android.synthetic.main.pager_hot_recipe.view.*
 
 
-
-
-class ZoomOutPageTransformer : ViewPager.PageTransformer {
+class HotGifPageTransformer : ViewPager.PageTransformer {
 
     override fun transformPage(view: View, position: Float) {
         val pageWidth = view.width
         val pageHeight = view.height
 
         val parent = view.parent as ViewPager
+        val playIcon = view.playIcon
         val updatedPosition = position - parent.paddingRight / pageWidth.toFloat()
 
-        if (updatedPosition < -2) { // [-Infinity,-1)
-            // This page is way off-screen to the left.
-            view.alpha = MIN_ALPHA
-
-        } else if (updatedPosition<= 2) { // [-1,1]
+        if (updatedPosition<= 2 && updatedPosition > -2) { // [-2,2]
             // Modify the default slide transition to shrink the page as well
             val scaleFactor = Math.max(MIN_SCALE, 1 - Math.abs(updatedPosition))
             val vertMargin = pageHeight * (1 - scaleFactor) / 2
@@ -36,10 +32,8 @@ class ZoomOutPageTransformer : ViewPager.PageTransformer {
 
             // Fade the page relative to its size.
             view.alpha = MIN_ALPHA + (scaleFactor - MIN_SCALE) / (1 - MIN_SCALE) * (1 - MIN_ALPHA)
+            playIcon.alpha = (scaleFactor - MIN_SCALE) / (1 - MIN_SCALE)
 
-        } else { // (1,+Infinity]
-            // This page is way off-screen to the right.
-            view.alpha = MIN_ALPHA
         }
     }
 

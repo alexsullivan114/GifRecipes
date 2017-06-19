@@ -3,7 +3,6 @@ package alexsullivan.gifrecipes.categoryselection;
 
 import alexsullivan.gifrecipes.BaseActivity
 import alexsullivan.gifrecipes.R
-import alexsullivan.gifrecipes.animations.ZoomOutPageTransformer
 import android.os.Bundle
 import android.view.View
 import com.alexsullivan.GifRecipeRepository
@@ -20,7 +19,7 @@ class CategorySelectionActivity : BaseActivity<CategorySelectionViewState>() {
         pager.setPadding(150, 0, 150, 0)
         pager.clipToPadding = false
         pager.pageMargin = 25
-        pager.setPageTransformer(true, ZoomOutPageTransformer())
+        pager.setPageTransformer(true, HotGifPageTransformer())
         pager.offscreenPageLimit = 5
     }
 
