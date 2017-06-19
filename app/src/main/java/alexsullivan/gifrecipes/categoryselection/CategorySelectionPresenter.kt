@@ -28,7 +28,7 @@ class CategorySelectionPresenterImpl(val repository: GifRecipeRepository) : Cate
                 .map {
                     val metadataRetriever = MediaMetadataRetriever()
                     val bitmap = metadataRetriever.firstFrame(it.url)
-                    HotGifRecipeItem(bitmap, it.url)
+                    HotGifRecipeItem(bitmap, it.url, it.imageType, it.title)
                 }
                 .toList()
                 .observeOn(AndroidSchedulers.mainThread())

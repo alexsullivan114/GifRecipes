@@ -64,7 +64,7 @@ internal class RedditGifRecipeProviderImpl(val service: RedditService, val urlMa
         return Observable.just(listing)
                 .doOnNext { afterMap.put(searchTerm, it.data.after) }
                 .flatMap { Observable.fromIterable(it.data.children) }
-                .map { RedditGifRecipe(it.url, it.id, ImageType.GIF, it.thumbnail, it.previewUrl, it.domain) }
+                .map { RedditGifRecipe(it.url, it.id, ImageType.GIF, it.thumbnail, it.previewUrl, it.domain, it.title) }
                 .flatMap {
                     var returnObservable = Observable.just(it)
                     urlManipulators.filter { manipulator -> manipulator.matchesDomain(it.domain) }
@@ -72,6 +72,6 @@ internal class RedditGifRecipeProviderImpl(val service: RedditService, val urlMa
                     returnObservable
                 }
                 .filter { medidaChecker(it.url) }
-                .map { GifRecipe(it.url, it.id, it.thumbnail, it.previewUrl, it.imageType) }
+                .map { GifRecipe(it.url, it.id, it.thumbnail, it.previewUrl, it.imageType, it.title) }
     }
 }

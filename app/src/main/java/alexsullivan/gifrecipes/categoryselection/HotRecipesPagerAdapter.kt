@@ -15,9 +15,9 @@ class HotRecipesPagerAdapter(val gifList: List<HotGifRecipeItem>): PagerAdapter(
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
         val viewgroup = LayoutInflater.from(container.context).inflate(R.layout.pager_hot_recipe, null)
-        val image = viewgroup.image
         val recipe = gifList.get(position)
-        image.setImageBitmap(recipe.bitmap)
+        viewgroup.image.setImageBitmap(recipe.bitmap)
+        viewgroup.title.text = recipe.title
         container.addView(viewgroup)
         return viewgroup
     }

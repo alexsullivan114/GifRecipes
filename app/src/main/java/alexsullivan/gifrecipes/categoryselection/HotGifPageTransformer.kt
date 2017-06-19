@@ -12,7 +12,6 @@ class HotGifPageTransformer : ViewPager.PageTransformer {
         val pageHeight = view.height
 
         val parent = view.parent as ViewPager
-        val playIcon = view.playIcon
         val updatedPosition = position - parent.paddingRight / pageWidth.toFloat()
 
         if (updatedPosition<= 2 && updatedPosition > -2) { // [-2,2]
@@ -32,7 +31,9 @@ class HotGifPageTransformer : ViewPager.PageTransformer {
 
             // Fade the page relative to its size.
             view.alpha = MIN_ALPHA + (scaleFactor - MIN_SCALE) / (1 - MIN_SCALE) * (1 - MIN_ALPHA)
-            playIcon.alpha = (scaleFactor - MIN_SCALE) / (1 - MIN_SCALE)
+            view.playIcon.alpha = (scaleFactor - MIN_SCALE) / (1 - MIN_SCALE)
+            view.title.alpha = view.playIcon.alpha
+
 
         }
     }

@@ -18,6 +18,7 @@ internal class RedditResponseItemDeserializer : JsonDeserializer<RedditListingIt
             val url = data.get("url").asString
             val thumbnail = data.get("thumbnail").asString
             val preview = data.getAsJsonObject("preview")
+            val title = data.get("title").asString
             var previewUrl: String? = null
             if (preview != null) {
                 val images = preview.getAsJsonArray("images")
@@ -30,7 +31,7 @@ internal class RedditResponseItemDeserializer : JsonDeserializer<RedditListingIt
                 }
             }
             val domain: String = data.get("domain").asString
-            return RedditListingItem(kind, id, url, domain, thumbnail, previewUrl)
+            return RedditListingItem(kind, id, url, domain, thumbnail, previewUrl, title)
         }
         catch (exception: JsonParseException) {
             throw JsonParseException("Json doesn't match expected reddit listing format! " + exception)
