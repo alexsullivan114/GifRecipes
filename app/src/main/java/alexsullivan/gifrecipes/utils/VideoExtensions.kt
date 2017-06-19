@@ -1,4 +1,4 @@
-package alexsullivan.utils
+package alexsullivan.gifrecipes.utils
 
 import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever

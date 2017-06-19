@@ -2,8 +2,7 @@ package alexsullivan.gifrecipes.categoryselection;
 
 import alexsullivan.gifrecipes.Presenter
 import alexsullivan.gifrecipes.ViewState
-import alexsullivan.utils.firstFrame
-import android.media.MediaMetadataRetriever
+import alexsullivan.gifrecipes.utils.firstFrame
 import com.alexsullivan.GifRecipeRepository
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -26,9 +25,7 @@ class CategorySelectionPresenterImpl(val repository: GifRecipeRepository) : Cate
                 // First push out our loading screen...
                 .doOnSubscribe { stateStream.onNext(CategorySelectionViewState.FetchingGifs()) }
                 .map {
-                    val metadataRetriever = MediaMetadataRetriever()
-                    val bitmap = metadataRetriever.firstFrame(it.url)
-                    HotGifRecipeItem(bitmap, it.url, it.imageType, it.title)
+                    HotGifRecipeItem(it.firstFrame(), it.url, it.imageType, it.title)
                 }
                 .toList()
                 .observeOn(AndroidSchedulers.mainThread())
