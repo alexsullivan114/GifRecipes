@@ -17,7 +17,6 @@ internal class RedditResponseItemDeserializer : JsonDeserializer<RedditListingIt
             val id = data.get("id").asString
             val url = data.get("url").asString
             val thumbnail = data.get("thumbnail").asString
-            val secureMedia = data.get("secure_media")
             val preview = data.getAsJsonObject("preview")
             var previewUrl: String? = null
             if (preview != null) {

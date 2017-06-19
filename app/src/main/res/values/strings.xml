@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">GifRecipes</string>
+    <string name="vegan">Vegan</string>
+    <string name="vegetarian">Vegetarian</string>
+    <string name="dessert">Dessert</string>
+    <string name="chicken">Chicken</string>
+    <string name="pork">Pork</string>
+    <string name="salmon">Salmon</string>
 </resources>
