@@ -1,6 +1,7 @@
 package alexsullivan.gifrecipes
 
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -19,13 +20,15 @@ abstract class BaseActivity<T: ViewState>: AppCompatActivity() {
         disposables.add(presenter.stateStream
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ accept(it) }, { acknowledge(it) }))
+                .subscribe({
+                    Log.i("View Architecture", "Received View State: ${it.toString()}")
+                    accept(it) }, { acknowledge(it) }))
         presenter.start()
     }
 
     override fun onStop() {
         super.onStop()
-        disposables.dispose()
+        disposables.clear()
         presenter.stop()
     }
 }

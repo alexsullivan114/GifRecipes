@@ -7,7 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import kotlinx.android.synthetic.main.pager_hot_recipe.view.*
 
-class HotRecipesPagerAdapter(val gifList: List<HotGifRecipeItem>): PagerAdapter() {
+class HotRecipesPagerAdapter(val gifList: List<HotGifRecipeItem>, val callback: HotRecipeAdapterCallback): PagerAdapter() {
 
     override fun isViewFromObject(view: View?, `object`: Any?) = view == `object`
 
@@ -18,6 +18,7 @@ class HotRecipesPagerAdapter(val gifList: List<HotGifRecipeItem>): PagerAdapter(
         val recipe = gifList.get(position)
         viewgroup.image.setImageBitmap(recipe.bitmap)
         viewgroup.title.text = recipe.title
+        viewgroup.setOnClickListener { callback.recipeClicked(recipe) }
         container.addView(viewgroup)
         return viewgroup
     }
@@ -25,4 +26,8 @@ class HotRecipesPagerAdapter(val gifList: List<HotGifRecipeItem>): PagerAdapter(
     override fun destroyItem(container: ViewGroup?, position: Int, `object`: Any?) {
         container?.removeView(`object` as View)
     }
+}
+
+interface HotRecipeAdapterCallback {
+    fun recipeClicked(hotGifRecipeItem: HotGifRecipeItem)
 }

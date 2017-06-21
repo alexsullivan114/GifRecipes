@@ -1,5 +1,6 @@
 package alexsullivan.gifrecipes.categoryselection;
 
+import alexsullivan.gifrecipes.BitmapHolder
 import alexsullivan.gifrecipes.Presenter
 import alexsullivan.gifrecipes.ViewState
 import alexsullivan.gifrecipes.utils.firstFrame
@@ -19,24 +20,28 @@ class CategorySelectionPresenterImpl(val repository: GifRecipeRepository) : Cate
     }
 
     override fun start() {
-        // TODO: Make like a "top" thing in the reddit repo
-        disposables.add(repository.consumeGifRecipes(5)
-                .subscribeOn(Schedulers.io())
-                // First push out our loading screen...
-                .doOnSubscribe { stateStream.onNext(CategorySelectionViewState.FetchingGifs()) }
-                .map {
-                    HotGifRecipeItem(it.firstFrame(), it.url, it.imageType, it.title)
-                }
-                .toList()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        { stateStream.onNext(CategorySelectionViewState.GifList(it))},
-                        { stateStream.onNext(CategorySelectionViewState.Error())}))
+        if (!stateStream.hasValue()) {
+            // TODO: Make like a "top" thing in the reddit repo
+            disposables.add(repository.consumeGifRecipes(5)
+                    .subscribeOn(Schedulers.io())
+                    // First push out our loading screen...
+                    .doOnSubscribe { stateStream.onNext(CategorySelectionViewState.FetchingGifs()) }
+                    .map { HotGifRecipeItem(it.firstFrame(), it.url, it.imageType, it.title) }
+                    .toList()
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(
+                            { stateStream.onNext(CategorySelectionViewState.GifList(it))},
+                            { stateStream.onNext(CategorySelectionViewState.Error())}))
+        }
     }
 
     override fun stop() {
         super.stop()
         disposables.clear()
+    }
+
+    override fun recipeClicked(hotGifRecipeItem: HotGifRecipeItem) {
+        BitmapHolder.put(hotGifRecipeItem.link, hotGifRecipeItem.bitmap)
     }
 }
 
@@ -46,6 +51,8 @@ interface CategorySelectionPresenter : Presenter<CategorySelectionViewState> {
             return CategorySelectionPresenterImpl(gifRecipeRepository)
         }
     }
+
+    fun recipeClicked(hotGifRecipeItem: HotGifRecipeItem)
 }
 
 sealed class CategorySelectionViewState : ViewState {
