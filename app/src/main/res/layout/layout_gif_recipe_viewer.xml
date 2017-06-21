@@ -12,8 +12,12 @@
 
     <ImageView
         android:id="@+id/placeholder"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true"
         android:transitionName="@string/recipe_transition_image_name"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
