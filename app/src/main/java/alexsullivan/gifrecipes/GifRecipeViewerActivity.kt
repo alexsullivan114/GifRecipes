@@ -1,5 +1,6 @@
 package alexsullivan.gifrecipes;
 
+import alexsullivan.gifrecipes.GifRecipeViewerActivity.IntentFactory.TITLE_KEY
 import alexsullivan.gifrecipes.GifRecipeViewerActivity.IntentFactory.URL_KEY
 import android.content.Context
 import android.content.Intent
@@ -12,9 +13,12 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState>() {
     object IntentFactory {
 
         val URL_KEY = "URL_KEY"
+        val TITLE_KEY = "TITLE_KEY"
 
-        fun build(context: Context, url: String): Intent {
-            val intent = Intent(context, GifRecipeViewerActivity::class.java).putExtra(URL_KEY, url)
+        fun build(context: Context, url: String, title: String): Intent {
+            val intent = Intent(context, GifRecipeViewerActivity::class.java)
+                    .putExtra(URL_KEY, url)
+                    .putExtra(TITLE_KEY, title)
             return intent
         }
     }
@@ -25,13 +29,15 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState>() {
     }
 
     override val presenter by lazy {
-        GifRecipeViewerPresenter.create(intent.getStringExtra(URL_KEY))
+        GifRecipeViewerPresenter.create(intent.getStringExtra(URL_KEY),
+                intent.getStringExtra(TITLE_KEY))
     }
 
     override fun accept(viewState: GifRecipeViewerViewState) {
         when (viewState) {
             is GifRecipeViewerViewState.StaticImage -> {
                 placeholder.setImageBitmap(viewState.image)
+                recipeTitle.text = viewState.title
             }
         }
     }

@@ -6,6 +6,7 @@ import alexsullivan.gifrecipes.GifRecipeViewerActivity
 import alexsullivan.gifrecipes.R
 import android.os.Bundle
 import android.support.v4.app.ActivityOptionsCompat
+import android.support.v4.util.Pair
 import android.view.View
 import com.alexsullivan.GifRecipeRepository
 import kotlinx.android.synthetic.main.layout_category.*
@@ -45,10 +46,12 @@ class CategorySelectionActivity : BaseActivity<CategorySelectionViewState>(), Ho
         TODO("not implemented")
     }
 
-    override fun recipeClicked(hotGifRecipeItem: HotGifRecipeItem, previewImage: View) {
+    override fun recipeClicked(hotGifRecipeItem: HotGifRecipeItem, previewImage: View, titleTextView: View) {
         presenter.recipeClicked(hotGifRecipeItem)
-        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, previewImage, getString(R.string.recipe_transition_name))
-        val intent = GifRecipeViewerActivity.IntentFactory.build(this, hotGifRecipeItem.link)
+        val imagePair = Pair(previewImage, getString(R.string.recipe_transition_image_name))
+        val textPair = Pair(titleTextView, getString(R.string.recipe_transition_text_name))
+        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, imagePair, textPair)
+        val intent = GifRecipeViewerActivity.IntentFactory.build(this, hotGifRecipeItem.link, hotGifRecipeItem.title)
         startActivity(intent, options.toBundle())
     }
 }

@@ -5,7 +5,8 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 
 
-class GifRecipeViewerPresenterImpl(val url: String) : GifRecipeViewerPresenter {
+class GifRecipeViewerPresenterImpl(val url: String,
+                                   val title: String) : GifRecipeViewerPresenter {
 
     val disposables = CompositeDisposable()
 
@@ -15,7 +16,7 @@ class GifRecipeViewerPresenterImpl(val url: String) : GifRecipeViewerPresenter {
 
     override fun start() {
         BitmapHolder.get(url)?.let {
-            stateStream.onNext(GifRecipeViewerViewState.StaticImage(it))
+            stateStream.onNext(GifRecipeViewerViewState.StaticImage(it, title))
         }
     }
 
@@ -27,13 +28,13 @@ class GifRecipeViewerPresenterImpl(val url: String) : GifRecipeViewerPresenter {
 
 interface GifRecipeViewerPresenter : Presenter<GifRecipeViewerViewState> {
     companion object {
-        fun create(url: String): GifRecipeViewerPresenter {
-            return GifRecipeViewerPresenterImpl(url)
+        fun create(url: String, title: String): GifRecipeViewerPresenter {
+            return GifRecipeViewerPresenterImpl(url, title)
         }
     }
 }
 
 sealed class GifRecipeViewerViewState : ViewState {
-    class StaticImage(val image: Bitmap): GifRecipeViewerViewState()
-    class Playing(val url: String): GifRecipeViewerViewState()
+    class StaticImage(val image: Bitmap, val title: String): GifRecipeViewerViewState()
+    class Playing(val url: String, val title: String): GifRecipeViewerViewState()
 }
