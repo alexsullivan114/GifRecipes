@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="recipe_transition_image_name">recipe_image_transition</string>
-    <string name="recipe_transition_text_name">recipe_text_transition</string>
+    <string name="recipe_transition_name">recipe_transition</string>
 </resources>
