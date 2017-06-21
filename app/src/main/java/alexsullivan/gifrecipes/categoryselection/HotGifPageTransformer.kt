@@ -32,7 +32,7 @@ class HotGifPageTransformer : ViewPager.PageTransformer {
             // Fade the page relative to its size.
             view.alpha = MIN_ALPHA + (scaleFactor - MIN_SCALE) / (1 - MIN_SCALE) * (1 - MIN_ALPHA)
             view.playIcon.alpha = (scaleFactor - MIN_SCALE) / (1 - MIN_SCALE)
-            view.title.alpha = view.playIcon.alpha
+            view.recipeTitle.alpha = view.playIcon.alpha
 
 
         }
