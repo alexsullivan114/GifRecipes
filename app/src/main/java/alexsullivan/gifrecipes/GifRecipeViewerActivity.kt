@@ -1,6 +1,6 @@
 package alexsullivan.gifrecipes;
 
-import alexsullivan.gifrecipes.GifRecipeViewerActivity.Creator.URL_KEY
+import alexsullivan.gifrecipes.GifRecipeViewerActivity.IntentFactory.URL_KEY
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
@@ -9,13 +9,13 @@ import kotlinx.android.synthetic.main.layout_gif_recipe_viewer.*
 
 class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState>() {
 
-    object Creator {
+    object IntentFactory {
 
         val URL_KEY = "URL_KEY"
 
-        fun start(context: Context, url: String) {
+        fun build(context: Context, url: String): Intent {
             val intent = Intent(context, GifRecipeViewerActivity::class.java).putExtra(URL_KEY, url)
-            context.startActivity(intent)
+            return intent
         }
     }
 

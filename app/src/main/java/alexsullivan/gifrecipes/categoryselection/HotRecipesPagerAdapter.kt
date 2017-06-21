@@ -18,7 +18,7 @@ class HotRecipesPagerAdapter(val gifList: List<HotGifRecipeItem>, val callback: 
         val recipe = gifList.get(position)
         viewgroup.image.setImageBitmap(recipe.bitmap)
         viewgroup.title.text = recipe.title
-        viewgroup.setOnClickListener { callback.recipeClicked(recipe) }
+        viewgroup.setOnClickListener { callback.recipeClicked(recipe, viewgroup.image) }
         container.addView(viewgroup)
         return viewgroup
     }
@@ -29,5 +29,5 @@ class HotRecipesPagerAdapter(val gifList: List<HotGifRecipeItem>, val callback: 
 }
 
 interface HotRecipeAdapterCallback {
-    fun recipeClicked(hotGifRecipeItem: HotGifRecipeItem)
+    fun recipeClicked(hotGifRecipeItem: HotGifRecipeItem, previewImage: View)
 }
