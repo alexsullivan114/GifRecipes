@@ -46,11 +46,10 @@ class CategorySelectionActivity : BaseActivity<CategorySelectionViewState>(), Ho
         TODO("not implemented")
     }
 
-    override fun recipeClicked(hotGifRecipeItem: HotGifRecipeItem, previewImage: View, titleTextView: View) {
+    override fun recipeClicked(hotGifRecipeItem: HotGifRecipeItem, previewImage: View) {
         presenter.recipeClicked(hotGifRecipeItem)
         val imagePair = Pair(previewImage, getString(R.string.recipe_transition_image_name))
-        val textPair = Pair(titleTextView, getString(R.string.recipe_transition_text_name))
-        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, imagePair, textPair)
+        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, imagePair)
         val intent = GifRecipeViewerActivity.IntentFactory.build(this, hotGifRecipeItem.link, hotGifRecipeItem.title)
         startActivity(intent, options.toBundle())
     }
