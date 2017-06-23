@@ -15,9 +15,7 @@ class GifRecipeViewerPresenterImpl(val url: String,
     }
 
     override fun start() {
-        BitmapHolder.get(url)?.let {
-            stateStream.onNext(GifRecipeViewerViewState.StaticImage(it, title))
-        }
+        stateStream.onNext(GifRecipeViewerViewState.Playing(url, BitmapHolder.get(url), title))
     }
 
     override fun stop() {
@@ -35,6 +33,5 @@ interface GifRecipeViewerPresenter : Presenter<GifRecipeViewerViewState> {
 }
 
 sealed class GifRecipeViewerViewState : ViewState {
-    class StaticImage(val image: Bitmap, val title: String): GifRecipeViewerViewState()
-    class Playing(val url: String, val title: String): GifRecipeViewerViewState()
+    class Playing(val url: String, val image: Bitmap?, val title: String): GifRecipeViewerViewState()
 }

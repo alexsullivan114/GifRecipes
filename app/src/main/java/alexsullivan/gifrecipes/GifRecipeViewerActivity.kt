@@ -35,7 +35,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState>() {
 
     override fun accept(viewState: GifRecipeViewerViewState) {
         when (viewState) {
-            is GifRecipeViewerViewState.StaticImage -> {
+            is GifRecipeViewerViewState.Playing -> {
                 placeholder.setImageBitmap(viewState.image)
                 recipeTitle.text = viewState.title
             }

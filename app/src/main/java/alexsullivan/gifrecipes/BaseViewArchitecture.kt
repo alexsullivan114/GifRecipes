@@ -8,6 +8,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
 abstract class BaseActivity<T: ViewState>: AppCompatActivity() {
+    val TAG: String = this.javaClass.simpleName
 
     protected var disposables: CompositeDisposable = CompositeDisposable()
 
@@ -17,11 +18,15 @@ abstract class BaseActivity<T: ViewState>: AppCompatActivity() {
 
     override fun onStart() {
         super.onStart()
+        Log.d(TAG, "Subscribing to state stream")
         disposables.add(presenter.stateStream
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
+                .doOnSubscribe {
+                    Log.d(TAG, "Successfully subscribed to state stream")
+                }
                 .subscribe({
-                    Log.i("View Architecture", "Received View State: ${it.toString()}")
+                    Log.i(TAG, "Received View State: ${it.javaClass.simpleName}")
                     accept(it) }, { acknowledge(it) }))
         presenter.start()
     }
