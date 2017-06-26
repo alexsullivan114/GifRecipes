@@ -21,9 +21,9 @@ class CategorySelectionActivity : BaseActivity<CategorySelectionViewState>(), Ho
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.layout_category)
-        pager.setPadding(150, 0, 150, 0)
+        pager.setPadding(200, 0, 200, 0)
         pager.clipToPadding = false
-        pager.pageMargin = 25
+//        pager.pageMargin = 3
         pager.setPageTransformer(true, HotGifPageTransformer())
         pager.offscreenPageLimit = 5
     }

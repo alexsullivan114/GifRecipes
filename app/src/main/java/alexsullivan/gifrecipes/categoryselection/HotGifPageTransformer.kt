@@ -39,7 +39,7 @@ class HotGifPageTransformer : ViewPager.PageTransformer {
     }
 
     companion object {
-        private val MIN_SCALE = 0.55f
+        private val MIN_SCALE = 0.75f
         private val MIN_ALPHA = 0.5f
     }
 }
