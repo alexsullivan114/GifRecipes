@@ -23,7 +23,6 @@ class CategorySelectionActivity : BaseActivity<CategorySelectionViewState>(), Ho
         setContentView(R.layout.layout_category)
         pager.setPadding(200, 0, 200, 0)
         pager.clipToPadding = false
-//        pager.pageMargin = 3
         pager.setPageTransformer(true, HotGifPageTransformer())
         pager.offscreenPageLimit = 5
     }
