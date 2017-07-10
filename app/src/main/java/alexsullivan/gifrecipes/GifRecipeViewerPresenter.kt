@@ -24,6 +24,11 @@ class GifRecipeViewerPresenterImpl(val url: String,
         super.stop()
         disposables.clear()
     }
+
+    override fun destroy() {
+        super.destroy()
+        BitmapHolder.remove(url)
+    }
 }
 
 interface GifRecipeViewerPresenter : Presenter<GifRecipeViewerViewState> {

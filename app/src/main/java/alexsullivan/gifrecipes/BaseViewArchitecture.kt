@@ -36,6 +36,11 @@ abstract class BaseActivity<T: ViewState>: AppCompatActivity() {
         disposables.clear()
         presenter.stop()
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        presenter.destroy()
+    }
 }
 
 interface Presenter<T: ViewState> {
@@ -43,6 +48,7 @@ interface Presenter<T: ViewState> {
     val stateStream: Observable<T>
     fun start(){}
     fun stop(){}
+    fun destroy(){}
 }
 
 interface ViewState

@@ -3,15 +3,15 @@ package alexsullivan.gifrecipes;
 import alexsullivan.gifrecipes.GifRecipeViewerActivity.IntentFactory.IMAGE_TYPE_KEY
 import alexsullivan.gifrecipes.GifRecipeViewerActivity.IntentFactory.TITLE_KEY
 import alexsullivan.gifrecipes.GifRecipeViewerActivity.IntentFactory.URL_KEY
+import alexsullivan.gifrecipes.utils.adjustAspectRatio
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.graphics.Matrix
+import android.graphics.Bitmap
 import android.graphics.SurfaceTexture
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.support.v4.app.SharedElementCallback
-import android.util.Log
 import android.view.Surface
 import android.view.TextureView
 import android.view.View
@@ -92,19 +92,9 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState>() {
                 recipeTitle.text = viewState.title
                 url = viewState.url
                 if (viewState.imageType == ImageType.GIF) {
-                    video.visibility = View.GONE
-                    val controller = Fresco.newDraweeControllerBuilder()
-                            .setUri(url)
-                            .setAutoPlayAnimations(true)
-                            .build()
-                    var aspectRatio = 1f
-                    viewState.image?.let {
-                        aspectRatio = (it.width/ it.height).toFloat()
-                    }
-                    gif.aspectRatio = aspectRatio
-                    gif.controller = controller
+                    toggleGifMode(viewState.image)
                 } else {
-                    gif.visibility = View.GONE
+                    toggleVideoMode()
                 }
             }
         }
@@ -122,35 +112,27 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState>() {
             mediaPlayer?.prepareAsync()
             mediaPlayer?.setOnPreparedListener {
                 mp -> mp.start()
-                adjustAspectRatio(mp.videoWidth, mp.videoHeight)
+                video.adjustAspectRatio(mp.videoWidth, mp.videoHeight)
             }
         }
     }
 
-    private fun adjustAspectRatio(videoWidth: Int, videoHeight: Int) {
-        val viewWidth = video.width
-        val viewHeight = video.height
-        val aspectRatio = videoHeight.toDouble() / videoWidth
-
-        val newWidth: Int
-        val newHeight: Int
-        if (viewHeight > (viewWidth * aspectRatio).toInt()) {
-            // limited by narrow width; restrict height
-            newWidth = viewWidth
-            newHeight = (viewWidth * aspectRatio).toInt()
-        } else {
-            // limited by short height; restrict width
-            newWidth = (viewHeight / aspectRatio).toInt()
-            newHeight = viewHeight
+    private fun toggleGifMode(image: Bitmap?) {
+        video.visibility = View.GONE
+        val controller = Fresco.newDraweeControllerBuilder()
+                .setUri(url)
+                .setAutoPlayAnimations(true)
+                .build()
+        var aspectRatio = 1f
+        image?.let {
+            aspectRatio = (it.width/ it.height).toFloat()
         }
-        val xoff = (viewWidth - newWidth) / 2f
-        val yoff = (viewHeight - newHeight) / 2f
-        Log.v(TAG, "video=" + videoWidth + "x" + videoHeight + " view=" + viewWidth + "x" + viewHeight + " newView=" + newWidth + "x" + newHeight + " off=" + xoff + "," + yoff)
+        gif.aspectRatio = aspectRatio
+        gif.controller = controller
+    }
 
-        val txform = Matrix()
-        video.getTransform(txform)
-        txform.setScale(newWidth.toFloat() / viewWidth, newHeight.toFloat() / viewHeight)
-        txform.postTranslate(xoff, yoff)
-        video.setTransform(txform)
+    private fun toggleVideoMode() {
+        gif.visibility = View.GONE
+        video.visibility = View.VISIBLE
     }
 }
