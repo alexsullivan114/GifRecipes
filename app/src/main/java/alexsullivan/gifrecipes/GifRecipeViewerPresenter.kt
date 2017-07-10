@@ -1,12 +1,14 @@
 package alexsullivan.gifrecipes;
 
 import android.graphics.Bitmap
+import com.alexsullivan.ImageType
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 
 
 class GifRecipeViewerPresenterImpl(val url: String,
-                                   val title: String) : GifRecipeViewerPresenter {
+                                   val title: String,
+                                   val imageType: ImageType) : GifRecipeViewerPresenter {
 
     val disposables = CompositeDisposable()
 
@@ -15,7 +17,7 @@ class GifRecipeViewerPresenterImpl(val url: String,
     }
 
     override fun start() {
-        stateStream.onNext(GifRecipeViewerViewState.Playing(url, BitmapHolder.get(url), title))
+        stateStream.onNext(GifRecipeViewerViewState.Playing(url, BitmapHolder.get(url), title, imageType))
     }
 
     override fun stop() {
@@ -26,12 +28,12 @@ class GifRecipeViewerPresenterImpl(val url: String,
 
 interface GifRecipeViewerPresenter : Presenter<GifRecipeViewerViewState> {
     companion object {
-        fun create(url: String, title: String): GifRecipeViewerPresenter {
-            return GifRecipeViewerPresenterImpl(url, title)
+        fun create(url: String, title: String, imageType: ImageType): GifRecipeViewerPresenter {
+            return GifRecipeViewerPresenterImpl(url, title, imageType)
         }
     }
 }
 
 sealed class GifRecipeViewerViewState : ViewState {
-    class Playing(val url: String, val image: Bitmap?, val title: String): GifRecipeViewerViewState()
+    class Playing(val url: String, val image: Bitmap?, val title: String, val imageType: ImageType): GifRecipeViewerViewState()
 }

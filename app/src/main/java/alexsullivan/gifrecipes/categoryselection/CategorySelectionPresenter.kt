@@ -26,6 +26,7 @@ class CategorySelectionPresenterImpl(val repository: GifRecipeRepository) : Cate
                     .subscribeOn(Schedulers.io())
                     // First push out our loading screen...
                     .doOnSubscribe { stateStream.onNext(CategorySelectionViewState.FetchingGifs()) }
+                    .map {it.copy(url = it.url, imageType = it.imageType)}
                     .map { HotGifRecipeItem(it.firstFrame(), it.url, it.imageType, it.title) }
                     .toList()
                     .observeOn(AndroidSchedulers.mainThread())

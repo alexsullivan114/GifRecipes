@@ -1,5 +1,6 @@
 package alexsullivan.gifrecipes;
 
+import alexsullivan.gifrecipes.GifRecipeViewerActivity.IntentFactory.IMAGE_TYPE_KEY
 import alexsullivan.gifrecipes.GifRecipeViewerActivity.IntentFactory.TITLE_KEY
 import alexsullivan.gifrecipes.GifRecipeViewerActivity.IntentFactory.URL_KEY
 import android.annotation.SuppressLint
@@ -14,6 +15,8 @@ import android.util.Log
 import android.view.Surface
 import android.view.TextureView
 import android.view.View
+import com.alexsullivan.ImageType
+import com.facebook.drawee.backends.pipeline.Fresco
 import kotlinx.android.synthetic.main.layout_gif_recipe_viewer.*
 import kotlin.properties.Delegates
 
@@ -36,18 +39,20 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState>() {
 
     override val presenter by lazy {
         GifRecipeViewerPresenter.create(intent.getStringExtra(URL_KEY),
-                intent.getStringExtra(TITLE_KEY))
+                intent.getStringExtra(TITLE_KEY), intent.getSerializableExtra(IMAGE_TYPE_KEY) as ImageType)
     }
 
     object IntentFactory {
 
         val URL_KEY = "URL_KEY"
         val TITLE_KEY = "TITLE_KEY"
+        val IMAGE_TYPE_KEY = "IMAGE_TYPE_KEY"
 
-        fun build(context: Context, url: String, title: String): Intent {
+        fun build(context: Context, url: String, title: String, imageType: ImageType): Intent {
             val intent = Intent(context, GifRecipeViewerActivity::class.java)
                     .putExtra(URL_KEY, url)
                     .putExtra(TITLE_KEY, title)
+                    .putExtra(IMAGE_TYPE_KEY, imageType)
             return intent
         }
     }
@@ -58,7 +63,6 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState>() {
         setEnterSharedElementCallback(object: SharedElementCallback(){
             override fun onSharedElementsArrived(sharedElementNames: MutableList<String>?, sharedElements: MutableList<View>?, listener: OnSharedElementsReadyListener?) {
                 super.onSharedElementsArrived(sharedElementNames, sharedElements, listener)
-                Log.i("foo", "shared elemeny done")
                 sharedElementTransitionDone = true
             }
 
@@ -87,6 +91,21 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState>() {
                 placeholder.setImageBitmap(viewState.image)
                 recipeTitle.text = viewState.title
                 url = viewState.url
+                if (viewState.imageType == ImageType.GIF) {
+                    video.visibility = View.GONE
+                    val controller = Fresco.newDraweeControllerBuilder()
+                            .setUri(url)
+                            .setAutoPlayAnimations(true)
+                            .build()
+                    var aspectRatio = 1f
+                    viewState.image?.let {
+                        aspectRatio = (it.width/ it.height).toFloat()
+                    }
+                    gif.aspectRatio = aspectRatio
+                    gif.controller = controller
+                } else {
+                    gif.visibility = View.GONE
+                }
             }
         }
     }

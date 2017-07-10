@@ -49,7 +49,7 @@ class CategorySelectionActivity : BaseActivity<CategorySelectionViewState>(), Ho
         presenter.recipeClicked(hotGifRecipeItem)
         val imagePair = Pair(previewImage, getString(R.string.recipe_transition_image_name))
         val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, imagePair)
-        val intent = GifRecipeViewerActivity.IntentFactory.build(this, hotGifRecipeItem.link, hotGifRecipeItem.title)
+        val intent = GifRecipeViewerActivity.IntentFactory.build(this, hotGifRecipeItem.link, hotGifRecipeItem.title, hotGifRecipeItem.imageType)
         startActivity(intent, options.toBundle())
     }
 }
