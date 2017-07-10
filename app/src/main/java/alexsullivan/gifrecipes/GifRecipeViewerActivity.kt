@@ -5,6 +5,7 @@ import alexsullivan.gifrecipes.GifRecipeViewerActivity.IntentFactory.TITLE_KEY
 import alexsullivan.gifrecipes.GifRecipeViewerActivity.IntentFactory.URL_KEY
 import alexsullivan.gifrecipes.cache.CacheServerImpl
 import alexsullivan.gifrecipes.utils.adjustAspectRatio
+import alexsullivan.gifrecipes.utils.endListener
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
@@ -12,7 +13,6 @@ import android.graphics.Bitmap
 import android.graphics.SurfaceTexture
 import android.media.MediaPlayer
 import android.os.Bundle
-import android.support.v4.app.SharedElementCallback
 import android.view.Surface
 import android.view.TextureView
 import android.view.View
@@ -59,13 +59,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState>() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.layout_gif_recipe_viewer)
-        setEnterSharedElementCallback(object: SharedElementCallback(){
-            override fun onSharedElementsArrived(sharedElementNames: MutableList<String>?, sharedElements: MutableList<View>?, listener: OnSharedElementsReadyListener?) {
-                super.onSharedElementsArrived(sharedElementNames, sharedElements, listener)
-                sharedElementTransitionDone = true
-            }
-
-        })
+        window.enterTransition.addListener(endListener { sharedElementTransitionDone = true })
         video.surfaceTextureListener = (object: TextureView.SurfaceTextureListener{
             override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture?, width: Int, height: Int) {}
 
