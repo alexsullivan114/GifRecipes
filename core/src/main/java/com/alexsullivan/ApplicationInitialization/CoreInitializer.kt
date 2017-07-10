@@ -5,7 +5,7 @@ import com.alexsullivan.GifRecipeRegistrar
 
 object CoreInitializer {
 
-    fun init(vararg providers: GifRecipeProvider) {
+    fun initialize(vararg providers: GifRecipeProvider) {
         for (provider in providers) {
             GifRecipeRegistrar.registerProvider(provider)
         }

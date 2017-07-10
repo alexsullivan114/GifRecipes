@@ -3,6 +3,7 @@ package alexsullivan.gifrecipes;
 import alexsullivan.gifrecipes.GifRecipeViewerActivity.IntentFactory.IMAGE_TYPE_KEY
 import alexsullivan.gifrecipes.GifRecipeViewerActivity.IntentFactory.TITLE_KEY
 import alexsullivan.gifrecipes.GifRecipeViewerActivity.IntentFactory.URL_KEY
+import alexsullivan.gifrecipes.cache.CacheServerImpl
 import alexsullivan.gifrecipes.utils.adjustAspectRatio
 import android.annotation.SuppressLint
 import android.content.Context
@@ -20,9 +21,6 @@ import com.facebook.drawee.backends.pipeline.Fresco
 import kotlinx.android.synthetic.main.layout_gif_recipe_viewer.*
 import kotlin.properties.Delegates
 
-
-
-
 class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState>() {
 
     private var mediaPlayer: MediaPlayer? = null
@@ -39,7 +37,8 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState>() {
 
     override val presenter by lazy {
         GifRecipeViewerPresenter.create(intent.getStringExtra(URL_KEY),
-                intent.getStringExtra(TITLE_KEY), intent.getSerializableExtra(IMAGE_TYPE_KEY) as ImageType)
+                intent.getStringExtra(TITLE_KEY), intent.getSerializableExtra(IMAGE_TYPE_KEY) as ImageType,
+                CacheServerImpl.instance())
     }
 
     object IntentFactory {
@@ -83,11 +82,22 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState>() {
     override fun onStop() {
         super.onStop()
         mediaPlayer?.stop()
+        surface?.release()
     }
 
     override fun accept(viewState: GifRecipeViewerViewState) {
         when (viewState) {
+            is GifRecipeViewerViewState.Preloading -> {
+                placeholder.setImageBitmap(viewState.image)
+                recipeTitle.text = viewState.title
+                progress.visibility = View.VISIBLE
+            }
+            is GifRecipeViewerViewState.VideoLoading -> {
+                progress.visibility = View.VISIBLE
+                progress.progress = viewState.progress
+            }
             is GifRecipeViewerViewState.Playing -> {
+                progress.visibility = View.GONE
                 placeholder.setImageBitmap(viewState.image)
                 recipeTitle.text = viewState.title
                 url = viewState.url

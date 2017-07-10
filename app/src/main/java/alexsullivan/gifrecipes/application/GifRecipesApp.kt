@@ -1,5 +1,6 @@
 package alexsullivan.gifrecipes.application
 
+import alexsullivan.gifrecipes.cache.CacheServerImpl
 import android.app.Application
 import android.util.Log
 import com.alexsullivan.ApplicationInitialization.CoreInitializer
@@ -15,7 +16,8 @@ class GifRecipesApp: Application(){
         val logger = object: Logger {
             override fun printLn(priority: Int, tag: String, msg: String) = Log.println(priority, tag, msg)
         }
-        CoreInitializer.init(RedditGifRecipeProvider.create("385ad0c4-31cc-11e7-93ae-92361f002671", logger))
+        CoreInitializer.initialize(RedditGifRecipeProvider.create("385ad0c4-31cc-11e7-93ae-92361f002671", logger))
+        CacheServerImpl.initialize(this)
         Fresco.initialize(this);
     }
 }
