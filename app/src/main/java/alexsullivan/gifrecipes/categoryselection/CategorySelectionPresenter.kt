@@ -22,7 +22,7 @@ class CategorySelectionPresenterImpl(val repository: GifRecipeRepository) : Cate
     override fun start() {
         if (!stateStream.hasValue()) {
             // TODO: Make like a "top" thing in the reddit repo
-            disposables.add(repository.consumeGifRecipes(5)
+            disposables.add(repository.consumeGifRecipes(15)
                     .subscribeOn(Schedulers.io())
                     // First push out our loading screen...
                     .doOnSubscribe { stateStream.onNext(CategorySelectionViewState.FetchingGifs()) }
