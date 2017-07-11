@@ -21,15 +21,23 @@ class GifRecipeViewerPresenterImpl(val url: String,
     }
 
     override fun start() {
+        val buildPlayingState = fun(): GifRecipeViewerViewState {
+            if (imageType == ImageType.GIF) {
+                return PlayingGif(cacheServer.get(url), BitmapHolder.get(url), title)
+            } else {
+                return PlayingVideo(cacheServer.get(url), BitmapHolder.get(url), title)
+            }
+        }
+
         if (cacheServer.isCached(url)) {
-            stateStream.onNext(Playing(cacheServer.get(url), BitmapHolder.get(url), title, imageType))
+            stateStream.onNext(buildPlayingState())
         } else {
-            val buildPlayingState = { progress: Int -> VideoLoading(progress) }
+            val buildLoadingState = { progress: Int -> Loading(progress) }
             stateStream.onNext(Preloading(BitmapHolder.get(url), title))
             disposables.add(cacheServer.prefetch(url)
                     .subscribeOn(Schedulers.io())
-                    .doOnComplete { stateStream.onNext(Playing(cacheServer.get(url), BitmapHolder.get(url), title, imageType)) }
-                    .subscribe { stateStream.onNext(buildPlayingState(it)) })
+                    .doOnComplete { stateStream.onNext(buildPlayingState()) }
+                    .subscribe { stateStream.onNext(buildLoadingState(it)) })
         }
     }
 
@@ -54,6 +62,7 @@ interface GifRecipeViewerPresenter : Presenter<GifRecipeViewerViewState> {
 
 sealed class GifRecipeViewerViewState : ViewState {
     class Preloading(val image: Bitmap?, val title: String): GifRecipeViewerViewState()
-    class VideoLoading(val progress: Int): GifRecipeViewerViewState()
-    class Playing(val url: String, val image: Bitmap?, val title: String, val imageType: ImageType): GifRecipeViewerViewState()
+    class Loading(val progress: Int): GifRecipeViewerViewState()
+    class PlayingVideo(val url: String, val image: Bitmap?, val title: String): GifRecipeViewerViewState()
+    class PlayingGif(val url: String, val image: Bitmap?, val title: String): GifRecipeViewerViewState()
 }

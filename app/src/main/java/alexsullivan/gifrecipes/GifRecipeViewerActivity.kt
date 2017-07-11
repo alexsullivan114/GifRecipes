@@ -13,7 +13,6 @@ import android.graphics.Bitmap
 import android.graphics.SurfaceTexture
 import android.media.MediaPlayer
 import android.os.Bundle
-import android.util.Log
 import android.view.Surface
 import android.view.TextureView
 import android.view.View
@@ -87,21 +86,23 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState>() {
                 recipeTitle.text = viewState.title
                 progress.visibility = View.VISIBLE
             }
-            is GifRecipeViewerViewState.VideoLoading -> {
+            is GifRecipeViewerViewState.Loading -> {
                 progress.visibility = View.VISIBLE
                 progress.progress = viewState.progress.toFloat()
-                Log.d(TAG, "Progress: ${viewState.progress}")
             }
-            is GifRecipeViewerViewState.Playing -> {
+            is GifRecipeViewerViewState.PlayingVideo -> {
                 progress.visibility = View.GONE
                 placeholder.setImageBitmap(viewState.image)
                 recipeTitle.text = viewState.title
                 url = viewState.url
-                if (viewState.imageType == ImageType.GIF) {
-                    toggleGifMode(viewState.image)
-                } else {
-                    toggleVideoMode()
-                }
+                toggleVideoMode()
+            }
+            is GifRecipeViewerViewState.PlayingGif -> {
+                progress.visibility = View.GONE
+                placeholder.setImageBitmap(viewState.image)
+                recipeTitle.text = viewState.title
+                url = viewState.url
+                toggleGifMode(viewState.image)
             }
         }
     }
