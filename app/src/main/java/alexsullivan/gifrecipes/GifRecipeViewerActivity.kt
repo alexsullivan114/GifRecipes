@@ -13,6 +13,7 @@ import android.graphics.Bitmap
 import android.graphics.SurfaceTexture
 import android.media.MediaPlayer
 import android.os.Bundle
+import android.util.Log
 import android.view.Surface
 import android.view.TextureView
 import android.view.View
@@ -88,7 +89,8 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState>() {
             }
             is GifRecipeViewerViewState.VideoLoading -> {
                 progress.visibility = View.VISIBLE
-                progress.progress = viewState.progress
+                progress.progress = viewState.progress.toFloat()
+                Log.d(TAG, "Progress: ${viewState.progress}")
             }
             is GifRecipeViewerViewState.Playing -> {
                 progress.visibility = View.GONE
