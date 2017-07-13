@@ -53,6 +53,8 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // If our activity is being recreated, the shared element transition already happened.
+        savedInstanceState?.let { sharedElementTransitionDone = true }
         setContentView(R.layout.layout_gif_recipe_viewer)
         window.enterTransition.addListener(endListener { sharedElementTransitionDone = true })
         video.surfaceTextureListener = (object: TextureView.SurfaceTextureListener{
