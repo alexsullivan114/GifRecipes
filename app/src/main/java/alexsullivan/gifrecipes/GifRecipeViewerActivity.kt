@@ -1,8 +1,5 @@
 package alexsullivan.gifrecipes;
 
-import alexsullivan.gifrecipes.GifRecipeViewerActivity.IntentFactory.IMAGE_TYPE_KEY
-import alexsullivan.gifrecipes.GifRecipeViewerActivity.IntentFactory.TITLE_KEY
-import alexsullivan.gifrecipes.GifRecipeViewerActivity.IntentFactory.URL_KEY
 import alexsullivan.gifrecipes.cache.CacheServerImpl
 import alexsullivan.gifrecipes.utils.adjustAspectRatio
 import alexsullivan.gifrecipes.utils.endListener
@@ -21,7 +18,7 @@ import com.facebook.drawee.backends.pipeline.Fresco
 import kotlinx.android.synthetic.main.layout_gif_recipe_viewer.*
 import kotlin.properties.Delegates
 
-class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState>() {
+class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipeViewerPresenter>() {
 
     private var mediaPlayer: MediaPlayer? = null
     private var url: String? by Delegates.observable<String?>(null) {
@@ -33,12 +30,6 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState>() {
 
     private var sharedElementTransitionDone: Boolean by Delegates.observable(false) {
         _, oldValue, newValue -> if (oldValue != newValue) triggerPlaybackCheck()
-    }
-
-    override val presenter by lazy {
-        GifRecipeViewerPresenter.create(intent.getStringExtra(URL_KEY),
-                intent.getStringExtra(TITLE_KEY), intent.getSerializableExtra(IMAGE_TYPE_KEY) as ImageType,
-                CacheServerImpl.instance())
     }
 
     object IntentFactory {
@@ -54,6 +45,12 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState>() {
                     .putExtra(IMAGE_TYPE_KEY, imageType)
             return intent
         }
+    }
+
+    override fun initPresenter(): GifRecipeViewerPresenter {
+        return GifRecipeViewerPresenter.create(intent.getStringExtra(IntentFactory.URL_KEY),
+                intent.getStringExtra(IntentFactory.TITLE_KEY), intent.getSerializableExtra(IntentFactory.IMAGE_TYPE_KEY) as ImageType,
+                CacheServerImpl.instance())
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -23,7 +23,9 @@ android {
 
 allprojects {
     repositories {
+        jcenter()
         maven { url "https://jitpack.io" }
+        maven { url 'https://maven.google.com' }
     }
 }
 
@@ -34,6 +36,9 @@ dependencies {
     compile project(':reddit')
     def supportVersion = '25.3.1'
     def frescoVersion = '1.3.0'
+    def componentsVersion = '1.0.0-alpha3'
+    compile "android.arch.lifecycle:runtime:$componentsVersion"
+    compile "android.arch.lifecycle:extensions:$componentsVersion"
     compile "com.android.support:appcompat-v7:$supportVersion"
     compile "com.android.support:recyclerview-v7:$supportVersion"
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
@@ -43,6 +48,8 @@ dependencies {
     compile 'de.hdodenhof:circleimageview:2.1.0'
     compile 'com.danikula:videocache:2.7.0'
     compile 'com.github.lzyzsd:circleprogress:1.2.1'
+
+    annotationProcessor "android.arch.lifecycle:compiler:$componentsVersion"
 
 
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {

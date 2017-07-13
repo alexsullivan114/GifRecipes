@@ -1,4 +1,4 @@
-package alexsullivan.gifrecipes.categoryselection;
+package alexsullivan.gifrecipes.categoryselection
 
 
 import alexsullivan.gifrecipes.BaseActivity
@@ -13,10 +13,9 @@ import kotlinx.android.synthetic.main.layout_category.*
 
 
 
-class CategorySelectionActivity : BaseActivity<CategorySelectionViewState>(), HotRecipeAdapterCallback {
-    override val presenter by lazy {
-        CategorySelectionPresenter.create(GifRecipeRepository.default)
-    }
+class CategorySelectionActivity : BaseActivity<CategorySelectionViewState, CategorySelectionPresenter>(), HotRecipeAdapterCallback {
+
+    override fun initPresenter() = CategorySelectionPresenter.create(GifRecipeRepository.default)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

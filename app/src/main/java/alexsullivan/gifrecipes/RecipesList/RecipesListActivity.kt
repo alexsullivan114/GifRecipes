@@ -9,11 +9,9 @@ import com.alexsullivan.GifRecipeRepository
 import kotlinx.android.synthetic.main.layout_recipes.*
 
 
-class RecipesListActivity : BaseActivity<RecipesListViewState>() {
+class RecipesListActivity : BaseActivity<RecipesListViewState, RecipesListPresenter>() {
 
-    override val presenter by lazy {
-        RecipesListPresenter.create(GifRecipeRepository.default)
-    }
+    override fun initPresenter() = RecipesListPresenter.create(GifRecipeRepository.default)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
