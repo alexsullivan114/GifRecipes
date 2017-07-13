@@ -3,15 +3,14 @@ package alexsullivan.gifrecipes
 import alexsullivan.gifrecipes.cache.CacheServerImpl
 import alexsullivan.gifrecipes.utils.adjustAspectRatio
 import alexsullivan.gifrecipes.utils.endListener
+import alexsullivan.gifrecipes.utils.surfaceTextureAvailableListener
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.SurfaceTexture
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.Surface
-import android.view.TextureView
 import android.view.View
 import com.alexsullivan.ImageType
 import com.facebook.drawee.backends.pipeline.Fresco
@@ -20,7 +19,10 @@ import kotlin.properties.Delegates
 
 class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipeViewerPresenter>() {
 
+    private val PLAYBACK_POSITION_KEY = "PLAYBACK_POSITION_KEY"
     private var mediaPlayer: MediaPlayer? = null
+    private var initPlaybackPosition = 0
+
     private var url: String? by Delegates.observable<String?>(null) {
         _, oldValue, newValue ->  if (oldValue != newValue) triggerPlaybackCheck()
     }
@@ -51,23 +53,22 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
                 CacheServerImpl.instance())
     }
 
+    @SuppressLint("Recycle")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // If our activity is being recreated, the shared element transition already happened.
-        savedInstanceState?.let { sharedElementTransitionDone = true }
+        savedInstanceState?.let {
+            sharedElementTransitionDone = true
+            initPlaybackPosition = it.getInt(PLAYBACK_POSITION_KEY)
+        }
         setContentView(R.layout.layout_gif_recipe_viewer)
         window.enterTransition.addListener(endListener { sharedElementTransitionDone = true })
-        video.surfaceTextureListener = (object: TextureView.SurfaceTextureListener{
-            override fun onSurfaceTextureSizeChanged(surface: SurfaceTexture?, width: Int, height: Int) {}
+        video.surfaceTextureAvailableListener { surface, _, _ -> this@GifRecipeViewerActivity.surface = Surface(surface) }
+    }
 
-            override fun onSurfaceTextureUpdated(surface: SurfaceTexture?) {}
-
-            override fun onSurfaceTextureDestroyed(surface: SurfaceTexture?): Boolean = true
-
-            @SuppressLint("Recycle") override fun onSurfaceTextureAvailable(surface: SurfaceTexture?, width: Int, height: Int) {
-                this@GifRecipeViewerActivity.surface = Surface(surface)
-            }
-        })
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+        mediaPlayer?.let { outState?.putInt(PLAYBACK_POSITION_KEY, it.currentPosition) }
     }
 
     override fun onStop() {
@@ -108,11 +109,13 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
     private fun triggerPlaybackCheck() {
         if (sharedElementTransitionDone && surface != null && !url.isNullOrEmpty()) {
             mediaPlayer = MediaPlayer()
+            mediaPlayer?.isLooping = true
             mediaPlayer?.setDataSource(url)
             mediaPlayer?.setSurface(surface)
             mediaPlayer?.prepareAsync()
             mediaPlayer?.setOnPreparedListener {
                 mp -> mp.start()
+                mp.seekTo(initPlaybackPosition)
                 video.adjustAspectRatio(mp.videoWidth, mp.videoHeight)
             }
         }
