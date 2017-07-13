@@ -1,4 +1,4 @@
-package alexsullivan.gifrecipes;
+package alexsullivan.gifrecipes
 
 import alexsullivan.gifrecipes.GifRecipeViewerViewState.*
 import alexsullivan.gifrecipes.cache.CacheServer
@@ -10,7 +10,6 @@ import io.reactivex.subjects.BehaviorSubject
 
 
 class GifRecipeViewerPresenterImpl(val url: String,
-                                   val title: String,
                                    val imageType: ImageType,
                                    val cacheServer: CacheServer) : GifRecipeViewerPresenter {
 
@@ -23,9 +22,9 @@ class GifRecipeViewerPresenterImpl(val url: String,
     init {
         val buildPlayingState = fun(): GifRecipeViewerViewState {
             if (imageType == ImageType.GIF) {
-                return PlayingGif(cacheServer.get(url), BitmapHolder.get(url), title)
+                return PlayingGif(cacheServer.get(url), BitmapHolder.get(url))
             } else {
-                return PlayingVideo(cacheServer.get(url), BitmapHolder.get(url), title)
+                return PlayingVideo(cacheServer.get(url), BitmapHolder.get(url))
             }
         }
 
@@ -33,7 +32,7 @@ class GifRecipeViewerPresenterImpl(val url: String,
             stateStream.onNext(buildPlayingState())
         } else {
             val buildLoadingState = { progress: Int -> Loading(progress) }
-            stateStream.onNext(Preloading(BitmapHolder.get(url), title))
+            stateStream.onNext(Preloading(BitmapHolder.get(url)))
             disposables.add(cacheServer.prefetch(url)
                     .subscribeOn(Schedulers.io())
                     .doOnComplete { stateStream.onNext(buildPlayingState()) }
@@ -50,15 +49,15 @@ class GifRecipeViewerPresenterImpl(val url: String,
 
 interface GifRecipeViewerPresenter : Presenter<GifRecipeViewerViewState> {
     companion object {
-        fun create(url: String, title: String, imageType: ImageType, cacheServer: CacheServer): GifRecipeViewerPresenter {
-            return GifRecipeViewerPresenterImpl(url, title, imageType, cacheServer)
+        fun create(url: String, imageType: ImageType, cacheServer: CacheServer): GifRecipeViewerPresenter {
+            return GifRecipeViewerPresenterImpl(url, imageType, cacheServer)
         }
     }
 }
 
 sealed class GifRecipeViewerViewState : ViewState {
-    class Preloading(val image: Bitmap?, val title: String): GifRecipeViewerViewState()
+    class Preloading(val image: Bitmap?): GifRecipeViewerViewState()
     class Loading(val progress: Int): GifRecipeViewerViewState()
-    class PlayingVideo(val url: String, val image: Bitmap?, val title: String): GifRecipeViewerViewState()
-    class PlayingGif(val url: String, val image: Bitmap?, val title: String): GifRecipeViewerViewState()
+    class PlayingVideo(val url: String, val image: Bitmap?): GifRecipeViewerViewState()
+    class PlayingGif(val url: String, val image: Bitmap?): GifRecipeViewerViewState()
 }

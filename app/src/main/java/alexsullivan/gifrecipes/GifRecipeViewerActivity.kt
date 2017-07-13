@@ -1,4 +1,4 @@
-package alexsullivan.gifrecipes;
+package alexsullivan.gifrecipes
 
 import alexsullivan.gifrecipes.cache.CacheServerImpl
 import alexsullivan.gifrecipes.utils.adjustAspectRatio
@@ -35,13 +35,11 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
     object IntentFactory {
 
         val URL_KEY = "URL_KEY"
-        val TITLE_KEY = "TITLE_KEY"
         val IMAGE_TYPE_KEY = "IMAGE_TYPE_KEY"
 
-        fun build(context: Context, url: String, title: String, imageType: ImageType): Intent {
+        fun build(context: Context, url: String, imageType: ImageType): Intent {
             val intent = Intent(context, GifRecipeViewerActivity::class.java)
                     .putExtra(URL_KEY, url)
-                    .putExtra(TITLE_KEY, title)
                     .putExtra(IMAGE_TYPE_KEY, imageType)
             return intent
         }
@@ -49,7 +47,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
 
     override fun initPresenter(): GifRecipeViewerPresenter {
         return GifRecipeViewerPresenter.create(intent.getStringExtra(IntentFactory.URL_KEY),
-                intent.getStringExtra(IntentFactory.TITLE_KEY), intent.getSerializableExtra(IntentFactory.IMAGE_TYPE_KEY) as ImageType,
+                intent.getSerializableExtra(IntentFactory.IMAGE_TYPE_KEY) as ImageType,
                 CacheServerImpl.instance())
     }
 
@@ -80,7 +78,6 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
         when (viewState) {
             is GifRecipeViewerViewState.Preloading -> {
                 placeholder.setImageBitmap(viewState.image)
-                recipeTitle.text = viewState.title
                 progress.visibility = View.VISIBLE
             }
             is GifRecipeViewerViewState.Loading -> {
@@ -90,14 +87,12 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
             is GifRecipeViewerViewState.PlayingVideo -> {
                 progress.visibility = View.GONE
                 placeholder.setImageBitmap(viewState.image)
-                recipeTitle.text = viewState.title
                 url = viewState.url
                 toggleVideoMode()
             }
             is GifRecipeViewerViewState.PlayingGif -> {
                 progress.visibility = View.GONE
                 placeholder.setImageBitmap(viewState.image)
-                recipeTitle.text = viewState.title
                 url = viewState.url
                 toggleGifMode(viewState.image)
             }
