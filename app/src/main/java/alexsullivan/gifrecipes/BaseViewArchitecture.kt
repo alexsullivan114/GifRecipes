@@ -43,29 +43,24 @@ abstract class BaseActivity<T: ViewState, P:Presenter<T>>: AppCompatActivity() {
                 .subscribe({
                     Log.i(TAG, "Received View State: ${it.javaClass.simpleName}")
                     accept(it) }, { acknowledge(it) }))
-        presenter.start()
     }
 
     override fun onStop() {
         super.onStop()
         disposables.clear()
-        presenter.stop()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        presenter.destroy()
     }
 }
 
 interface Presenter<T: ViewState> {
 
     val stateStream: Observable<T>
-    fun start(){}
-    fun stop(){}
     fun destroy(){}
 }
 
 interface ViewState
 
-class BaseViewModel<T: ViewState, P: Presenter<T>>(var presenter: P? = null): ViewModel()
+class BaseViewModel<T: ViewState, P: Presenter<T>>(var presenter: P? = null): ViewModel() {
+    override fun onCleared() {
+        presenter?.destroy()
+    }
+}

@@ -20,7 +20,7 @@ class GifRecipeViewerPresenterImpl(val url: String,
         BehaviorSubject.create<GifRecipeViewerViewState>()
     }
 
-    override fun start() {
+    init {
         val buildPlayingState = fun(): GifRecipeViewerViewState {
             if (imageType == ImageType.GIF) {
                 return PlayingGif(cacheServer.get(url), BitmapHolder.get(url), title)
@@ -41,13 +41,9 @@ class GifRecipeViewerPresenterImpl(val url: String,
         }
     }
 
-    override fun stop() {
-        super.stop()
-        disposables.clear()
-    }
-
     override fun destroy() {
         super.destroy()
+        disposables.clear()
         BitmapHolder.remove(url)
     }
 }

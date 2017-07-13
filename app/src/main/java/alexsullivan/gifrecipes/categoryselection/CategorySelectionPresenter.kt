@@ -19,26 +19,25 @@ class CategorySelectionPresenterImpl(val repository: GifRecipeRepository) : Cate
         BehaviorSubject.create<CategorySelectionViewState>()
     }
 
-    override fun start() {
-        if (!stateStream.hasValue()) {
+    init {
             // TODO: Make like a "top" thing in the reddit repo
-            disposables.add(repository.consumeGifRecipes(15)
-                    .subscribeOn(Schedulers.io())
-                    // First push out our loading screen...
-                    .doOnSubscribe { stateStream.onNext(CategorySelectionViewState.FetchingGifs()) }
-                    .map {it.copy(url = it.url, imageType = it.imageType)}
-                    .map { HotGifRecipeItem(it.firstFrame(), it.url, it.imageType, it.title) }
-                    .toList()
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(
-                            { stateStream.onNext(CategorySelectionViewState.GifList(it))},
-                            { stateStream.onNext(CategorySelectionViewState.Error())}))
-        }
+        disposables.add(repository.consumeGifRecipes(15)
+                .subscribeOn(Schedulers.io())
+                // First push out our loading screen...
+                .doOnSubscribe { stateStream.onNext(CategorySelectionViewState.FetchingGifs()) }
+                .map {it.copy(url = it.url, imageType = it.imageType)}
+                .map { HotGifRecipeItem(it.firstFrame(), it.url, it.imageType, it.title) }
+                .toList()
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        { stateStream.onNext(CategorySelectionViewState.GifList(it))},
+                        { stateStream.onNext(CategorySelectionViewState.Error())}))
+
     }
 
-    override fun stop() {
-        super.stop()
-        disposables.clear()
+    override fun destroy() {
+        super.destroy()
+        disposables.dispose()
     }
 
     override fun recipeClicked(hotGifRecipeItem: HotGifRecipeItem) {

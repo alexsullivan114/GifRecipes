@@ -17,7 +17,7 @@ class RecipesListPresenterImpl(val gifRecipeRepository: GifRecipeRepository): Re
         BehaviorSubject.create<RecipesListViewState>()
     }
 
-    override fun start() {
+    init {
         disposables.add(gifRecipeRepository.consumeGifRecipes(25, "chicken")
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -30,8 +30,8 @@ class RecipesListPresenterImpl(val gifRecipeRepository: GifRecipeRepository): Re
                         { stateStream.onNext(RecipesListViewState.Error())}))
     }
 
-    override fun stop() {
-        super.stop()
+    override fun destroy() {
+        super.destroy()
         disposables.clear()
     }
 }
