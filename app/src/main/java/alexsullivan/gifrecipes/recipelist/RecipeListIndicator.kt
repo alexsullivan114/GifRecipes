@@ -15,7 +15,10 @@ import kotlin.properties.Delegates
 class RecipeListIndicatorListAdapter(val selectedIndexProvider: SelectedIndexProvider): RecyclerView.Adapter<RecipeListIndicatorListAdapter.RecipeListIndicatorViewHolder>() {
 
     private var selectedCategory: Category by Delegates.observable(Category.DESSERT) {
-        _, _, newValue -> notifyItemChanged(indexFromCategory(newValue))
+        _, oldValue, newValue ->
+            notifyItemChanged(indexFromCategory(newValue))
+            notifyItemChanged(indexFromCategory(oldValue))
+        
     }
 
     init {
