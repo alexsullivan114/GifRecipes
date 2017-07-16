@@ -55,10 +55,10 @@ class CategorySelectionActivity : BaseActivity<CategorySelectionViewState, Categ
         startActivity(intent, options.toBundle())
     }
 
-    fun categoryClicked(view: View) {
+    fun categoryClicked(view: View, category: Category) {
         val imagePair = Pair(view, view.transitionName)
         val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, imagePair)
-        startActivity(RecipesListActivity.buildIntent(this), options.toBundle())
+        startActivity(RecipesListActivity.buildIntent(this, category), options.toBundle())
     }
 
     private fun bindCategories() {
@@ -69,11 +69,11 @@ class CategorySelectionActivity : BaseActivity<CategorySelectionViewState, Categ
         pork.setImageResource(Category.PORK.iconRes)
         salmon.setImageResource(Category.SALMON.iconRes)
 
-        dessert.setOnClickListener(this::categoryClicked)
-        vegan.setOnClickListener(this::categoryClicked)
-        vegetarian.setOnClickListener(this::categoryClicked)
-        chicken.setOnClickListener(this::categoryClicked)
-        pork.setOnClickListener(this::categoryClicked)
-        salmon.setOnClickListener(this::categoryClicked)
+        dessert.setOnClickListener{ categoryClicked(it, Category.DESSERT)}
+        vegan.setOnClickListener{ categoryClicked(it, Category.VEGAN)}
+        vegetarian.setOnClickListener{ categoryClicked(it, Category.VEGETARIAN)}
+        chicken.setOnClickListener{ categoryClicked(it, Category.CHICKEN)}
+        pork.setOnClickListener{ categoryClicked(it, Category.PORK)}
+        salmon.setOnClickListener{ categoryClicked(it, Category.SALMON)}
     }
 }

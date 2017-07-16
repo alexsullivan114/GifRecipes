@@ -8,34 +8,28 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
-import io.reactivex.Observable
 import kotlinx.android.synthetic.main.layout_recipes_list.*
 
 class RecipesListActivity : BaseActivity<RecipesListViewState, RecipesListPresenter>() {
 
     companion object {
-
-        fun buildIntent(context: Context): Intent {
-            return Intent(context, RecipesListActivity::class.java)
+        val CATEGORY_KEY = "CATEGORY_KEY"
+        fun buildIntent(context: Context, category: Category): Intent {
+            val intent = Intent(context, RecipesListActivity::class.java)
+            intent.putExtra(CATEGORY_KEY, category)
+            return intent
         }
     }
 
     override fun initPresenter(): RecipesListPresenter {
-        return RecipesListPresenter.create()
+        return RecipesListPresenter.create(intent.getSerializableExtra(CATEGORY_KEY) as Category)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.layout_recipes_list)
         pager.adapter = RecipeListPagerAdapter(supportFragmentManager)
-        // TODO: Presenter.
-        indicator_list.adapter = RecipeListIndicatorListAdapter(object: SelectedIndexProvider {
-            override val currentIndexObservable: Observable<Category> = Observable.just(Category.CHICKEN)
-
-            override fun categorySelected(category: Category) {
-
-            }
-        })
+        indicator_list.adapter = RecipeListIndicatorListAdapter(presenter)
         indicator_list.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
