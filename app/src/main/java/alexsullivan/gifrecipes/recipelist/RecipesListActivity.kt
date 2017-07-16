@@ -29,17 +29,21 @@ class RecipesListActivity : BaseActivity<RecipesListViewState, RecipesListPresen
         super.onCreate(savedInstanceState)
         setContentView(R.layout.layout_recipes_list)
         pager.adapter = RecipeListPagerAdapter(supportFragmentManager)
-        indicator_list.adapter = RecipeListIndicatorListAdapter(presenter)
-        indicator_list.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        indicatorList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        indicatorList.adapter = RecipeListIndicatorListAdapter(presenter, indicatorList.layoutManager)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         // Postpone our enter transition until the recyclerview has fully rendered.
         supportPostponeEnterTransition()
-        indicator_list.post { supportStartPostponedEnterTransition() }
+        indicatorList.post { supportStartPostponedEnterTransition() }
     }
 
     override fun accept(viewState: RecipesListViewState) {
-        TODO("not implemented")
+        when (viewState) {
+            is RecipesListViewState.IndicatorState -> {
+//                indicatorList.scrollToPosition(indexFromCategory(viewState.selectedCategory))
+            }
+        }
     }
 
     override fun acknowledge(error: Throwable) {

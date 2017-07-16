@@ -12,13 +12,14 @@ import io.reactivex.Observable
 import kotlinx.android.synthetic.main.adapter_recipe_indicator.view.*
 import kotlin.properties.Delegates
 
-class RecipeListIndicatorListAdapter(val selectedIndexProvider: SelectedIndexProvider): RecyclerView.Adapter<RecipeListIndicatorListAdapter.RecipeListIndicatorViewHolder>() {
+class RecipeListIndicatorListAdapter(val selectedIndexProvider: SelectedIndexProvider,
+                                     val layoutManager: RecyclerView.LayoutManager): RecyclerView.Adapter<RecipeListIndicatorListAdapter.RecipeListIndicatorViewHolder>() {
 
     private var selectedCategory: Category by Delegates.observable(Category.DESSERT) {
         _, oldValue, newValue ->
             notifyItemChanged(indexFromCategory(newValue))
             notifyItemChanged(indexFromCategory(oldValue))
-        
+            layoutManager.scrollToPosition(indexFromCategory(newValue))
     }
 
     init {
@@ -68,29 +69,6 @@ class RecipeListIndicatorListAdapter(val selectedIndexProvider: SelectedIndexPro
 
     override fun getItemCount() = Category.values().size
 
-    private fun categoryFromIndex(position: Int): Category {
-        return when(position) {
-            0 -> Category.DESSERT
-            1 -> Category.VEGETARIAN
-            2 -> Category.VEGAN
-            3 -> Category.CHICKEN
-            4 -> Category.PORK
-            5 -> Category.SALMON
-            else -> throw RuntimeException("Couldn't find category for position $position")
-        }
-    }
-
-    private fun indexFromCategory(category: Category): Int {
-        return when(category) {
-            Category.DESSERT -> 0
-            Category.VEGETARIAN -> 1
-            Category.VEGAN -> 2
-            Category.CHICKEN -> 3
-            Category.PORK -> 4
-            Category.SALMON -> 5
-        }
-    }
-
     inner class RecipeListIndicatorViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
         val image: CircleImageView = itemView.image
         val mask: CircleImageView = itemView.mask
@@ -105,4 +83,27 @@ class RecipeListIndicatorListAdapter(val selectedIndexProvider: SelectedIndexPro
 interface SelectedIndexProvider {
     val currentIndexObservable: Observable<Category>
     fun categorySelected(category: Category)
+}
+
+fun indexFromCategory(category: Category): Int {
+    return when(category) {
+        Category.DESSERT -> 0
+        Category.VEGETARIAN -> 1
+        Category.VEGAN -> 2
+        Category.CHICKEN -> 3
+        Category.PORK -> 4
+        Category.SALMON -> 5
+    }
+}
+
+fun categoryFromIndex(position: Int): Category {
+    return when(position) {
+        0 -> Category.DESSERT
+        1 -> Category.VEGETARIAN
+        2 -> Category.VEGAN
+        3 -> Category.CHICKEN
+        4 -> Category.PORK
+        5 -> Category.SALMON
+        else -> throw RuntimeException("Couldn't find category for position $position")
+    }
 }

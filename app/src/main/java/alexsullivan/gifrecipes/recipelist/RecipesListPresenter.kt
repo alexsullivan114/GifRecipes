@@ -3,12 +3,11 @@ package alexsullivan.gifrecipes.recipelist;
 import alexsullivan.gifrecipes.Category
 import alexsullivan.gifrecipes.Presenter
 import alexsullivan.gifrecipes.ViewState
-import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 
 
-class RecipesListPresenterImpl(var category: Category) : RecipesListPresenter {
+class RecipesListPresenterImpl(category: Category) : RecipesListPresenter {
 
     val disposables = CompositeDisposable()
 
@@ -19,7 +18,7 @@ class RecipesListPresenterImpl(var category: Category) : RecipesListPresenter {
     override val currentIndexObservable: BehaviorSubject<Category> = BehaviorSubject.createDefault(category)
 
     init {
-
+        stateStream.onNext(RecipesListViewState.IndicatorState(category))
     }
 
     override fun destroy() {
@@ -41,5 +40,7 @@ interface RecipesListPresenter : Presenter<RecipesListViewState>, SelectedIndexP
 }
 
 sealed class RecipesListViewState : ViewState {
-
+    // TODO: We probably don't want indicator list in its own view state - this is just to get everything
+    // up and working along the same architecture we've been using.
+    class IndicatorState(val selectedCategory: Category): RecipesListViewState()
 }

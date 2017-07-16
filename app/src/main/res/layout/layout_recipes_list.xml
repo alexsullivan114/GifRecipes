@@ -21,11 +21,11 @@
             app:layout_scrollFlags="scroll|enterAlways"/>
 
         <android.support.v7.widget.RecyclerView
-            android:id="@+id/indicator_list"
+            android:id="@+id/indicatorList"
             android:paddingTop="24dp"
             android:paddingBottom="24dp"
-            android:paddingLeft="48dp"
-            android:paddingRight="48dp"
+            android:paddingLeft="96dp"
+            android:paddingRight="96dp"
             android:clipToPadding="false"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
