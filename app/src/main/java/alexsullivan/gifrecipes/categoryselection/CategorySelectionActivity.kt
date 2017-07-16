@@ -6,6 +6,7 @@ import alexsullivan.gifrecipes.Category
 import alexsullivan.gifrecipes.GifRecipeViewerActivity
 import alexsullivan.gifrecipes.R
 import alexsullivan.gifrecipes.recipelist.RecipesListActivity
+import alexsullivan.gifrecipes.utils.makeSceneTransitionWithNav
 import android.os.Bundle
 import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.util.Pair
@@ -57,7 +58,7 @@ class CategorySelectionActivity : BaseActivity<CategorySelectionViewState, Categ
 
     fun categoryClicked(view: View, category: Category) {
         val imagePair = Pair(view, view.transitionName)
-        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, imagePair)
+        val options = makeSceneTransitionWithNav(this, imagePair)
         startActivity(RecipesListActivity.buildIntent(this, category), options.toBundle())
     }
 

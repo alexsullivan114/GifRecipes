@@ -33,6 +33,7 @@ class RecipesListActivity : BaseActivity<RecipesListViewState, RecipesListPresen
         indicator_list.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        // Postpone our enter transition until the recyclerview has fully rendered.
         supportPostponeEnterTransition()
         indicator_list.post { supportStartPostponedEnterTransition() }
     }

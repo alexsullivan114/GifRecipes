@@ -26,11 +26,11 @@
         </activity>
         <activity
             android:name=".GifRecipeViewerActivity"
-            android:theme="@style/AppTheme.Translucent">
+            android:theme="@style/AppTheme.NoActionBar.Translucent">
         </activity>
         <activity
             android:name=".recipelist.RecipesListActivity"
-            android:theme="@style/RecipeListTheme">
+            android:theme="@style/AppTheme.RecipeListTheme">
         </activity>
     </application>
 
