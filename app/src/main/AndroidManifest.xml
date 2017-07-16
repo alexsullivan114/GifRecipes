@@ -16,6 +16,7 @@
         tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name=".categoryselection.CategorySelectionActivity"
+            android:theme="@style/AppTheme.NoActionBar"
             tools:ignore="InnerclassSeparator">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -24,12 +25,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".RecipesList.RecipesListActivity"
-            tools:ignore="InnerclassSeparator">
-        </activity>
-        <activity
             android:name=".GifRecipeViewerActivity"
             android:theme="@style/AppTheme.Translucent">
+        </activity>
+        <activity
+            android:name=".recipelist.RecipesListActivity"
+            android:theme="@style/RecipeListTheme">
         </activity>
     </application>
 

@@ -11,7 +11,7 @@ import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 
 
-class CategorySelectionPresenterImpl(val repository: GifRecipeRepository) : CategorySelectionPresenter {
+class CategorySelectionPresenterImpl(repository: GifRecipeRepository) : CategorySelectionPresenter {
 
     val disposables = CompositeDisposable()
 

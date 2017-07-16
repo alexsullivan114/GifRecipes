@@ -5,7 +5,7 @@ import android.support.v4.view.PagerAdapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import kotlinx.android.synthetic.main.pager_hot_recipe.view.*
+import kotlinx.android.synthetic.main.adapter_hot_recipe.view.*
 
 class HotRecipesPagerAdapter(val gifList: List<HotGifRecipeItem>, val callback: HotRecipeAdapterCallback): PagerAdapter() {
 
@@ -14,7 +14,7 @@ class HotRecipesPagerAdapter(val gifList: List<HotGifRecipeItem>, val callback: 
     override fun getCount() = gifList.size
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
-        val viewgroup = LayoutInflater.from(container.context).inflate(R.layout.pager_hot_recipe, null)
+        val viewgroup = LayoutInflater.from(container.context).inflate(R.layout.adapter_hot_recipe, null)
         val recipe = gifList.get(position)
         viewgroup.image.setImageBitmap(recipe.bitmap)
         viewgroup.recipeTitle.text = recipe.title

@@ -22,6 +22,7 @@
             android:layout_height="85dp"
             android:layout_marginTop="16dp"
             android:src="@drawable/big_salmon"
+            android:transitionName="@string/category_transition_image_salmon"
             app:layout_constraintLeft_toRightOf="@+id/pork"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="@+id/guideline2"/>
@@ -31,16 +32,17 @@
             android:layout_width="150dp"
             android:layout_height="85dp"
             android:src="@drawable/big_chicken"
+            android:transitionName="@string/category_transition_image_chicken"
             app:layout_constraintBottom_toBottomOf="@+id/pork"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toLeftOf="@+id/pork"
-            />
+            app:layout_constraintRight_toLeftOf="@+id/pork"/>
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/pork"
             android:layout_width="150dp"
             android:layout_height="85dp"
             android:src="@drawable/big_pork"
+            android:transitionName="@string/category_transition_image_pork"
             app:layout_constraintBottom_toBottomOf="@+id/salmon"
             app:layout_constraintLeft_toRightOf="@+id/chicken"
             app:layout_constraintRight_toLeftOf="@+id/salmon"
@@ -51,6 +53,7 @@
             android:layout_width="150dp"
             android:layout_height="85dp"
             android:src="@drawable/big_vegetarian"
+            android:transitionName="@string/category_transition_image_vegetarian"
             app:layout_constraintBottom_toBottomOf="@+id/vegan"
             app:layout_constraintLeft_toRightOf="@+id/dessert"
             app:layout_constraintRight_toLeftOf="@+id/vegan"
@@ -62,6 +65,7 @@
             android:layout_height="85dp"
             android:layout_marginBottom="8dp"
             android:src="@drawable/big_vegan"
+            android:transitionName="@string/category_transition_image_vegan"
             app:layout_constraintBottom_toTopOf="@+id/veganLabel"
             app:layout_constraintLeft_toRightOf="@+id/vegetarian"
             app:layout_constraintRight_toRightOf="parent"/>
@@ -71,6 +75,7 @@
             android:layout_width="150dp"
             android:layout_height="85dp"
             android:src="@drawable/big_dessert"
+            android:transitionName="@string/category_transition_image_dessert"
             app:layout_constraintBottom_toBottomOf="@+id/vegetarian"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toLeftOf="@+id/vegetarian"

@@ -2,8 +2,10 @@ package alexsullivan.gifrecipes.categoryselection
 
 
 import alexsullivan.gifrecipes.BaseActivity
+import alexsullivan.gifrecipes.Category
 import alexsullivan.gifrecipes.GifRecipeViewerActivity
 import alexsullivan.gifrecipes.R
+import alexsullivan.gifrecipes.recipelist.RecipesListActivity
 import android.os.Bundle
 import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.util.Pair
@@ -24,6 +26,7 @@ class CategorySelectionActivity : BaseActivity<CategorySelectionViewState, Categ
         pager.clipToPadding = false
         pager.setPageTransformer(true, HotGifPageTransformer())
         pager.offscreenPageLimit = 5
+        bindCategories()
     }
 
     override fun accept(viewState: CategorySelectionViewState) {
@@ -50,5 +53,27 @@ class CategorySelectionActivity : BaseActivity<CategorySelectionViewState, Categ
         val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, imagePair)
         val intent = GifRecipeViewerActivity.IntentFactory.build(this, hotGifRecipeItem.link, hotGifRecipeItem.imageType)
         startActivity(intent, options.toBundle())
+    }
+
+    fun categoryClicked(view: View) {
+        val imagePair = Pair(view, view.transitionName)
+        val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, imagePair)
+        startActivity(RecipesListActivity.buildIntent(this), options.toBundle())
+    }
+
+    private fun bindCategories() {
+        dessert.setImageResource(Category.DESSERT.iconRes)
+        vegan.setImageResource(Category.VEGAN.iconRes)
+        vegetarian.setImageResource(Category.VEGETARIAN.iconRes)
+        chicken.setImageResource(Category.CHICKEN.iconRes)
+        pork.setImageResource(Category.PORK.iconRes)
+        salmon.setImageResource(Category.SALMON.iconRes)
+
+        dessert.setOnClickListener(this::categoryClicked)
+        vegan.setOnClickListener(this::categoryClicked)
+        vegetarian.setOnClickListener(this::categoryClicked)
+        chicken.setOnClickListener(this::categoryClicked)
+        pork.setOnClickListener(this::categoryClicked)
+        salmon.setOnClickListener(this::categoryClicked)
     }
 }

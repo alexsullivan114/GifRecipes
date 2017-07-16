@@ -2,7 +2,7 @@ package alexsullivan.gifrecipes.categoryselection
 
 import android.support.v4.view.ViewPager
 import android.view.View
-import kotlinx.android.synthetic.main.pager_hot_recipe.view.*
+import kotlinx.android.synthetic.main.adapter_hot_recipe.view.*
 
 
 class HotGifPageTransformer : ViewPager.PageTransformer {

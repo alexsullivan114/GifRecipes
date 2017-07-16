@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="recipe_transition_image_name">recipe_image_transition</string>
+    <string name="category_transition_image_dessert">"DESSERT"</string>
+    <string name="category_transition_image_vegetarian">"VEGETARIAN"</string>
+    <string name="category_transition_image_vegan">"VEGAN"</string>
+    <string name="category_transition_image_chicken">"CHICKEN"</string>
+    <string name="category_transition_image_pork">"PORK"</string>
+    <string name="category_transition_image_salmon">"SALMON"</string>
 </resources>
