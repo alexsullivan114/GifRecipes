@@ -2,11 +2,13 @@ package alexsullivan.gifrecipes.recipelist
 
 
 import alexsullivan.gifrecipes.BaseActivity
+import alexsullivan.gifrecipes.Category
 import alexsullivan.gifrecipes.R
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
+import io.reactivex.Observable
 import kotlinx.android.synthetic.main.layout_recipes_list.*
 
 class RecipesListActivity : BaseActivity<RecipesListViewState, RecipesListPresenter>() {
@@ -26,7 +28,14 @@ class RecipesListActivity : BaseActivity<RecipesListViewState, RecipesListPresen
         super.onCreate(savedInstanceState)
         setContentView(R.layout.layout_recipes_list)
         pager.adapter = RecipeListPagerAdapter(supportFragmentManager)
-        indicator_list.adapter = RecipeListIndicatorListAdapter()
+        // TODO: Presenter.
+        indicator_list.adapter = RecipeListIndicatorListAdapter(object: SelectedIndexProvider {
+            override val currentIndexObservable: Observable<Category> = Observable.just(Category.CHICKEN)
+
+            override fun categorySelected(category: Category) {
+
+            }
+        })
         indicator_list.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
