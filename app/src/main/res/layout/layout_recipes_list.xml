@@ -36,8 +36,8 @@
             android:id="@+id/indicatorList"
             android:paddingTop="24dp"
             android:paddingBottom="24dp"
-            android:paddingLeft="96dp"
-            android:paddingRight="96dp"
+            android:paddingLeft="12dp"
+            android:paddingRight="12dp"
             android:clipToPadding="false"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>

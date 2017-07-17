@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.util.Log
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import io.reactivex.Observable
@@ -66,6 +67,15 @@ abstract class BaseActivity<T: ViewState, P:Presenter<T>>: AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         disposables.clear()
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == android.R.id.home) {
+            finishAfterTransition()
+            return true
+        } else {
+            return super.onOptionsItemSelected(item)
+        }
     }
 
     private fun bindToolbar() {
