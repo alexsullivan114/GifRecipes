@@ -12,7 +12,7 @@ import io.reactivex.Observable
 import kotlinx.android.synthetic.main.adapter_recipe_indicator.view.*
 import kotlin.properties.Delegates
 
-class RecipeListIndicatorListAdapter(val selectedIndexProvider: SelectedIndexProvider,
+class RecipeListIndicatorListAdapter(val selectedIndexCategory: SelectedIndexCallback,
                                      val layoutManager: RecyclerView.LayoutManager): RecyclerView.Adapter<RecipeListIndicatorListAdapter.RecipeListIndicatorViewHolder>() {
 
     private var selectedCategory: Category by Delegates.observable(Category.DESSERT) {
@@ -23,7 +23,7 @@ class RecipeListIndicatorListAdapter(val selectedIndexProvider: SelectedIndexPro
     }
 
     init {
-        selectedIndexProvider.currentIndexObservable.subscribe { selectedCategory = it }
+        selectedIndexCategory.currentIndexObservable.subscribe { selectedCategory = it }
     }
 
     override fun onBindViewHolder(holder: RecipeListIndicatorViewHolder, position: Int) {
@@ -74,13 +74,15 @@ class RecipeListIndicatorListAdapter(val selectedIndexProvider: SelectedIndexPro
         val mask: CircleImageView = itemView.mask
 
         init {
-            mask.setOnClickListener { selectedIndexProvider.categorySelected(categoryFromIndex(adapterPosition)) }
+            mask.setOnClickListener {
+                selectedIndexCategory.categorySelected(categoryFromIndex(adapterPosition))
+            }
         }
 
     }
 }
 
-interface SelectedIndexProvider {
+interface SelectedIndexCallback {
     val currentIndexObservable: Observable<Category>
     fun categorySelected(category: Category)
 }

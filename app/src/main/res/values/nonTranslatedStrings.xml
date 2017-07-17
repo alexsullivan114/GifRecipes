@@ -7,4 +7,7 @@
     <string name="category_transition_image_chicken">"CHICKEN"</string>
     <string name="category_transition_image_pork">"PORK"</string>
     <string name="category_transition_image_salmon">"SALMON"</string>
+    <!-- Strings for the shared element callbacks using categories -->
+    <string name="category_extra_key">Category</string>
+    <string name="category_original_extra_key">Original Category</string>
 </resources>

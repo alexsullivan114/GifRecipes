@@ -4,7 +4,10 @@ import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProviders
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.Toolbar
 import android.util.Log
+import android.view.View
+import android.view.ViewGroup
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -31,6 +34,21 @@ abstract class BaseActivity<T: ViewState, P:Presenter<T>>: AppCompatActivity() {
         viewModel.presenter?.let { presenter = it }
     }
 
+    override fun setContentView(layoutResID: Int) {
+        super.setContentView(layoutResID)
+        bindToolbar()
+    }
+
+    override fun setContentView(view: View?) {
+        super.setContentView(view)
+        bindToolbar()
+    }
+
+    override fun setContentView(view: View?, params: ViewGroup.LayoutParams?) {
+        super.setContentView(view, params)
+        bindToolbar()
+    }
+
     override fun onStart() {
         super.onStart()
         Log.d(TAG, "Subscribing to state stream")
@@ -48,6 +66,18 @@ abstract class BaseActivity<T: ViewState, P:Presenter<T>>: AppCompatActivity() {
     override fun onStop() {
         super.onStop()
         disposables.clear()
+    }
+
+    private fun bindToolbar() {
+        val toolbar = findViewById(R.id.toolbar)
+        toolbar.let {
+            try {
+                setSupportActionBar(toolbar as Toolbar)
+                supportActionBar?.setDisplayHomeAsUpEnabled(true)
+            } catch (ignored: ClassCastException) {
+                // Do nothing if the view with id of toolbar isnt actually a toolbar.
+            }
+        }
     }
 }
 

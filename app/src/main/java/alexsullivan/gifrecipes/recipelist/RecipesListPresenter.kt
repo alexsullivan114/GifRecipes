@@ -28,10 +28,11 @@ class RecipesListPresenterImpl(category: Category) : RecipesListPresenter {
 
     override fun categorySelected(category: Category) {
         currentIndexObservable.onNext(category)
+        stateStream.onNext(RecipesListViewState.IndicatorState(category))
     }
 }
 
-interface RecipesListPresenter : Presenter<RecipesListViewState>, SelectedIndexProvider {
+interface RecipesListPresenter : Presenter<RecipesListViewState>, SelectedIndexCallback {
     companion object {
         fun create(category: Category): RecipesListPresenter {
             return RecipesListPresenterImpl(category)
