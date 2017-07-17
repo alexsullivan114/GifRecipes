@@ -69,6 +69,7 @@ class RecipesListActivity : BaseActivity<RecipesListViewState, RecipesListPresen
         when (viewState) {
             is RecipesListViewState.IndicatorState -> {
                 category = viewState.selectedCategory
+                customTitle.setText(category.displayName)
             }
         }
     }
