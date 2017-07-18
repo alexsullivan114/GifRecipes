@@ -3,6 +3,7 @@ package alexsullivan.gifrecipes.recipelist
 
 import alexsullivan.gifrecipes.Category
 import alexsullivan.gifrecipes.R
+import alexsullivan.gifrecipes.utils.pageChangeListener
 import alexsullivan.gifrecipes.utils.str
 import alexsullivan.gifrecipes.viewarchitecture.BaseActivity
 import android.app.Activity
@@ -10,7 +11,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.SharedElementCallback
-import android.support.v4.view.ViewPager
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import kotlinx.android.synthetic.main.layout_recipes_list.*
@@ -46,19 +46,9 @@ class RecipeCategoryContainerActivity : BaseActivity<RecipesListViewState, Recip
         // Counter intuitive, but we're setting this enter shared element callback with regards to
         // entering the previous activity.
         setupEnterSharedTransitionCallback()
-        pager.addOnPageChangeListener(object: ViewPager.OnPageChangeListener{
-            override fun onPageScrollStateChanged(state: Int) {
-
-            }
-
-            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
-
-            }
-
-            override fun onPageSelected(position: Int) {
-                presenter.categorySelected(categoryFromIndex(position))
-            }
-        })
+        // Note: I'm not sure why this works - it seems ambiguous which method this would call in the
+        // page change listener...
+        pager.pageChangeListener { presenter.categorySelected(categoryFromIndex(it)) }
     }
 
     override fun finishAfterTransition() {
