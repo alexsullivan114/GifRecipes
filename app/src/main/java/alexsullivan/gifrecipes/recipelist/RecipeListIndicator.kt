@@ -8,22 +8,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import de.hdodenhof.circleimageview.CircleImageView
-import io.reactivex.Observable
 import kotlinx.android.synthetic.main.adapter_recipe_indicator.view.*
 import kotlin.properties.Delegates
 
-class RecipeListIndicatorListAdapter(val selectedIndexCategory: SelectedIndexCallback,
-                                     val layoutManager: RecyclerView.LayoutManager): RecyclerView.Adapter<RecipeListIndicatorListAdapter.RecipeListIndicatorViewHolder>() {
+class RecipeListIndicatorAdapter(val selectedIndexCallback: SelectedIndexCallback,
+                                 val layoutManager: RecyclerView.LayoutManager): RecyclerView.Adapter<RecipeListIndicatorAdapter.RecipeListIndicatorViewHolder>() {
 
-    private var selectedCategory: Category by Delegates.observable(Category.DESSERT) {
+    var selectedCategory: Category by Delegates.observable(Category.DESSERT) {
         _, oldValue, newValue ->
             notifyItemChanged(indexFromCategory(newValue))
             notifyItemChanged(indexFromCategory(oldValue))
             layoutManager.scrollToPosition(indexFromCategory(newValue))
-    }
-
-    init {
-        selectedIndexCategory.currentIndexObservable.subscribe { selectedCategory = it }
     }
 
     override fun onBindViewHolder(holder: RecipeListIndicatorViewHolder, position: Int) {
@@ -75,7 +70,7 @@ class RecipeListIndicatorListAdapter(val selectedIndexCategory: SelectedIndexCal
 
         init {
             mask.setOnClickListener {
-                selectedIndexCategory.categorySelected(categoryFromIndex(adapterPosition))
+                selectedIndexCallback.categorySelected(categoryFromIndex(adapterPosition))
             }
         }
 
@@ -83,7 +78,6 @@ class RecipeListIndicatorListAdapter(val selectedIndexCategory: SelectedIndexCal
 }
 
 interface SelectedIndexCallback {
-    val currentIndexObservable: Observable<Category>
     fun categorySelected(category: Category)
 }
 

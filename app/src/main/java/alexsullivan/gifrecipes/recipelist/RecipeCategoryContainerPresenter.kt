@@ -1,8 +1,8 @@
 package alexsullivan.gifrecipes.recipelist;
 
 import alexsullivan.gifrecipes.Category
-import alexsullivan.gifrecipes.Presenter
-import alexsullivan.gifrecipes.ViewState
+import alexsullivan.gifrecipes.viewarchitecture.Presenter
+import alexsullivan.gifrecipes.viewarchitecture.ViewState
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 
@@ -15,8 +15,6 @@ class RecipesListPresenterImpl(category: Category) : RecipesListPresenter {
         BehaviorSubject.create<RecipesListViewState>()
     }
 
-    override val currentIndexObservable: BehaviorSubject<Category> = BehaviorSubject.createDefault(category)
-
     init {
         stateStream.onNext(RecipesListViewState.IndicatorState(category))
     }
@@ -27,7 +25,6 @@ class RecipesListPresenterImpl(category: Category) : RecipesListPresenter {
     }
 
     override fun categorySelected(category: Category) {
-        currentIndexObservable.onNext(category)
         stateStream.onNext(RecipesListViewState.IndicatorState(category))
     }
 }

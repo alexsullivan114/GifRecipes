@@ -29,7 +29,7 @@
             android:theme="@style/AppTheme.NoActionBar.Translucent">
         </activity>
         <activity
-            android:name=".recipelist.RecipesListActivity"
+            android:name=".recipelist.RecipeCategoryContainerActivity"
             android:theme="@style/AppTheme.RecipeListTheme">
         </activity>
     </application>

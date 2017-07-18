@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="alexsullivan.gifrecipes.recipelist.RecipesListActivity">
+    tools:context="alexsullivan.gifrecipes.recipelist.RecipeCategoryContainerActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -27,8 +27,7 @@
                 android:layout_gravity="center"
                 android:gravity="center"
                 style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
-                android:textColor="@android:color/white"
-                android:text="Foooo"/>
+                android:textColor="@android:color/white"/>
 
         </android.support.v7.widget.Toolbar>
 

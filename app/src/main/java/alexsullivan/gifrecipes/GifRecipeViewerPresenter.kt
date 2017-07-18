@@ -2,6 +2,8 @@ package alexsullivan.gifrecipes
 
 import alexsullivan.gifrecipes.GifRecipeViewerViewState.*
 import alexsullivan.gifrecipes.cache.CacheServer
+import alexsullivan.gifrecipes.viewarchitecture.Presenter
+import alexsullivan.gifrecipes.viewarchitecture.ViewState
 import android.graphics.Bitmap
 import com.alexsullivan.ImageType
 import io.reactivex.disposables.CompositeDisposable

@@ -1,10 +1,10 @@
 package alexsullivan.gifrecipes.categoryselection
 
-import alexsullivan.gifrecipes.BaseActivity
+import alexsullivan.gifrecipes.viewarchitecture.BaseActivity
 import alexsullivan.gifrecipes.Category
 import alexsullivan.gifrecipes.GifRecipeViewerActivity
 import alexsullivan.gifrecipes.R
-import alexsullivan.gifrecipes.recipelist.RecipesListActivity
+import alexsullivan.gifrecipes.recipelist.RecipeCategoryContainerActivity
 import alexsullivan.gifrecipes.utils.makeSceneTransitionWithNav
 import alexsullivan.gifrecipes.utils.str
 import android.content.Intent
@@ -84,7 +84,7 @@ class CategorySelectionActivity : BaseActivity<CategorySelectionViewState, Categ
     fun categoryClicked(view: View, category: Category) {
         val imagePair = Pair(view, view.transitionName)
         val options = makeSceneTransitionWithNav(this, imagePair)
-        startActivity(RecipesListActivity.buildIntent(this, category), options.toBundle())
+        startActivity(RecipeCategoryContainerActivity.buildIntent(this, category), options.toBundle())
     }
 
     private fun bindCategories() {

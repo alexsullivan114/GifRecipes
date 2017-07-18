@@ -1,8 +1,8 @@
 package alexsullivan.gifrecipes.categoryselection;
 
 import alexsullivan.gifrecipes.BitmapHolder
-import alexsullivan.gifrecipes.Presenter
-import alexsullivan.gifrecipes.ViewState
+import alexsullivan.gifrecipes.viewarchitecture.Presenter
+import alexsullivan.gifrecipes.viewarchitecture.ViewState
 import alexsullivan.gifrecipes.utils.firstFrame
 import com.alexsullivan.GifRecipeRepository
 import io.reactivex.android.schedulers.AndroidSchedulers

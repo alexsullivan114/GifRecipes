@@ -4,6 +4,7 @@ import alexsullivan.gifrecipes.cache.CacheServerImpl
 import alexsullivan.gifrecipes.utils.adjustAspectRatio
 import alexsullivan.gifrecipes.utils.endListener
 import alexsullivan.gifrecipes.utils.surfaceTextureAvailableListener
+import alexsullivan.gifrecipes.viewarchitecture.BaseActivity
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
