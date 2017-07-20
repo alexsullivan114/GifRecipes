@@ -3,7 +3,7 @@ package com.alexsullivan
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
-internal fun isPlayingMedia(url: String, client: OkHttpClient = defaultClient()): Boolean {
+internal fun isPlayingMedia(url: String, client: OkHttpClient): Boolean {
     val request = Request.Builder().url(url).head().build()
     val response = client.newCall(request).execute()
     val contentType = response.headers().get("Content-Type")
@@ -20,8 +20,4 @@ internal fun String.massageGfycatLink(): String {
         return this
     }
     return "https://" + "thumbs." + splits[1] + "-size_restricted.gif"
-}
-
-private fun defaultClient(): OkHttpClient {
-    return okhttp3.OkHttpClient.Builder().build()
 }

@@ -1,9 +1,9 @@
 package alexsullivan.gifrecipes.categoryselection;
 
 import alexsullivan.gifrecipes.BitmapHolder
+import alexsullivan.gifrecipes.utils.firstFrame
 import alexsullivan.gifrecipes.viewarchitecture.Presenter
 import alexsullivan.gifrecipes.viewarchitecture.ViewState
-import alexsullivan.gifrecipes.utils.firstFrame
 import com.alexsullivan.GifRecipeRepository
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -30,8 +30,7 @@ class CategorySelectionPresenterImpl(repository: GifRecipeRepository) : Category
                 .toList()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        { stateStream.onNext(CategorySelectionViewState.GifList(it))},
-                        { stateStream.onNext(CategorySelectionViewState.Error())}))
+                        {list: MutableList<HotGifRecipeItem> ->  stateStream.onNext(CategorySelectionViewState.GifList(list))}))
 
     }
 

@@ -5,12 +5,12 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import okhttp3.*
 
-class WebClient {
-    var client: OkHttpClient
+object WebClient {
+    var okHttpClient: OkHttpClient
     var accessToken = "empty"
 
     init {
-        client = okhttp3.OkHttpClient.Builder()
+        okHttpClient = okhttp3.OkHttpClient.Builder()
                 .addInterceptor(buildAuthInterceptor())
                 .authenticator(buildAuthenticator())
                 .build()
@@ -38,7 +38,7 @@ class WebClient {
                     "\"client_id\":\"2_ntJYHc\"}");
             val request = Request.Builder().url("https://api.gfycat.com/v1/oauth/token").post(body).build()
 
-            val authResponse = client.newCall(request).execute().body().string()
+            val authResponse = okHttpClient.newCall(request).execute().body().string()
             accessToken = Gson().fromJson(authResponse, JsonObject::class.java).get("access_token").asString
             return@Authenticator response.request().newBuilder()
                     .header("authorization", "Bearer " + accessToken)

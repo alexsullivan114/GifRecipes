@@ -34,7 +34,6 @@ internal class RedditGifRecipeProviderImpl(val service: RedditService, val urlMa
     override val id: String
         get() = "RedditProvider"
 
-    // Used for extension methods.
     companion object Factory {
         fun create(deviceId: String, logger: Logger): RedditGifRecipeProviderImpl {
             val okClient = RedditOkHttpClient(deviceId).client
@@ -46,7 +45,7 @@ internal class RedditGifRecipeProviderImpl(val service: RedditService, val urlMa
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                     .build()
             return RedditGifRecipeProviderImpl(retrofit.create(RedditService::class.java),
-                    listOf(ImgurUrlManipulator(), GfycatUrlManipulator()), { isPlayingMedia(it) }, logger)
+                    listOf(ImgurUrlManipulator(logger), GfycatUrlManipulator(logger)), { isPlayingMedia(it, okClient) }, logger)
         }
     }
 

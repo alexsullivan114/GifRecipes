@@ -4,15 +4,21 @@ import okhttp3.OkHttpClient
 
 
 internal class RedditOkHttpClient(deviceId: String) {
-    lateinit var client: OkHttpClient
-    var accessToken = "empty"
+    val client = fetchClient(deviceId)
 
-    init {
-        client = okhttp3.OkHttpClient.Builder()
-                .addInterceptor(RedditAuthInterceptor({accessToken}))
-                .authenticator(RedditAuthenticator({
-                    accessToken = it
-                }, {client}, deviceId))
-                .build()
+    companion object {
+        var accessToken = "empty"
+        var client: OkHttpClient? = null
+
+        fun fetchClient(deviceId: String): OkHttpClient {
+            if (client == null) {
+                client = okhttp3.OkHttpClient.Builder()
+                        .addInterceptor(RedditAuthInterceptor({accessToken}))
+                        .authenticator(RedditAuthenticator({ accessToken = it }, {client!!}, deviceId))
+                        .build()
+            }
+
+            return client!!
+        }
     }
 }

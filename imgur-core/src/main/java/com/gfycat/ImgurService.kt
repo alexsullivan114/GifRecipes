@@ -13,7 +13,7 @@ interface ImgurService {
         const val clientId = "2678d1463e767db"
     }
 
-    @Headers("Authorization: $clientId")
+    @Headers("Authorization: Client-ID $clientId")
     @GET("image/{id}")
     fun getImage(@Path(value = "id", encoded = true) imageId: String): Observable<Response<ImgurPost>>
 }

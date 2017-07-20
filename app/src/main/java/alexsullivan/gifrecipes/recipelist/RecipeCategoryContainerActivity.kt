@@ -37,6 +37,12 @@ class RecipeCategoryContainerActivity : BaseActivity<RecipesListViewState, Recip
         setContentView(R.layout.layout_recipes_list)
         category = intent.getSerializableExtra(CATEGORY_KEY) as Category
         pager.adapter = RecipeListPagerAdapter(supportFragmentManager)
+        pager.offscreenPageLimit = 1
+        // Note: I'm not sure why this works - it seems ambiguous which method this would call in the
+        // page change listener...
+        pager.pageChangeListener {
+            presenter.categorySelected(categoryFromIndex(it))
+        }
         indicatorList.setHasFixedSize(true)
         indicatorList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         indicatorList.adapter = RecipeListIndicatorAdapter(presenter, indicatorList.layoutManager)
@@ -46,9 +52,6 @@ class RecipeCategoryContainerActivity : BaseActivity<RecipesListViewState, Recip
         // Counter intuitive, but we're setting this enter shared element callback with regards to
         // entering the previous activity.
         setupEnterSharedTransitionCallback()
-        // Note: I'm not sure why this works - it seems ambiguous which method this would call in the
-        // page change listener...
-        pager.pageChangeListener { presenter.categorySelected(categoryFromIndex(it)) }
     }
 
     override fun finishAfterTransition() {
