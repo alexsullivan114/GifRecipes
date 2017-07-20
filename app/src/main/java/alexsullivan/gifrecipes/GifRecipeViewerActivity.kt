@@ -13,6 +13,7 @@ import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.Surface
 import android.view.View
+import android.view.WindowManager
 import com.alexsullivan.ImageType
 import com.facebook.drawee.backends.pipeline.Fresco
 import kotlinx.android.synthetic.main.layout_gif_recipe_viewer.*
@@ -57,6 +58,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
     @SuppressLint("Recycle")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         // If our activity is being recreated, the shared element transition already happened.
         savedInstanceState?.let {
             sharedElementTransitionDone = true
