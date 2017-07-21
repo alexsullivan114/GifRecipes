@@ -1,9 +1,9 @@
 package alexsullivan.gifrecipes.recipelist;
 
 import alexsullivan.gifrecipes.Category
+import alexsullivan.gifrecipes.GifRecipeUI
 import alexsullivan.gifrecipes.viewarchitecture.Presenter
 import alexsullivan.gifrecipes.viewarchitecture.ViewState
-import com.alexsullivan.GifRecipe
 import com.alexsullivan.GifRecipeRepository
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -24,8 +24,9 @@ class RecipeCategoryListPresenterImpl(val category: Category,
         repository.consumeGifRecipes(25, searchTerm)
                 .subscribeOn(Schedulers.io())
                 .doOnSubscribe { stateStream.onNext(RecipeCategoryListViewState.Loading()) }
+                .map { GifRecipeUI(it.url, it.thumbnail, it.imageType, it.title) }
                 .toList()
-                .subscribe({ result: List<GifRecipe> ->
+                .subscribe({ result: List<GifRecipeUI> ->
                     stateStream.onNext(RecipeCategoryListViewState.RecipeList(result))
                 })
 
@@ -47,5 +48,5 @@ interface RecipeCategoryListPresenter : Presenter<RecipeCategoryListViewState> {
 
 sealed class RecipeCategoryListViewState : ViewState {
     class Loading : RecipeCategoryListViewState()
-    class RecipeList(val recipes: List<GifRecipe>): RecipeCategoryListViewState()
+    class RecipeList(val recipes: List<GifRecipeUI>): RecipeCategoryListViewState()
 }

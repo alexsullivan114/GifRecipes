@@ -8,13 +8,17 @@ import alexsullivan.gifrecipes.viewarchitecture.BaseActivity
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.Surface
 import android.view.View
 import android.view.WindowManager
-import com.alexsullivan.ImageType
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.facebook.drawee.backends.pipeline.Fresco
 import kotlinx.android.synthetic.main.layout_gif_recipe_viewer.*
 import kotlin.properties.Delegates
@@ -36,22 +40,19 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
         _, oldValue, newValue -> if (oldValue != newValue) triggerPlaybackCheck()
     }
 
-    object IntentFactory {
+    companion object IntentFactory {
 
-        val URL_KEY = "URL_KEY"
-        val IMAGE_TYPE_KEY = "IMAGE_TYPE_KEY"
+        val RECIPE_KEY = "RECIPE_KEY"
 
-        fun build(context: Context, url: String, imageType: ImageType): Intent {
+        fun build(context: Context, recipe: GifRecipeUI): Intent {
             val intent = Intent(context, GifRecipeViewerActivity::class.java)
-                    .putExtra(URL_KEY, url)
-                    .putExtra(IMAGE_TYPE_KEY, imageType)
+                    .putExtra(RECIPE_KEY, recipe)
             return intent
         }
     }
 
     override fun initPresenter(): GifRecipeViewerPresenter {
-        return GifRecipeViewerPresenter.create(intent.getStringExtra(IntentFactory.URL_KEY),
-                intent.getSerializableExtra(IntentFactory.IMAGE_TYPE_KEY) as ImageType,
+        return GifRecipeViewerPresenter.create(intent.getParcelableExtra(RECIPE_KEY),
                 CacheServerImpl.instance())
     }
 
@@ -65,6 +66,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
             initPlaybackPosition = it.getInt(PLAYBACK_POSITION_KEY)
         }
         setContentView(R.layout.layout_gif_recipe_viewer)
+        postponeEnterTransition()
         window.enterTransition.addListener(endListener { sharedElementTransitionDone = true })
         video.surfaceTextureAvailableListener { surface, _, _ -> this@GifRecipeViewerActivity.surface = Surface(surface) }
     }
@@ -83,24 +85,26 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
     override fun accept(viewState: GifRecipeViewerViewState) {
         when (viewState) {
             is GifRecipeViewerViewState.Preloading -> {
-                placeholder.setImageBitmap(viewState.image)
+                loadPlaceholderImage(viewState.recipe)
                 progress.visibility = View.VISIBLE
             }
             is GifRecipeViewerViewState.Loading -> {
+                loadPlaceholderImage(viewState.recipe)
                 progress.visibility = View.VISIBLE
                 progress.progress = viewState.progress.toFloat()
             }
             is GifRecipeViewerViewState.PlayingVideo -> {
                 progress.visibility = View.GONE
-                placeholder.setImageBitmap(viewState.image)
+                loadPlaceholderImage(viewState.recipe)
                 url = viewState.url
                 toggleVideoMode()
             }
             is GifRecipeViewerViewState.PlayingGif -> {
                 progress.visibility = View.GONE
-                placeholder.setImageBitmap(viewState.image)
+                loadPlaceholderImage(viewState.recipe, {width, height ->
+                    toggleGifMode(width, height)
+                })
                 url = viewState.url
-                toggleGifMode(viewState.image)
             }
         }
     }
@@ -124,16 +128,13 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
         }
     }
 
-    private fun toggleGifMode(image: Bitmap?) {
+    private fun toggleGifMode(width: Int, height: Int) {
         video.visibility = View.GONE
         val controller = Fresco.newDraweeControllerBuilder()
                 .setUri(url)
                 .setAutoPlayAnimations(true)
                 .build()
-        var aspectRatio = 1f
-        image?.let {
-            aspectRatio = (it.width/ it.height).toFloat()
-        }
+        val aspectRatio = (width/height).toFloat()
         gif.aspectRatio = aspectRatio
         gif.controller = controller
     }
@@ -141,5 +142,23 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
     private fun toggleVideoMode() {
         gif.visibility = View.GONE
         video.visibility = View.VISIBLE
+    }
+
+    // Loads the placeholder image, doing nothing if there's already a drawable set on the placeholder.
+    private fun loadPlaceholderImage(gifRecipe: GifRecipeUI, sizeCallback: (Int, Int) -> Unit = { _, _ ->}) {
+        if (placeholder.drawable == null) {
+            Glide.with(this).load(gifRecipe).listener(object: RequestListener<Drawable> {
+                override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
+                    // Nothing. Won't see an image but the gif/video will still load. Make sure to finish our transition tho
+                    startPostponedEnterTransition()
+                    return false
+                }
+
+                override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                    startPostponedEnterTransition()
+                    return false
+                }
+            }).into(placeholder).getSize { width, height ->  sizeCallback(width, height)}
+        }
     }
 }

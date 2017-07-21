@@ -18,6 +18,7 @@ import io.reactivex.Observable
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
+import java.net.SocketTimeoutException
 import kotlin.system.measureTimeMillis
 
 /**
@@ -82,7 +83,8 @@ internal class RedditGifRecipeProviderImpl(val service: RedditService, val urlMa
                     var returnObservable = Observable.just(it)
                     urlManipulators.filter { manipulator -> manipulator.matchesDomain(it.domain) }
                             .forEach { manipulator -> returnObservable = manipulator.modifyRedditItem(it) }
-                    returnObservable
+                    // Retry up to 2 times if we time out.
+                    returnObservable.retry(2, {t: Throwable -> t is SocketTimeoutException })
                 }
                 .filter {
                     var isMedia = false

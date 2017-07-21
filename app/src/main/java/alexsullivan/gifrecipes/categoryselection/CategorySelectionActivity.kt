@@ -1,12 +1,13 @@
 package alexsullivan.gifrecipes.categoryselection
 
-import alexsullivan.gifrecipes.viewarchitecture.BaseActivity
 import alexsullivan.gifrecipes.Category
+import alexsullivan.gifrecipes.GifRecipeUI
 import alexsullivan.gifrecipes.GifRecipeViewerActivity
 import alexsullivan.gifrecipes.R
 import alexsullivan.gifrecipes.recipelist.RecipeCategoryContainerActivity
 import alexsullivan.gifrecipes.utils.makeSceneTransitionWithNav
 import alexsullivan.gifrecipes.utils.str
+import alexsullivan.gifrecipes.viewarchitecture.BaseActivity
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.ActivityOptionsCompat
@@ -16,7 +17,7 @@ import android.view.View
 import com.alexsullivan.GifRecipeRepository
 import kotlinx.android.synthetic.main.layout_category.*
 
-class CategorySelectionActivity : BaseActivity<CategorySelectionViewState, CategorySelectionPresenter>(), HotRecipeAdapterCallback {
+class CategorySelectionActivity : BaseActivity<CategorySelectionViewState, CategorySelectionPresenter>(), RecipeAdapterCallback {
 
     override fun initPresenter() = CategorySelectionPresenter.create(GifRecipeRepository.default)
 
@@ -73,11 +74,11 @@ class CategorySelectionActivity : BaseActivity<CategorySelectionViewState, Categ
         TODO("not implemented")
     }
 
-    override fun recipeClicked(hotGifRecipeItem: HotGifRecipeItem, previewImage: View) {
-        presenter.recipeClicked(hotGifRecipeItem)
+    override fun recipeClicked(gifRecipe: GifRecipeUI, previewImage: View) {
+        presenter.recipeClicked(gifRecipe)
         val imagePair = Pair(previewImage, getString(R.string.recipe_transition_image_name))
         val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, imagePair)
-        val intent = GifRecipeViewerActivity.IntentFactory.build(this, hotGifRecipeItem.link, hotGifRecipeItem.imageType)
+        val intent = GifRecipeViewerActivity.IntentFactory.build(this, gifRecipe)
         startActivity(intent, options.toBundle())
     }
 

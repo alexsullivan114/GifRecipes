@@ -4,16 +4,14 @@ import alexsullivan.gifrecipes.GifRecipeViewerViewState.*
 import alexsullivan.gifrecipes.cache.CacheServer
 import alexsullivan.gifrecipes.viewarchitecture.Presenter
 import alexsullivan.gifrecipes.viewarchitecture.ViewState
-import android.graphics.Bitmap
 import com.alexsullivan.ImageType
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 
 
-class GifRecipeViewerPresenterImpl(val url: String,
-                                   val imageType: ImageType,
-                                   val cacheServer: CacheServer) : GifRecipeViewerPresenter {
+class GifRecipeViewerPresenterImpl(private val gifRecipe: GifRecipeUI,
+                                   private val cacheServer: CacheServer) : GifRecipeViewerPresenter {
 
     val disposables = CompositeDisposable()
 
@@ -23,19 +21,19 @@ class GifRecipeViewerPresenterImpl(val url: String,
 
     init {
         val buildPlayingState = fun(): GifRecipeViewerViewState {
-            if (imageType == ImageType.GIF) {
-                return PlayingGif(cacheServer.get(url), BitmapHolder.get(url))
+            if (gifRecipe.imageType == ImageType.GIF) {
+                return PlayingGif(cacheServer.get(gifRecipe.url), gifRecipe)
             } else {
-                return PlayingVideo(cacheServer.get(url), BitmapHolder.get(url))
+                return PlayingVideo(cacheServer.get(gifRecipe.url), gifRecipe)
             }
         }
 
-        if (cacheServer.isCached(url)) {
+        if (cacheServer.isCached(gifRecipe.url)) {
             stateStream.onNext(buildPlayingState())
         } else {
-            val buildLoadingState = { progress: Int -> Loading(progress) }
-            stateStream.onNext(Preloading(BitmapHolder.get(url)))
-            disposables.add(cacheServer.prefetch(url)
+            val buildLoadingState = { progress: Int -> Loading(progress, gifRecipe) }
+            stateStream.onNext(Preloading(gifRecipe))
+            disposables.add(cacheServer.prefetch(gifRecipe.url)
                     .subscribeOn(Schedulers.io())
                     .doOnComplete { stateStream.onNext(buildPlayingState()) }
                     .subscribe { stateStream.onNext(buildLoadingState(it)) })
@@ -45,21 +43,20 @@ class GifRecipeViewerPresenterImpl(val url: String,
     override fun destroy() {
         super.destroy()
         disposables.clear()
-        BitmapHolder.remove(url)
     }
 }
 
 interface GifRecipeViewerPresenter : Presenter<GifRecipeViewerViewState> {
     companion object {
-        fun create(url: String, imageType: ImageType, cacheServer: CacheServer): GifRecipeViewerPresenter {
-            return GifRecipeViewerPresenterImpl(url, imageType, cacheServer)
+        fun create(gifRecipe: GifRecipeUI, cacheServer: CacheServer): GifRecipeViewerPresenter {
+            return GifRecipeViewerPresenterImpl(gifRecipe, cacheServer)
         }
     }
 }
 
 sealed class GifRecipeViewerViewState : ViewState {
-    class Preloading(val image: Bitmap?): GifRecipeViewerViewState()
-    class Loading(val progress: Int): GifRecipeViewerViewState()
-    class PlayingVideo(val url: String, val image: Bitmap?): GifRecipeViewerViewState()
-    class PlayingGif(val url: String, val image: Bitmap?): GifRecipeViewerViewState()
+    class Preloading(val recipe: GifRecipeUI): GifRecipeViewerViewState()
+    class Loading(val progress: Int, val recipe: GifRecipeUI): GifRecipeViewerViewState()
+    class PlayingVideo(val url: String, val recipe: GifRecipeUI): GifRecipeViewerViewState()
+    class PlayingGif(val url: String, val recipe: GifRecipeUI): GifRecipeViewerViewState()
 }

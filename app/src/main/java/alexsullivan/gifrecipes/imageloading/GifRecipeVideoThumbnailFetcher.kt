@@ -1,9 +1,9 @@
 package alexsullivan.gifrecipes.imageloading
 
+import alexsullivan.gifrecipes.GifRecipeUI
 import alexsullivan.gifrecipes.utils.firstFrame
 import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
-import com.alexsullivan.GifRecipe
 import com.bumptech.glide.Priority
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.data.DataFetcher
@@ -13,7 +13,7 @@ import java.io.IOException
 import java.io.InputStream
 
 
-class GifRecipeVideoThumbnailFetcher(val gifRecipe: GifRecipe): DataFetcher<InputStream> {
+class GifRecipeVideoThumbnailFetcher(val gifRecipe: GifRecipeUI): DataFetcher<InputStream> {
     override fun cancel() {
         //TODO
     }

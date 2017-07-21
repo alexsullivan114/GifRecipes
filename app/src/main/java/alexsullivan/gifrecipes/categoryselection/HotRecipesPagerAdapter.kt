@@ -1,13 +1,15 @@
 package alexsullivan.gifrecipes.categoryselection
 
+import alexsullivan.gifrecipes.GifRecipeUI
 import alexsullivan.gifrecipes.R
 import android.support.v4.view.PagerAdapter
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.bumptech.glide.Glide
 import kotlinx.android.synthetic.main.adapter_hot_recipe.view.*
 
-class HotRecipesPagerAdapter(val gifList: List<HotGifRecipeItem>, val callback: HotRecipeAdapterCallback): PagerAdapter() {
+class HotRecipesPagerAdapter(val gifList: List<GifRecipeUI>, val callback: RecipeAdapterCallback): PagerAdapter() {
 
     override fun isViewFromObject(view: View?, `object`: Any?) = view == `object`
 
@@ -16,7 +18,7 @@ class HotRecipesPagerAdapter(val gifList: List<HotGifRecipeItem>, val callback: 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
         val viewgroup = LayoutInflater.from(container.context).inflate(R.layout.adapter_hot_recipe, null)
         val recipe = gifList.get(position)
-        viewgroup.image.setImageBitmap(recipe.bitmap)
+        Glide.with(container.context).load(recipe).into(viewgroup.image)
         viewgroup.recipeTitle.text = recipe.title
         viewgroup.setOnClickListener { callback.recipeClicked(recipe, viewgroup.image) }
         container.addView(viewgroup)
@@ -28,6 +30,6 @@ class HotRecipesPagerAdapter(val gifList: List<HotGifRecipeItem>, val callback: 
     }
 }
 
-interface HotRecipeAdapterCallback {
-    fun recipeClicked(hotGifRecipeItem: HotGifRecipeItem, previewImage: View)
+interface RecipeAdapterCallback {
+    fun recipeClicked(gifRecipe: GifRecipeUI, previewImage: View)
 }

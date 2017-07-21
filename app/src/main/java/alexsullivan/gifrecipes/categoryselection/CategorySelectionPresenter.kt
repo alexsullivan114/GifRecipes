@@ -1,7 +1,6 @@
 package alexsullivan.gifrecipes.categoryselection;
 
-import alexsullivan.gifrecipes.BitmapHolder
-import alexsullivan.gifrecipes.utils.firstFrame
+import alexsullivan.gifrecipes.GifRecipeUI
 import alexsullivan.gifrecipes.viewarchitecture.Presenter
 import alexsullivan.gifrecipes.viewarchitecture.ViewState
 import com.alexsullivan.GifRecipeRepository
@@ -26,11 +25,11 @@ class CategorySelectionPresenterImpl(repository: GifRecipeRepository) : Category
                 // First push out our loading screen...
                 .doOnSubscribe { stateStream.onNext(CategorySelectionViewState.FetchingGifs()) }
                 .map {it.copy(url = it.url, imageType = it.imageType)}
-                .map { HotGifRecipeItem(it.firstFrame(), it.url, it.imageType, it.title) }
+                .map {GifRecipeUI(it.url, it.thumbnail, it.imageType, it.title)}
                 .toList()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        {list: MutableList<HotGifRecipeItem> ->  stateStream.onNext(CategorySelectionViewState.GifList(list))}))
+                        {list: MutableList<GifRecipeUI> ->  stateStream.onNext(CategorySelectionViewState.GifList(list))}))
 
     }
 
@@ -39,8 +38,8 @@ class CategorySelectionPresenterImpl(repository: GifRecipeRepository) : Category
         disposables.dispose()
     }
 
-    override fun recipeClicked(hotGifRecipeItem: HotGifRecipeItem) {
-        BitmapHolder.put(hotGifRecipeItem.link, hotGifRecipeItem.bitmap)
+    override fun recipeClicked(gifRecipe: GifRecipeUI) {
+//        BitmapHolder.put(hotGifRecipeItem.url, hotGifRecipeItem.bitmap)
     }
 }
 
@@ -51,11 +50,11 @@ interface CategorySelectionPresenter : Presenter<CategorySelectionViewState> {
         }
     }
 
-    fun recipeClicked(hotGifRecipeItem: HotGifRecipeItem)
+    fun recipeClicked(gifRecipe: GifRecipeUI)
 }
 
 sealed class CategorySelectionViewState : ViewState {
     class FetchingGifs: CategorySelectionViewState()
-    class GifList(val gifRecipes: List<HotGifRecipeItem>): CategorySelectionViewState()
+    class GifList(val gifRecipes: List<GifRecipeUI>): CategorySelectionViewState()
     class Error: CategorySelectionViewState()
 }
