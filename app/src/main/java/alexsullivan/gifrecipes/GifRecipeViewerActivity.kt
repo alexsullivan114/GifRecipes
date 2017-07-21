@@ -8,6 +8,7 @@ import alexsullivan.gifrecipes.viewarchitecture.BaseActivity
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.Animatable
 import android.graphics.drawable.Drawable
 import android.media.MediaPlayer
 import android.os.Bundle
@@ -20,6 +21,8 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.facebook.drawee.backends.pipeline.Fresco
+import com.facebook.drawee.controller.ControllerListener
+import com.facebook.imagepipeline.image.ImageInfo
 import kotlinx.android.synthetic.main.layout_gif_recipe_viewer.*
 import kotlin.properties.Delegates
 
@@ -101,10 +104,9 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
             }
             is GifRecipeViewerViewState.PlayingGif -> {
                 progress.visibility = View.GONE
-                loadPlaceholderImage(viewState.recipe, {width, height ->
-                    toggleGifMode(width, height)
+                loadPlaceholderImage(viewState.recipe, {aspectRatio ->
+                    toggleGifMode(aspectRatio, viewState.url)
                 })
-                url = viewState.url
             }
         }
     }
@@ -128,15 +130,39 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
         }
     }
 
-    private fun toggleGifMode(width: Int, height: Int) {
+    private fun toggleGifMode(aspectRatio: Float, url: String) {
         video.visibility = View.GONE
         val controller = Fresco.newDraweeControllerBuilder()
                 .setUri(url)
                 .setAutoPlayAnimations(true)
+                .setControllerListener(object: ControllerListener<ImageInfo>{
+                    override fun onFinalImageSet(id: String?, imageInfo: ImageInfo?, animatable: Animatable?) {
+                        print("foo")
+                    }
+
+                    override fun onSubmit(id: String?, callerContext: Any?) {
+                        print("foo")
+                    }
+
+                    override fun onIntermediateImageSet(id: String?, imageInfo: ImageInfo?) {
+                        print("foo")
+                    }
+
+                    override fun onRelease(id: String?) {
+                        print("foo")
+                    }
+
+                    override fun onFailure(id: String?, throwable: Throwable?) {
+                        print("foo")
+                    }
+
+                    override fun onIntermediateImageFailed(id: String?, throwable: Throwable?) {
+                        print("foo")
+                    }
+                })
                 .build()
-        val aspectRatio = (width/height).toFloat()
-        gif.aspectRatio = aspectRatio
         gif.controller = controller
+        gif.aspectRatio = aspectRatio
     }
 
     private fun toggleVideoMode() {
@@ -145,7 +171,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
     }
 
     // Loads the placeholder image, doing nothing if there's already a drawable set on the placeholder.
-    private fun loadPlaceholderImage(gifRecipe: GifRecipeUI, sizeCallback: (Int, Int) -> Unit = { _, _ ->}) {
+    private fun loadPlaceholderImage(gifRecipe: GifRecipeUI, aspectRatioCallback: (Float) -> Unit = { _ ->}) {
         if (placeholder.drawable == null) {
             Glide.with(this).load(gifRecipe).listener(object: RequestListener<Drawable> {
                 override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
@@ -154,11 +180,17 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
                     return false
                 }
 
-                override fun onResourceReady(resource: Drawable?, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                override fun onResourceReady(resource: Drawable, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
                     startPostponedEnterTransition()
+                    aspectRatioCallback(resource.intrinsicWidth/resource.intrinsicHeight.toFloat())
                     return false
                 }
-            }).into(placeholder).getSize { width, height ->  sizeCallback(width, height)}
+            }).into(placeholder)
+        } else {
+            // placeholder is already loaded, so we know the aspect ratio of it already.
+            placeholder.drawable.apply {
+                aspectRatioCallback(intrinsicWidth.toFloat()/intrinsicHeight)
+            }
         }
     }
 }
