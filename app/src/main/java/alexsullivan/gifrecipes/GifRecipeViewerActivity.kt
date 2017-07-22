@@ -3,6 +3,7 @@ package alexsullivan.gifrecipes
 import alexsullivan.gifrecipes.cache.CacheServerImpl
 import alexsullivan.gifrecipes.utils.adjustAspectRatio
 import alexsullivan.gifrecipes.utils.endListener
+import alexsullivan.gifrecipes.utils.safeApply
 import alexsullivan.gifrecipes.utils.surfaceTextureAvailableListener
 import alexsullivan.gifrecipes.viewarchitecture.BaseActivity
 import android.annotation.SuppressLint
@@ -30,7 +31,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
     private var initPlaybackPosition = 0
 
     private var url: String? by Delegates.observable<String?>(null) {
-        _, oldValue, newValue ->  if (oldValue != newValue) triggerPlaybackCheck()
+        _, oldValue, newValue ->  triggerPlaybackCheck()
     }
     private var surface: Surface? by Delegates.observable<Surface?>(null) {
         _, oldValue, newValue ->  if (oldValue != newValue) triggerPlaybackCheck()
@@ -73,12 +74,25 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
 
     override fun onSaveInstanceState(outState: Bundle?) {
         super.onSaveInstanceState(outState)
-        mediaPlayer?.let { outState?.putInt(PLAYBACK_POSITION_KEY, it.currentPosition) }
+        mediaPlayer?.safeApply {
+            outState?.putInt(PLAYBACK_POSITION_KEY, currentPosition)
+        }
     }
 
     override fun onStop() {
         super.onStop()
-        mediaPlayer?.stop()
+        mediaPlayer?.apply {
+            try {
+                stop()
+                release()
+            } catch (ignored: IllegalStateException) {
+                // do nothing. Mediaplayer wasn't initialized.
+            }
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
         surface?.release()
     }
 
