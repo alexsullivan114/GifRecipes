@@ -8,7 +8,6 @@ import alexsullivan.gifrecipes.viewarchitecture.BaseActivity
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.graphics.drawable.Animatable
 import android.graphics.drawable.Drawable
 import android.media.MediaPlayer
 import android.os.Bundle
@@ -21,8 +20,6 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.facebook.drawee.backends.pipeline.Fresco
-import com.facebook.drawee.controller.ControllerListener
-import com.facebook.imagepipeline.image.ImageInfo
 import kotlinx.android.synthetic.main.layout_gif_recipe_viewer.*
 import kotlin.properties.Delegates
 
@@ -135,31 +132,6 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
         val controller = Fresco.newDraweeControllerBuilder()
                 .setUri(url)
                 .setAutoPlayAnimations(true)
-                .setControllerListener(object: ControllerListener<ImageInfo>{
-                    override fun onFinalImageSet(id: String?, imageInfo: ImageInfo?, animatable: Animatable?) {
-                        print("foo")
-                    }
-
-                    override fun onSubmit(id: String?, callerContext: Any?) {
-                        print("foo")
-                    }
-
-                    override fun onIntermediateImageSet(id: String?, imageInfo: ImageInfo?) {
-                        print("foo")
-                    }
-
-                    override fun onRelease(id: String?) {
-                        print("foo")
-                    }
-
-                    override fun onFailure(id: String?, throwable: Throwable?) {
-                        print("foo")
-                    }
-
-                    override fun onIntermediateImageFailed(id: String?, throwable: Throwable?) {
-                        print("foo")
-                    }
-                })
                 .build()
         gif.controller = controller
         gif.aspectRatio = aspectRatio
