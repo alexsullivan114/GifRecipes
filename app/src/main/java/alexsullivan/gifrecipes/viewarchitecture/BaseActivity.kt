@@ -79,7 +79,7 @@ abstract class BaseActivity<T: ViewState, P: Presenter<T>>: AppCompatActivity() 
 
     private fun bindToolbar() {
         val toolbar = findViewById(R.id.toolbar)
-        toolbar.let {
+        toolbar?.let {
             try {
                 setSupportActionBar(toolbar as Toolbar)
                 supportActionBar?.setDisplayHomeAsUpEnabled(true)

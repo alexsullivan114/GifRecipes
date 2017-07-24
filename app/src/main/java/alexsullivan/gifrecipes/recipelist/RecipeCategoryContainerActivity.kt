@@ -36,7 +36,7 @@ class RecipeCategoryContainerActivity : BaseActivity<RecipesListViewState, Recip
         super.onCreate(savedInstanceState)
         setContentView(R.layout.layout_recipes_list)
         category = intent.getSerializableExtra(CATEGORY_KEY) as Category
-        pager.adapter = RecipeListPagerAdapter(supportFragmentManager)
+        pager.adapter = RecipeListPagerAdapter(supportFragmentManager, applicationContext)
         pager.offscreenPageLimit = 1
         // Note: I'm not sure why this works - it seems ambiguous which method this would call in the
         // page change listener...

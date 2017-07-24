@@ -37,7 +37,7 @@ internal class RedditGifRecipeProviderImpl(val service: RedditService, val urlMa
 
     companion object Factory {
         fun create(deviceId: String, logger: Logger): RedditGifRecipeProviderImpl {
-            val okClient = RedditOkHttpClient(deviceId).client
+            val okClient = RedditOkHttpClient(deviceId, logger).client
             val gson = GsonBuilder().registerTypeAdapter(RedditListingItem::class.java, RedditResponseItemDeserializer()).create()
             val retrofit = Retrofit.Builder()
                     .client(okClient)
@@ -50,19 +50,19 @@ internal class RedditGifRecipeProviderImpl(val service: RedditService, val urlMa
         }
     }
 
-    override fun consumeRecipes(limit: Int, searchTerm: String): Observable<GifRecipe> {
-        logger.d(TAG, "Consume recipes called with limit: $limit and search term: $searchTerm")
-        return if (!searchTerm.isEmpty()) fetchWithSearchTerm(limit, searchTerm) else fetchHot(limit)
+    override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipe> {
+        logger.d(TAG, "Consume recipes called with limit: $limit and search term: $searchTerm and page key: $pageKey")
+        return if (!searchTerm.isEmpty()) fetchWithSearchTerm(limit, searchTerm, pageKey) else fetchHot(limit, pageKey)
     }
 
-    private fun fetchWithSearchTerm(limit: Int, searchTerm: String): Observable<GifRecipe> {
-        logger.d(TAG, "Making search request with limit $limit and search term $searchTerm")
-        return service.searchRecipes(searchTerm, limit = limit)
+    private fun fetchWithSearchTerm(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipe> {
+        logger.d(TAG, "Making search request with limit $limit and search term $searchTerm and page key $pageKey")
+        return service.searchRecipes(searchTerm, limit = limit, after = pageKey)
                 .flatMap { processListingResponse(it, searchTerm) }
     }
 
-    private fun fetchHot(limit: Int): Observable<GifRecipe> {
-        logger.d(TAG, "Making hot request with limit $limit")
+    private fun fetchHot(limit: Int, lastItem: String): Observable<GifRecipe> {
+        logger.d(TAG, "Making hot request with limit $limit and last item $lastItem")
         var startTime = 0L
         return service.hotRecipes(limit = limit, after = afterMap[""])
                 .doOnSubscribe { startTime = System.currentTimeMillis() }
@@ -76,9 +76,9 @@ internal class RedditGifRecipeProviderImpl(val service: RedditService, val urlMa
 
     private fun processListingResponse(listing: RedditListingResponse, searchTerm: String = ""): Observable<GifRecipe> {
         return Observable.just(listing)
-                .doOnNext { afterMap.put(searchTerm, it.data.after) }
-                .flatMap { Observable.fromIterable(it.data.children) }
-                .map { RedditGifRecipe(it.url, it.id, ImageType.GIF, it.thumbnail, it.previewUrl, it.domain, it.title) }
+                .flatMap { response -> Observable.fromIterable(response.data.children)
+                        .map { it.copy(pageKey = response.data.after) }}
+                .map { RedditGifRecipe(it.url, it.id, ImageType.GIF, it.thumbnail, it.previewUrl, it.domain, it.title, it.pageKey) }
                 .flatMap {
                     var returnObservable = Observable.just(it)
                     urlManipulators.filter { manipulator -> manipulator.matchesDomain(it.domain) }
@@ -89,9 +89,9 @@ internal class RedditGifRecipeProviderImpl(val service: RedditService, val urlMa
                 .filter {
                     var isMedia = false
                     val elapsedTime = measureTimeMillis { isMedia = medidaChecker(it.url) }
-                    logger.d(TAG, "Checking media type for ${it.url} took ${elapsedTime} milliseconds")
+                    logger.d(TAG, "Checking media type for ${it.url} took $elapsedTime milliseconds")
                     isMedia
                 }
-                .map { GifRecipe(it.url, it.id, it.thumbnail, it.previewUrl, it.imageType, it.title) }
+                .map { GifRecipe(it.url, it.id, it.thumbnail, it.imageType, it.title, it.pageKey) }
     }
 }

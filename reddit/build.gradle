@@ -11,7 +11,7 @@ dependencies {
     compile "com.squareup.retrofit2:adapter-rxjava2:$project.ext.retrofitVersion"
     compile "com.google.code.gson:gson:$project.ext.gsonVersion"
     compile "com.squareup.okhttp3:okhttp:$project.ext.okHttpVersion"
-
+    compile "com.squareup.okhttp3:logging-interceptor:$project.ext.okHttpVersion"
     testCompile "junit:junit:$project.ext.junitVersion"
 }
 

@@ -10,5 +10,5 @@ interface GifRecipeRepository {
         }
     }
 
-    fun consumeGifRecipes(totalDesiredGifs: Int, searchTerm: String = ""): Observable<GifRecipe>
+    fun consumeGifRecipes(totalDesiredGifs: Int, searchTerm: String = "", pageKey: String = ""): Observable<GifRecipe>
 }

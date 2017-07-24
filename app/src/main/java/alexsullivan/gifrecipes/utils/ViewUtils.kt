@@ -3,6 +3,8 @@ package alexsullivan.gifrecipes.utils
 import android.graphics.Matrix
 import android.graphics.SurfaceTexture
 import android.support.v4.view.ViewPager
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.view.TextureView
 import android.view.View
 
@@ -67,4 +69,18 @@ fun TextureView.surfaceTextureAvailableListener(callback: (surface: SurfaceTextu
         override fun onSurfaceTextureDestroyed(p0: SurfaceTexture?): Boolean = true
         override fun onSurfaceTextureAvailable(surface: SurfaceTexture, width: Int, height: Int) = callback(surface, width, height)
     }
+}
+
+fun RecyclerView.addInfiniteScrollListener(onScrolledToBottomListener: () -> Unit) {
+    addOnScrollListener(object: RecyclerView.OnScrollListener() {
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            // We're scrolling down.
+            if (dy > 0) {
+                val manager = recyclerView.layoutManager as LinearLayoutManager
+                if (manager.findLastVisibleItemPosition() == recyclerView.adapter.itemCount - 1) {
+                    onScrolledToBottomListener()
+                }
+            }
+        }
+    })
 }

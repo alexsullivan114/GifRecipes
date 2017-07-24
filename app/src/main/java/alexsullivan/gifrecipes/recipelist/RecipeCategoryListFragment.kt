@@ -1,11 +1,10 @@
 package alexsullivan.gifrecipes.recipelist
 
-import alexsullivan.gifrecipes.Category
 import alexsullivan.gifrecipes.GifRecipeUI
 import alexsullivan.gifrecipes.GifRecipeViewerActivity
 import alexsullivan.gifrecipes.R
+import alexsullivan.gifrecipes.utils.addInfiniteScrollListener
 import alexsullivan.gifrecipes.utils.gone
-import alexsullivan.gifrecipes.utils.str
 import alexsullivan.gifrecipes.utils.visible
 import alexsullivan.gifrecipes.viewarchitecture.BaseFragment
 import android.os.Bundle
@@ -24,10 +23,10 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
     RecipeCategoryListAdapter.ClickCallback {
 
     companion object {
-        val CATEGORY_KEY = "Category Key"
-        fun build(category: Category): RecipeCategoryListFragment {
+        val SEARCH_KEY = "Search Key"
+        fun build(searchTerm: String): RecipeCategoryListFragment {
             val args = Bundle()
-            args.putSerializable(CATEGORY_KEY, category)
+            args.putString(SEARCH_KEY, searchTerm)
             val fragment = RecipeCategoryListFragment()
             fragment.arguments = args
             return fragment
@@ -35,14 +34,16 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
     }
 
     override fun initPresenter(): RecipeCategoryListPresenter {
-        val category = arguments.getSerializable(CATEGORY_KEY) as Category
-        return RecipeCategoryListPresenter.create(category,
-                str(category.displayName), GifRecipeRepository.default)
+        val searchTerm = arguments.getString(SEARCH_KEY)
+        return RecipeCategoryListPresenter.create(searchTerm, GifRecipeRepository.default)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.layout_recipe_category_list, container, false)
         view.list.layoutManager = LinearLayoutManager(context)
+        view.list.addInfiniteScrollListener {
+            presenter.reachedBottom()
+        }
         return view
     }
 
@@ -53,9 +54,18 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
                 list.gone()
             }
             is RecipeCategoryListViewState.RecipeList -> {
-                list.adapter = RecipeCategoryListAdapter(viewState.recipes, this)
+                if (list.adapter == null) {
+                    list.adapter = RecipeCategoryListAdapter(viewState.recipes, this)
+                } else {
+                    val adapter = list.adapter as RecipeCategoryListAdapter
+                    adapter.showBottomLoading = false
+                    adapter.gifList = viewState.recipes
+                }
                 loading.gone()
                 list.visible()
+            }
+            is RecipeCategoryListViewState.LoadingMore -> {
+                (list.adapter as RecipeCategoryListAdapter).showBottomLoading = true
             }
         }
     }

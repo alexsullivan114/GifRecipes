@@ -4,7 +4,7 @@ import io.reactivex.Observable
 
 internal class GifRecipeRepositoryImpl(val providers: List<GifRecipeProvider>): GifRecipeRepository {
 
-    override fun consumeGifRecipes(totalDesiredGifs: Int, searchTerm: String): Observable<GifRecipe> {
+    override fun consumeGifRecipes(totalDesiredGifs: Int, searchTerm: String, lastItem: String): Observable<GifRecipe> {
         if (providers.isEmpty()) {
             return Observable.empty()
         }
@@ -12,7 +12,7 @@ internal class GifRecipeRepositoryImpl(val providers: List<GifRecipeProvider>): 
         // gifs. At some point we may want to introduce weighting, so that we could, for example,
         // weigh reddit gif recipes more heavily then, say, tasty gif recipes.
         val fetchCount = totalDesiredGifs / providers.size
-        val observables = providers.map { it.consumeRecipes(fetchCount, searchTerm) }
+        val observables = providers.map { it.consumeRecipes(fetchCount, searchTerm, lastItem) }
         return Observable.merge(observables)
     }
 }
