@@ -14,7 +14,7 @@ class RecipeCategoryListAdapter(val gifList: List<GifRecipeUI>,
 
     override fun onBindViewHolder(holder: GifRecipeViewHolder, position: Int) {
         val recipe = gifList[position]
-        Glide.with(holder.itemView.context).load(recipe).into(holder.view.image)
+        Glide.with(holder.itemView.context).load(recipe.thumbnail).into(holder.view.image)
         holder.view.title.text = recipe.title
         holder.view.setOnClickListener {
             clickCallback.recipeClicked(recipe, holder.view.image)

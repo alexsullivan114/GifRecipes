@@ -18,7 +18,7 @@ class HotRecipesPagerAdapter(val gifList: List<GifRecipeUI>, val callback: Recip
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
         val viewgroup = LayoutInflater.from(container.context).inflate(R.layout.adapter_hot_recipe, null)
         val recipe = gifList.get(position)
-        Glide.with(container.context).load(recipe).into(viewgroup.image)
+        Glide.with(container.context).load(recipe.thumbnail).into(viewgroup.image)
         viewgroup.recipeTitle.text = recipe.title
         viewgroup.setOnClickListener { callback.recipeClicked(recipe, viewgroup.image) }
         container.addView(viewgroup)

@@ -159,7 +159,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
     // Loads the placeholder image, doing nothing if there's already a drawable set on the placeholder.
     private fun loadPlaceholderImage(gifRecipe: GifRecipeUI, aspectRatioCallback: (Float) -> Unit = { _ ->}) {
         if (placeholder.drawable == null) {
-            Glide.with(this).load(gifRecipe).listener(object: RequestListener<Drawable> {
+            Glide.with(this).load(gifRecipe.thumbnail).listener(object: RequestListener<Drawable> {
                 override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
                     // Nothing. Won't see an image but the gif/video will still load. Make sure to finish our transition tho
                     startPostponedEnterTransition()

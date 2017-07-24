@@ -2,6 +2,8 @@ package alexsullivan.gifrecipes.application
 
 import alexsullivan.gifrecipes.cache.CacheServerImpl
 import android.app.Application
+import android.net.TrafficStats
+import android.os.Process
 import android.util.Log
 import com.alexsullivan.ApplicationInitialization.CoreInitializer
 import com.alexsullivan.logging.Logger
