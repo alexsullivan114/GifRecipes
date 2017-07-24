@@ -18,5 +18,6 @@ internal interface RedditService {
 
     @GET("r/gifrecipes/search")
     fun searchRecipes(@Query("q") searchParam: String, @Query("after") after: String? = "",
-                      @Query("limit") limit: Int = 100, @Query("restrict_sr") restrict: Boolean? = true): Observable<RedditListingResponse>
+                      @Query("limit") limit: Int = 100, @Query("restrict_sr") restrict: Boolean? = true,
+                      @Query("sort") sort: String = "hot"): Observable<RedditListingResponse>
 }

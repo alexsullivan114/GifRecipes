@@ -70,6 +70,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
         postponeEnterTransition()
         window.enterTransition.addListener(endListener { sharedElementTransitionDone = true })
         video.surfaceTextureAvailableListener { surface, _, _ -> this@GifRecipeViewerActivity.surface = Surface(surface) }
+        root.setOnClickListener { finishAfterTransition() }
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
