@@ -51,6 +51,13 @@ class RecipeCategoryListPresenterImpl(val searchTerm: String,
                         .doOnNext { lastPageKey = it.pageKey ?: "" }
                         .map { GifRecipeUI(it.url, it.thumbnail, it.imageType, it.title) }
                         .toList()
+                        .doOnSuccess {
+                            if (it.size == 0) {
+                                // Zero new items so we won't hit doOnNext, so we need to remember that
+                                // we're out.
+                                lastPageKey = ""
+                            }
+                        }
                         .map {
                             it.addAll(0, lastValue.recipes)
                             it

@@ -77,7 +77,7 @@ fun RecyclerView.addInfiniteScrollListener(onScrolledToBottomListener: () -> Uni
             // We're scrolling down.
             if (dy > 0) {
                 val manager = recyclerView.layoutManager as LinearLayoutManager
-                if (manager.findLastVisibleItemPosition() == recyclerView.adapter.itemCount - 1) {
+                if (manager.findLastVisibleItemPosition() >= recyclerView.adapter.itemCount - 2) {
                     onScrolledToBottomListener()
                 }
             }
