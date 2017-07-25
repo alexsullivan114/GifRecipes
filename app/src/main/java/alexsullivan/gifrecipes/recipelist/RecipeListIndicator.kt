@@ -3,10 +3,12 @@ package alexsullivan.gifrecipes.recipelist
 import alexsullivan.gifrecipes.Category
 import alexsullivan.gifrecipes.R
 import alexsullivan.gifrecipes.utils.show
+import android.graphics.Color
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import de.hdodenhof.circleimageview.CircleImageView
 import kotlinx.android.synthetic.main.adapter_recipe_indicator.view.*
 import kotlin.properties.Delegates
@@ -54,7 +56,13 @@ class RecipeListIndicatorAdapter(val selectedIndexCallback: SelectedIndexCallbac
 
         holder.image.setImageResource(iconRes)
         holder.image.transitionName = holder.image.context.getString(transitionNameRes)
+        holder.text.setText(category.displayName)
         holder.mask.show(category != selectedCategory)
+        if (category == selectedCategory) {
+            holder.text.setTextColor(Color.WHITE)
+        } else {
+            holder.text.setTextColor(holder.text.context.resources.getColor(R.color.disabled_grey))
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecipeListIndicatorViewHolder {
@@ -67,6 +75,7 @@ class RecipeListIndicatorAdapter(val selectedIndexCallback: SelectedIndexCallbac
     inner class RecipeListIndicatorViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
         val image: CircleImageView = itemView.image
         val mask: CircleImageView = itemView.mask
+        val text: TextView = itemView.text
 
         init {
             mask.setOnClickListener {

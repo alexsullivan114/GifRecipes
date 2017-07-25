@@ -66,7 +66,6 @@ class RecipeCategoryContainerActivity : BaseActivity<RecipesListViewState, Recip
         when (viewState) {
             is RecipesListViewState.IndicatorState -> {
                 category = viewState.selectedCategory
-                customTitle.setText(category.displayName)
                 (indicatorList.adapter as RecipeListIndicatorAdapter).selectedCategory = category
                 if (pager.currentItem != indexFromCategory(category)) {
                     pager.currentItem = indexFromCategory(category)
