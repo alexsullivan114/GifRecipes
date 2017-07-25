@@ -6,7 +6,10 @@ import com.danikula.videocache.CacheListener
 import com.danikula.videocache.HttpProxyCacheServer
 import io.reactivex.Completable
 import io.reactivex.Observable
+import io.reactivex.functions.Consumer
+import io.reactivex.internal.functions.Functions
 import io.reactivex.schedulers.Schedulers
+import java.io.IOException
 import java.net.URL
 
 object CacheServerImpl: CacheServer {
@@ -57,21 +60,28 @@ object CacheServerImpl: CacheServer {
             return Observable.empty()
         } else {
             // Now return the observable that
-            return Observable.create {
+            return Observable.create { observableEmitter ->
                 // Begin downloading our cached file.
                 download(cacheServer.getProxyUrl(url))
                         .subscribeOn(Schedulers.io())
-                        .subscribe()
+                        .retry({ count, throwable ->
+                            if (count > 2){
+                                false
+                            } else {
+                                throwable is IOException
+                            }
+                        })
+                        .subscribe(Functions.EMPTY_ACTION, Consumer<Throwable> { t -> observableEmitter.onError(t) })
 
                 val listener = CacheListener { _, _, percentsAvailable ->
-                    it.onNext(percentsAvailable)
+                    observableEmitter.onNext(percentsAvailable)
                     if (percentsAvailable == 100) {
-                        it.onComplete()
+                        observableEmitter.onComplete()
                         Log.d("Cache", "progress: $percentsAvailable")
                     }
                 }
                 cacheServer.registerCacheListener(listener, url)
-                it.setCancellable({ cacheServer.unregisterCacheListener(listener, url) })
+                observableEmitter.setCancellable({ cacheServer.unregisterCacheListener(listener, url) })
             }
         }
     }
