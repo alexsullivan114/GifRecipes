@@ -8,6 +8,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
+import java.io.IOException
 
 
 class CategorySelectionPresenterImpl(repository: GifRecipeRepository) : CategorySelectionPresenter {
@@ -29,7 +30,14 @@ class CategorySelectionPresenterImpl(repository: GifRecipeRepository) : Category
                 .toList()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        {list: MutableList<GifRecipeUI> ->  stateStream.onNext(CategorySelectionViewState.GifList(list))}))
+                        {
+                            list: MutableList<GifRecipeUI> ->  stateStream.onNext(CategorySelectionViewState.GifList(list))
+                        },
+                        {
+                            if (it is IOException) {
+                                stateStream.onNext(CategorySelectionViewState.NetworkError())
+                            }
+                        }))
 
     }
 
@@ -56,5 +64,5 @@ interface CategorySelectionPresenter : Presenter<CategorySelectionViewState> {
 sealed class CategorySelectionViewState : ViewState {
     class FetchingGifs: CategorySelectionViewState()
     class GifList(val gifRecipes: List<GifRecipeUI>): CategorySelectionViewState()
-    class Error: CategorySelectionViewState()
+    class NetworkError : CategorySelectionViewState()
 }

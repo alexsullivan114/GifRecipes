@@ -5,8 +5,10 @@ import alexsullivan.gifrecipes.GifRecipeUI
 import alexsullivan.gifrecipes.GifRecipeViewerActivity
 import alexsullivan.gifrecipes.R
 import alexsullivan.gifrecipes.recipelist.RecipeCategoryContainerActivity
+import alexsullivan.gifrecipes.utils.gone
 import alexsullivan.gifrecipes.utils.makeSceneTransitionWithNav
 import alexsullivan.gifrecipes.utils.str
+import alexsullivan.gifrecipes.utils.visible
 import alexsullivan.gifrecipes.viewarchitecture.BaseActivity
 import android.content.Intent
 import android.os.Bundle
@@ -61,11 +63,16 @@ class CategorySelectionActivity : BaseActivity<CategorySelectionViewState, Categ
             is CategorySelectionViewState.GifList -> {
                 pager.adapter = HotRecipesPagerAdapter(viewState.gifRecipes, this)
                 pager.animate().alpha(1f).start()
-                progressBar.visibility = View.GONE
+                progressBar.gone()
             }
             is CategorySelectionViewState.FetchingGifs -> {
                 pager.alpha = 0f
-                progressBar.visibility = View.VISIBLE
+                progressBar.visible()
+            }
+            is CategorySelectionViewState.NetworkError -> {
+                pager.gone()
+                progressBar.gone()
+                error.visible()
             }
         }
     }

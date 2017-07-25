@@ -67,6 +67,11 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
             is RecipeCategoryListViewState.LoadingMore -> {
                 (list.adapter as RecipeCategoryListAdapter).showBottomLoading = true
             }
+            is RecipeCategoryListViewState.NetworkError -> {
+                list.gone()
+                loading.gone()
+                error.visible()
+            }
         }
     }
 

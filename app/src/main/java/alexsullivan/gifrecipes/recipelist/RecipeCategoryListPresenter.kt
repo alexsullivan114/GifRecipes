@@ -8,6 +8,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
+import java.io.IOException
 
 class RecipeCategoryListPresenterImpl(val searchTerm: String,
                                       val repository: GifRecipeRepository) : RecipeCategoryListPresenter {
@@ -29,6 +30,10 @@ class RecipeCategoryListPresenterImpl(val searchTerm: String,
                 .toList()
                 .subscribe({ result: List<GifRecipeUI> ->
                     stateStream.onNext(RecipeCategoryListViewState.RecipeList(result))
+                }, {
+                    if (it is IOException) {
+                        stateStream.onNext(RecipeCategoryListViewState.NetworkError())
+                    }
                 }))
 
     }
@@ -89,4 +94,5 @@ sealed class RecipeCategoryListViewState : ViewState {
     class LoadingMore(val recipes: List<GifRecipeUI>): RecipeCategoryListViewState()
     class RecipeList(val recipes: List<GifRecipeUI>): RecipeCategoryListViewState()
     class LoadMoreError(val recipes: List<GifRecipeUI>): RecipeCategoryListViewState()
+    class NetworkError(): RecipeCategoryListViewState()
 }

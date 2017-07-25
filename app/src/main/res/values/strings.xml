@@ -6,4 +6,6 @@
     <string name="chicken">Chicken</string>
     <string name="pork">Pork</string>
     <string name="salmon">Salmon</string>
+
+    <string name="generic_network_error">Encountered a network error. Please try again later.</string>
 </resources>
