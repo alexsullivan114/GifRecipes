@@ -28,6 +28,10 @@ fun View.gone() {
     this.visibility = View.GONE
 }
 
+fun View.invisible() {
+    this.visibility = View.INVISIBLE
+}
+
 val View.isVisible: Boolean
     get() {
         return visibility == View.VISIBLE

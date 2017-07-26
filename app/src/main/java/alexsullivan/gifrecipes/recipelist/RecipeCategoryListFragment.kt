@@ -4,10 +4,7 @@ import alexsullivan.gifrecipes.GifRecipeUI
 import alexsullivan.gifrecipes.GifRecipeViewerActivity
 import alexsullivan.gifrecipes.R
 import alexsullivan.gifrecipes.search.SearchProvider
-import alexsullivan.gifrecipes.utils.addInfiniteScrollListener
-import alexsullivan.gifrecipes.utils.castedAdapter
-import alexsullivan.gifrecipes.utils.gone
-import alexsullivan.gifrecipes.utils.visible
+import alexsullivan.gifrecipes.utils.*
 import alexsullivan.gifrecipes.viewarchitecture.BaseFragment
 import android.os.Bundle
 import android.support.v4.app.ActivityOptionsCompat
@@ -63,7 +60,7 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
                 val adapter = list.castedAdapter(RecipeCategoryListAdapter::class.java)
                 adapter.gifList = listOf()
                 loading.visible()
-                list.gone()
+                list.invisible()
             }
             is RecipeCategoryListViewState.RecipeList -> {
                 val adapter = list.castedAdapter(RecipeCategoryListAdapter::class.java)
