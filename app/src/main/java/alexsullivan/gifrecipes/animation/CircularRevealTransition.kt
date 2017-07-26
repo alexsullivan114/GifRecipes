@@ -1,7 +1,9 @@
 package alexsullivan.gifrecipes.animation
 
+import alexsullivan.gifrecipes.utils.gone
 import alexsullivan.gifrecipes.utils.isInvisible
 import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.transition.Transition
 import android.transition.TransitionValues
 import android.view.ViewAnimationUtils
@@ -41,7 +43,18 @@ class CircularRevealTransition : Transition() {
         val startRadius = startValues.values[PROPNAME_START_RADIUS] as Int
 
         // create the animator for this view (the start radius is zero)
-        return ViewAnimationUtils.createCircularReveal(endValues.view, cx, cy, startRadius.toFloat(), endRadius.toFloat())
+        val animator = ViewAnimationUtils.createCircularReveal(endValues.view, cx, cy, startRadius.toFloat(), endRadius.toFloat())
+        // This is strange, but I'm seeing a flash at the end of an exit transition, and setting the views
+        // visibility to gone seems to fix it. Unfortunate hack.
+        animator.addListener(object: AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator?) {
+                if (endValues.view.isInvisible) {
+                    endValues.view.gone()
+                }
+            }
+        })
+
+        return animator
     }
 
     private fun captureValues(transitionValues: TransitionValues) {
