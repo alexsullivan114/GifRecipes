@@ -3,39 +3,39 @@ package alexsullivan.gifrecipes.recipelist;
 import alexsullivan.gifrecipes.GifRecipeUI
 import alexsullivan.gifrecipes.viewarchitecture.Presenter
 import alexsullivan.gifrecipes.viewarchitecture.ViewState
+import android.util.Log
 import com.alexsullivan.GifRecipeRepository
+import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import java.io.IOException
+import java.util.concurrent.TimeUnit
 
-class RecipeCategoryListPresenterImpl(val searchTerm: String,
+class RecipeCategoryListPresenterImpl(searchTerm: String,
                                       val repository: GifRecipeRepository) : RecipeCategoryListPresenter {
 
     val disposables = CompositeDisposable()
-    val pageRequestSize = 5
+    val pageRequestSize = 10
     var lastPageKey = ""
+    var lastQueryDisposable: Disposable? = null
+
+    override var searchTerm = searchTerm
+        set(value) {
+            Log.d("ff", value)
+            field = value
+            lastPageKey = ""
+            querySearchTerm()
+        }
 
     override val stateStream: BehaviorSubject<RecipeCategoryListViewState> by lazy {
         BehaviorSubject.create<RecipeCategoryListViewState>()
     }
 
     init {
-        disposables.add(repository.consumeGifRecipes(pageRequestSize, searchTerm, lastPageKey)
-                .subscribeOn(Schedulers.io())
-                .doOnSubscribe { stateStream.onNext(RecipeCategoryListViewState.Loading()) }
-                .doOnNext { lastPageKey = it.pageKey ?: lastPageKey }
-                .map { GifRecipeUI(it.url, it.thumbnail, it.imageType, it.title) }
-                .toList()
-                .subscribe({ result: List<GifRecipeUI> ->
-                    stateStream.onNext(RecipeCategoryListViewState.RecipeList(result))
-                }, {
-                    if (it is IOException) {
-                        stateStream.onNext(RecipeCategoryListViewState.NetworkError())
-                    }
-                }))
-
+        querySearchTerm()
     }
 
     override fun destroy() {
@@ -77,6 +77,34 @@ class RecipeCategoryListPresenterImpl(val searchTerm: String,
             }
         }
     }
+
+    override fun setSearchTermSource(source: Observable<String>) {
+        disposables.add(source
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .debounce(500, TimeUnit.MILLISECONDS)
+                .subscribe { searchTerm = it })
+    }
+
+    private fun querySearchTerm() {
+        lastQueryDisposable?.dispose()
+        lastQueryDisposable = repository.consumeGifRecipes(pageRequestSize, searchTerm, lastPageKey)
+                .subscribeOn(Schedulers.io())
+                .doOnSubscribe { stateStream.onNext(RecipeCategoryListViewState.Loading()) }
+                .doOnNext { lastPageKey = it.pageKey ?: lastPageKey }
+                .map { GifRecipeUI(it.url, it.thumbnail, it.imageType, it.title) }
+                .toList()
+                .subscribe({ result: List<GifRecipeUI> ->
+                    stateStream.onNext(RecipeCategoryListViewState.RecipeList(result))
+                }, {
+                    if (it is IOException) {
+                        stateStream.onNext(RecipeCategoryListViewState.NetworkError())
+                    }
+                })
+        lastQueryDisposable?.let {
+            disposables.add(it)
+        }
+    }
 }
 
 interface RecipeCategoryListPresenter : Presenter<RecipeCategoryListViewState> {
@@ -87,6 +115,8 @@ interface RecipeCategoryListPresenter : Presenter<RecipeCategoryListViewState> {
     }
 
     fun reachedBottom()
+    fun setSearchTermSource(source: Observable<String>)
+    var searchTerm: String
 }
 
 sealed class RecipeCategoryListViewState : ViewState {

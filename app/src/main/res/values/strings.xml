@@ -8,4 +8,5 @@
     <string name="salmon">Salmon</string>
 
     <string name="generic_network_error">Encountered a network error. Please try again later.</string>
+    <string name="search_gif_recipes">Search recipes</string>
 </resources>

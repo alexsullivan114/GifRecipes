@@ -5,8 +5,12 @@ import android.graphics.SurfaceTexture
 import android.support.v4.view.ViewPager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.TextureView
 import android.view.View
+import android.widget.EditText
+import io.reactivex.Observable
 
 fun View.show(value: Boolean) {
     if (value) {
@@ -23,6 +27,16 @@ fun View.visible() {
 fun View.gone() {
     this.visibility = View.GONE
 }
+
+val View.isVisible: Boolean
+    get() {
+        return visibility == View.VISIBLE
+    }
+
+val View.isInvisible: Boolean
+    get() {
+        return visibility == View.INVISIBLE
+    }
 
 fun ViewPager.pageChangeListener(pageScrollStateChanged: (Int) -> Unit = {},
                                  pageScrolled: (Int, Float, Int) -> Unit = { _, _, _ -> },
@@ -83,4 +97,26 @@ fun RecyclerView.addInfiniteScrollListener(onScrolledToBottomListener: () -> Uni
             }
         }
     })
+}
+
+fun <T: RecyclerView.Adapter<*>> RecyclerView.castedAdapter(clazz: Class<T>): T {
+    return adapter as T
+}
+
+fun EditText.textObservable(): Observable<String> {
+    return Observable.create {
+        addTextChangedListener(object: TextWatcher{
+            override fun afterTextChanged(s: Editable?) {
+                it.onNext(s.toString())
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                //no-op
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                //no-op
+            }
+        })
+    }
 }

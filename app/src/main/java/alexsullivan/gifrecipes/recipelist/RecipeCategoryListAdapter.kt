@@ -13,9 +13,15 @@ import kotlin.properties.Delegates
 class RecipeCategoryListAdapter(gifList: List<GifRecipeUI>,
                                 private val clickCallback: ClickCallback): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
+    // Our list is always increasing unless we change search terms, so we don't need to worry
+    // about what happens in other cases here.
     var gifList: List<GifRecipeUI> by Delegates.observable(gifList) { _, oldValue, newValue ->
-        if (oldValue != newValue) {
-            notifyItemRangeInserted(oldValue.size, newValue.size - oldValue.size)
+        if (newValue.isEmpty()) {
+            notifyItemRangeRemoved(0, oldValue.size)
+        } else {
+            if (oldValue != newValue) {
+                notifyItemRangeInserted(oldValue.size, newValue.size - oldValue.size)
+            }
         }
     }
 

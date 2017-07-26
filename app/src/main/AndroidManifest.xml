@@ -32,6 +32,11 @@
             android:name=".recipelist.RecipeCategoryContainerActivity"
             android:theme="@style/AppTheme.RecipeListTheme">
         </activity>
+        <activity
+            android:name=".search.CategorySearchActivity"
+            android:theme="@style/AppTheme.NoActionBar.Translucent"
+            android:windowSoftInputMode="stateVisible">
+        </activity>
     </application>
 
 </manifest>

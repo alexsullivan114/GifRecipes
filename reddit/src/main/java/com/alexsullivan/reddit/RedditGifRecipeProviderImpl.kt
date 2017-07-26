@@ -52,7 +52,7 @@ internal class RedditGifRecipeProviderImpl(val service: RedditService, val urlMa
 
     override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipe> {
         logger.d(TAG, "Consume recipes called with limit: $limit and search term: $searchTerm and page key: $pageKey")
-        return if (!searchTerm.isEmpty()) fetchWithSearchTerm(limit, searchTerm, pageKey) else fetchHot(limit, pageKey)
+        return if (!searchTerm.isEmpty()) fetchWithSearchTerm(limit, searchTerm, pageKey) else fetchHot(limit, searchTerm, pageKey)
     }
 
     private fun fetchWithSearchTerm(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipe> {
@@ -61,10 +61,10 @@ internal class RedditGifRecipeProviderImpl(val service: RedditService, val urlMa
                 .flatMap { processListingResponse(it, searchTerm) }
     }
 
-    private fun fetchHot(limit: Int, lastItem: String): Observable<GifRecipe> {
+    private fun fetchHot(limit: Int, lastItem: String, pageKey: String): Observable<GifRecipe> {
         logger.d(TAG, "Making hot request with limit $limit and last item $lastItem")
         var startTime = 0L
-        return service.hotRecipes(limit = limit, after = afterMap[""])
+        return service.hotRecipes(limit = limit, after = pageKey)
                 .doOnSubscribe { startTime = System.currentTimeMillis() }
                 .doOnNext {
                     val elapsedTime = System.currentTimeMillis() - startTime

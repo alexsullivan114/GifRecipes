@@ -3,6 +3,7 @@ package alexsullivan.gifrecipes.recipelist
 
 import alexsullivan.gifrecipes.Category
 import alexsullivan.gifrecipes.R
+import alexsullivan.gifrecipes.search.CategorySearchActivity
 import alexsullivan.gifrecipes.utils.pageChangeListener
 import alexsullivan.gifrecipes.utils.str
 import alexsullivan.gifrecipes.viewarchitecture.BaseActivity
@@ -10,6 +11,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.app.SharedElementCallback
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
@@ -52,6 +54,9 @@ class RecipeCategoryContainerActivity : BaseActivity<RecipesListViewState, Recip
         // Counter intuitive, but we're setting this enter shared element callback with regards to
         // entering the previous activity.
         setupEnterSharedTransitionCallback()
+        searchEditText.setOnClickListener({
+            startActivity(CategorySearchActivity.buildIntent(this), ActivityOptionsCompat.makeSceneTransitionAnimation(this).toBundle())
+        })
     }
 
     override fun finishAfterTransition() {

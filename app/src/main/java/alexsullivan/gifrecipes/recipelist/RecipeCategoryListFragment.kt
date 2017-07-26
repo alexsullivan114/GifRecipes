@@ -3,7 +3,9 @@ package alexsullivan.gifrecipes.recipelist
 import alexsullivan.gifrecipes.GifRecipeUI
 import alexsullivan.gifrecipes.GifRecipeViewerActivity
 import alexsullivan.gifrecipes.R
+import alexsullivan.gifrecipes.search.SearchProvider
 import alexsullivan.gifrecipes.utils.addInfiniteScrollListener
+import alexsullivan.gifrecipes.utils.castedAdapter
 import alexsullivan.gifrecipes.utils.gone
 import alexsullivan.gifrecipes.utils.visible
 import alexsullivan.gifrecipes.viewarchitecture.BaseFragment
@@ -38,9 +40,18 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
         return RecipeCategoryListPresenter.create(searchTerm, GifRecipeRepository.default)
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (activity is SearchProvider) {
+            presenter.setSearchTermSource((activity as SearchProvider).getObservableSource())
+        }
+
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.layout_recipe_category_list, container, false)
         view.list.layoutManager = LinearLayoutManager(context)
+        view.list.adapter = RecipeCategoryListAdapter(listOf(), this)
         view.list.addInfiniteScrollListener {
             presenter.reachedBottom()
         }
@@ -50,17 +61,15 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
     override fun accept(viewState: RecipeCategoryListViewState) {
         when (viewState) {
             is RecipeCategoryListViewState.Loading -> {
+                val adapter = list.castedAdapter(RecipeCategoryListAdapter::class.java)
+                adapter.gifList = listOf()
                 loading.visible()
                 list.gone()
             }
             is RecipeCategoryListViewState.RecipeList -> {
-                if (list.adapter == null) {
-                    list.adapter = RecipeCategoryListAdapter(viewState.recipes, this)
-                } else {
-                    val adapter = list.adapter as RecipeCategoryListAdapter
-                    adapter.showBottomLoading = false
-                    adapter.gifList = viewState.recipes
-                }
+                val adapter = list.castedAdapter(RecipeCategoryListAdapter::class.java)
+                adapter.showBottomLoading = false
+                adapter.gifList = viewState.recipes
                 loading.gone()
                 list.visible()
             }
