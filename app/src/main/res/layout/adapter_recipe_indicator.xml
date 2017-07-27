@@ -25,7 +25,7 @@
         android:layout_below="@+id/image"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="12dp"
-        android:textColor="@color/disabled_grey"
+        android:textColor="@color/disabledGrey"
         tools:text="FFFFF"/>
 
 </RelativeLayout>

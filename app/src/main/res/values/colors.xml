@@ -5,6 +5,7 @@
     <color name="colorAccent">#FF4081</color>
     <color name="colorGrayMask">#AA000000</color>
     <color name="background_list">#DDD</color>
-    <color name="disabled_grey">#7e7e7e</color>
+    <color name="disabledGrey">#7e7e7e</color>
     <color name="transparentActivityBackground">#AA000000</color>
+    <color name="transparentViewOverlayBackground">#44000000</color>
 </resources>

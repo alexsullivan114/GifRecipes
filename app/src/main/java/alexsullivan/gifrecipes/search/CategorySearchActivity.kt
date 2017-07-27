@@ -46,7 +46,7 @@ class CategorySearchActivity : BaseActivity<CategorySearchViewState, CategorySea
     }
 
     override fun acknowledge(error: Throwable) {
-        
+
     }
 
     override fun getObservableSource(): Observable<String> {

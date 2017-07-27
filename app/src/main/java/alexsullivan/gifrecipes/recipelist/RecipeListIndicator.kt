@@ -61,7 +61,7 @@ class RecipeListIndicatorAdapter(val selectedIndexCallback: SelectedIndexCallbac
         if (category == selectedCategory) {
             holder.text.setTextColor(Color.WHITE)
         } else {
-            holder.text.setTextColor(holder.text.context.resources.getColor(R.color.disabled_grey))
+            holder.text.setTextColor(holder.text.context.resources.getColor(R.color.disabledGrey))
         }
     }
 

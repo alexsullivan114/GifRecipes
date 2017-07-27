@@ -102,20 +102,24 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
             is GifRecipeViewerViewState.Preloading -> {
                 loadPlaceholderImage(viewState.recipe)
                 progress.visibility = View.VISIBLE
+                titleText.text = viewState.recipe.title
             }
             is GifRecipeViewerViewState.Loading -> {
                 loadPlaceholderImage(viewState.recipe)
                 progress.visibility = View.VISIBLE
                 progress.progress = viewState.progress.toFloat()
+                titleText.text = viewState.recipe.title
             }
             is GifRecipeViewerViewState.PlayingVideo -> {
                 progress.visibility = View.GONE
+                titleText.text = viewState.recipe.title
                 loadPlaceholderImage(viewState.recipe)
                 url = viewState.url
                 toggleVideoMode()
             }
             is GifRecipeViewerViewState.PlayingGif -> {
                 progress.visibility = View.GONE
+                titleText.text = viewState.recipe.title
                 loadPlaceholderImage(viewState.recipe, {aspectRatio ->
                     toggleGifMode(aspectRatio, viewState.url)
                 })
