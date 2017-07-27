@@ -25,7 +25,7 @@
                 android:layout_height="wrap_content"
                 android:paddingRight="24dp">
 
-                <ImageView
+                <ImageButton
                     android:id="@+id/searchEditText"
                     android:layout_width="24dp"
                     android:layout_height="24dp"

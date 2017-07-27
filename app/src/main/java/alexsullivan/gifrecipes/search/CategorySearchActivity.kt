@@ -55,6 +55,7 @@ class CategorySearchActivity : BaseActivity<CategorySearchViewState, CategorySea
 
     private fun setEnterTransition() {
         val circularReveal = CircularRevealTransition()
+        circularReveal.duration = 500
         window.enterTransition = circularReveal
     }
 }
