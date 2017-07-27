@@ -36,6 +36,8 @@ class CategorySelectionPresenterImpl(repository: GifRecipeRepository) : Category
                         {
                             if (it is IOException) {
                                 stateStream.onNext(CategorySelectionViewState.NetworkError())
+                            } else {
+                                throw it
                             }
                         }))
 

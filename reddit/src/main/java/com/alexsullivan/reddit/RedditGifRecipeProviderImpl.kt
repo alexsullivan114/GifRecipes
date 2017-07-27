@@ -78,6 +78,7 @@ internal class RedditGifRecipeProviderImpl(val service: RedditService, val urlMa
         return Observable.just(listing)
                 .flatMap { response -> Observable.fromIterable(response.data.children)
                         .map { it.copy(pageKey = response.data.after) }}
+                .filter { !it.removed }
                 .map { RedditGifRecipe(it.url, it.id, ImageType.GIF, it.thumbnail, it.previewUrl, it.domain, it.title, it.pageKey) }
                 .flatMap {
                     var returnObservable = Observable.just(it)

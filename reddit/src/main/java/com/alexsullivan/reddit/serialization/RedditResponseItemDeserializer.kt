@@ -1,10 +1,7 @@
 package com.alexsullivan.reddit.serialization
 
 import com.alexsullivan.reddit.models.RedditListingItem
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import com.google.gson.JsonParseException
+import com.google.gson.*
 import java.lang.reflect.Type
 
 internal class RedditResponseItemDeserializer : JsonDeserializer<RedditListingItem> {
@@ -14,9 +11,15 @@ internal class RedditResponseItemDeserializer : JsonDeserializer<RedditListingIt
             val jObject = json.asJsonObject
             val kind = jObject.get("kind").asString
             val data = jObject.getAsJsonObject("data")
+            val removed = data.get("removal_reason")
+            // If this post was removed for legal reasons, we're not going to try and gather its
+            // details.
+            if (removed != JsonNull.INSTANCE) {
+                return RedditListingItem("", "", "", "", "", "", "", null, true)
+            }
             val id = data.get("id").asString
             val url = data.get("url").asString
-            val thumbnail = data.get("thumbnail").asString
+            val thumbnail = data.get("thumbnail")
             val preview = data.getAsJsonObject("preview")
             val title = data.get("title").asString
             var previewUrl: String? = null
@@ -31,7 +34,7 @@ internal class RedditResponseItemDeserializer : JsonDeserializer<RedditListingIt
                 }
             }
             val domain: String = data.get("domain").asString
-            return RedditListingItem(kind, id, url, domain, thumbnail, previewUrl, title, null)
+            return RedditListingItem(kind, id, url, domain, "", previewUrl, title, null)
         }
         catch (exception: JsonParseException) {
             throw JsonParseException("Json doesn't match expected reddit listing format! " + exception)
