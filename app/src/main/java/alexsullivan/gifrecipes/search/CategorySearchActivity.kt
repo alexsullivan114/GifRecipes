@@ -42,11 +42,11 @@ class CategorySearchActivity : BaseActivity<CategorySearchViewState, CategorySea
     }
 
     override fun accept(viewState: CategorySearchViewState) {
-        TODO("not implemented")
+        // no view states to handle.
     }
 
     override fun acknowledge(error: Throwable) {
-        TODO("not implemented")
+        
     }
 
     override fun getObservableSource(): Observable<String> {
