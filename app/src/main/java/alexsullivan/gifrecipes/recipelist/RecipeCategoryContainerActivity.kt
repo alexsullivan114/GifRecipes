@@ -10,6 +10,7 @@ import alexsullivan.gifrecipes.viewarchitecture.BaseActivity
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.Rect
 import android.os.Bundle
 import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.app.SharedElementCallback
@@ -55,7 +56,9 @@ class RecipeCategoryContainerActivity : BaseActivity<RecipesListViewState, Recip
         // entering the previous activity.
         setupEnterSharedTransitionCallback()
         searchEditText.setOnClickListener({
-            startActivity(CategorySearchActivity.buildIntent(this), ActivityOptionsCompat.makeSceneTransitionAnimation(this).toBundle())
+            val rect = Rect()
+            it.getGlobalVisibleRect(rect)
+            startActivity(CategorySearchActivity.buildIntent(this, rect.exactCenterX(), rect.exactCenterY()), ActivityOptionsCompat.makeSceneTransitionAnimation(this).toBundle())
         })
     }
 

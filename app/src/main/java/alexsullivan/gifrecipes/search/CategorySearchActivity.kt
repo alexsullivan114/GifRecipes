@@ -17,8 +17,11 @@ import kotlinx.android.synthetic.main.layout_category_search.*
 class CategorySearchActivity : BaseActivity<CategorySearchViewState, CategorySearchPresenter>(), SearchProvider {
 
     companion object {
-        fun buildIntent(context: Context): Intent {
+        val X_KEY = "X"
+        val Y_KEY = "Y"
+        fun buildIntent(context: Context, x: Float, y: Float): Intent {
             val intent = Intent(context, CategorySearchActivity::class.java)
+            intent.putExtra(X_KEY, x).putExtra(Y_KEY, y)
             return intent
         }
     }
@@ -54,7 +57,7 @@ class CategorySearchActivity : BaseActivity<CategorySearchViewState, CategorySea
     }
 
     private fun setEnterTransition() {
-        val circularReveal = CircularRevealTransition()
+        val circularReveal = CircularRevealTransition(intent.getFloatExtra(X_KEY, 0f), intent.getFloatExtra(Y_KEY, 0f))
         circularReveal.duration = 500
         window.enterTransition = circularReveal
     }

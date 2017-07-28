@@ -12,7 +12,7 @@ import android.view.ViewGroup
 /**
  * Created by Alex Sullivan on 5/7/2016.
  */
-class CircularRevealTransition : Transition() {
+class CircularRevealTransition(val x: Float, val y: Float) : Transition() {
 
     override fun captureStartValues(transitionValues: TransitionValues) {
         // IF VIEW IS INVISIBLE (and we're transitioning into the scene)
@@ -60,8 +60,6 @@ class CircularRevealTransition : Transition() {
     private fun captureValues(transitionValues: TransitionValues) {
         val view = transitionValues.view
 
-        val cx = view.width.toFloat()
-        val cy = 0f
         var endRadius = 0
         var startRadius = 0
         if (view.isInvisible) {
@@ -74,8 +72,8 @@ class CircularRevealTransition : Transition() {
 
         transitionValues.values.put(PROPNAME_START_RADIUS, startRadius)
         transitionValues.values.put(PROPNAME_END_RADIUS, endRadius)
-        transitionValues.values.put(PROPNAME_CX, cx)
-        transitionValues.values.put(PROPNAME_CY, cy)
+        transitionValues.values.put(PROPNAME_CX, x)
+        transitionValues.values.put(PROPNAME_CY, y)
     }
 
     companion object {
