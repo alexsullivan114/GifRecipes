@@ -42,10 +42,12 @@ class GifRecipesApp: Application(){
             if (updated is NullPointerException || updated is IllegalArgumentException) {
                 // that's likely a bug in the application
                 Thread.currentThread().uncaughtExceptionHandler.uncaughtException(Thread.currentThread(), updated)
+                return@Consumer
             }
             if (updated is IllegalStateException) {
                 // that's a bug in RxJava or in a custom operator
                 Thread.currentThread().uncaughtExceptionHandler.uncaughtException(Thread.currentThread(), updated)
+                return@Consumer
             }
             Log.w("Application", "Undeliverable exception received, not sure what to do", it)
         }))

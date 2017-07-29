@@ -4,6 +4,7 @@ package alexsullivan.gifrecipes.recipelist
 import alexsullivan.gifrecipes.Category
 import alexsullivan.gifrecipes.R
 import alexsullivan.gifrecipes.search.CategorySearchActivity
+import alexsullivan.gifrecipes.utils.animatedSetImage
 import alexsullivan.gifrecipes.utils.pageChangeListener
 import alexsullivan.gifrecipes.utils.str
 import alexsullivan.gifrecipes.viewarchitecture.BaseActivity
@@ -14,7 +15,6 @@ import android.graphics.Rect
 import android.os.Bundle
 import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.app.SharedElementCallback
-import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import kotlinx.android.synthetic.main.layout_recipes_list.*
 
@@ -39,6 +39,11 @@ class RecipeCategoryContainerActivity : BaseActivity<RecipesListViewState, Recip
         super.onCreate(savedInstanceState)
         setContentView(R.layout.layout_recipes_list)
         category = intent.getSerializableExtra(CATEGORY_KEY) as Category
+        presenter.categorySelected(category)
+        categoryImage.transitionName = str(category.transitionName)
+        categoryImage.setImageResource(category.iconRes)
+        categoryTitle.setText(category.displayName)
+        pager.currentItem = indexFromCategory(category)
         pager.adapter = RecipeListPagerAdapter(supportFragmentManager, applicationContext)
         pager.offscreenPageLimit = 1
         // Note: I'm not sure why this works - it seems ambiguous which method this would call in the
@@ -46,12 +51,6 @@ class RecipeCategoryContainerActivity : BaseActivity<RecipesListViewState, Recip
         pager.pageChangeListener {
             presenter.categorySelected(categoryFromIndex(it))
         }
-        indicatorList.setHasFixedSize(true)
-        indicatorList.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        indicatorList.adapter = RecipeListIndicatorAdapter(presenter, indicatorList.layoutManager)
-        // Postpone our enter transition until the recyclerview has fully rendered.
-        supportPostponeEnterTransition()
-        indicatorList.post { supportStartPostponedEnterTransition() }
         // Counter intuitive, but we're setting this enter shared element callback with regards to
         // entering the previous activity.
         setupEnterSharedTransitionCallback()
@@ -73,10 +72,12 @@ class RecipeCategoryContainerActivity : BaseActivity<RecipesListViewState, Recip
     override fun accept(viewState: RecipesListViewState) {
         when (viewState) {
             is RecipesListViewState.IndicatorState -> {
-                category = viewState.selectedCategory
-                (indicatorList.adapter as RecipeListIndicatorAdapter).selectedCategory = category
-                if (pager.currentItem != indexFromCategory(category)) {
+                if (viewState.selectedCategory != category) {
+                    category = viewState.selectedCategory
                     pager.currentItem = indexFromCategory(category)
+                    categoryImage.transitionName = str(category.transitionName)
+                    categoryImage.animatedSetImage(category.iconRes)
+                    categoryTitle.setText(category.displayName)
                 }
             }
         }
@@ -86,22 +87,14 @@ class RecipeCategoryContainerActivity : BaseActivity<RecipesListViewState, Recip
         TODO("not implemented")
     }
 
-    // Return the currently displayed viewholder if there is one, or null otherwise.
-    private fun currentCategoryView(): View? {
-        val holder = indicatorList.findViewHolderForLayoutPosition(indexFromCategory(category)) as? RecipeListIndicatorAdapter.RecipeListIndicatorViewHolder
-        return holder?.image
-    }
-
     private fun setupEnterSharedTransitionCallback() {
         setEnterSharedElementCallback(object: SharedElementCallback(){
             override fun onMapSharedElements(names: MutableList<String>?, sharedElements: MutableMap<String, View>?) {
                 val startingCategory = intent.getSerializableExtra(CATEGORY_KEY) as Category
-                currentCategoryView()?.let {
-                    names?.remove(str(startingCategory.transitionName))
-                    sharedElements?.remove(str(startingCategory.transitionName))
-                    names?.add(str(category.transitionName))
-                    sharedElements?.put(str(category.transitionName), it)
-                }
+                names?.remove(str(startingCategory.transitionName))
+                sharedElements?.remove(str(startingCategory.transitionName))
+                names?.add(str(category.transitionName))
+                sharedElements?.put(str(category.transitionName), categoryImage)
             }
         })
     }

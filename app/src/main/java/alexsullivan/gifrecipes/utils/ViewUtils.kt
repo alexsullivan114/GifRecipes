@@ -1,7 +1,10 @@
 package alexsullivan.gifrecipes.utils
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.graphics.Matrix
 import android.graphics.SurfaceTexture
+import android.support.annotation.IdRes
 import android.support.v4.view.ViewPager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -9,7 +12,9 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.TextureView
 import android.view.View
+import android.view.ViewAnimationUtils
 import android.widget.EditText
+import android.widget.ImageView
 import io.reactivex.Observable
 
 fun View.show(value: Boolean) {
@@ -123,4 +128,24 @@ fun EditText.textObservable(): Observable<String> {
             }
         })
     }
+}
+
+fun ImageView.animatedSetImage(@IdRes resource: Int) {
+    // Don't try to animate if we're not attached to the window...
+    if (!isAttachedToWindow) {
+        setImageResource(resource)
+        return
+    }
+    val startRadius = Math.sqrt((width * width + height * height).toDouble()).toFloat()
+    val startAnimator = ViewAnimationUtils.createCircularReveal(this, width / 2, height / 2, startRadius, 0f)
+    val endAnimator = ViewAnimationUtils.createCircularReveal(this, width / 2, height / 2, 0f, startRadius)
+
+    startAnimator.addListener(object: AnimatorListenerAdapter(){
+        override fun onAnimationEnd(animation: Animator?) {
+            setImageResource(resource)
+            endAnimator.start()
+        }
+    })
+
+    startAnimator.start()
 }

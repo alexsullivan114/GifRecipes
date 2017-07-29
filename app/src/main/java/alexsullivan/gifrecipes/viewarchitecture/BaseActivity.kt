@@ -65,6 +65,7 @@ abstract class BaseActivity<T: ViewState, P: Presenter<T>>: AppCompatActivity() 
 
     override fun onStop() {
         super.onStop()
+        Log.i(TAG, "Unsubscribing from state stream")
         disposables.clear()
     }
 

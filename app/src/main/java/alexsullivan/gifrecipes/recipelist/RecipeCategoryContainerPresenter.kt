@@ -38,7 +38,5 @@ interface RecipesListPresenter : Presenter<RecipesListViewState>, SelectedIndexC
 }
 
 sealed class RecipesListViewState : ViewState {
-    // TODO: We probably don't want indicator list in its own view state - this is just to get everything
-    // up and working along the same architecture we've been using.
     class IndicatorState(val selectedCategory: Category): RecipesListViewState()
 }
