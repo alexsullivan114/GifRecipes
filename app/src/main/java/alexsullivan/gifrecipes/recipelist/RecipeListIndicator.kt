@@ -25,37 +25,29 @@ class RecipeListIndicatorAdapter(val selectedIndexCallback: SelectedIndexCallbac
 
     override fun onBindViewHolder(holder: RecipeListIndicatorViewHolder, position: Int) {
         var iconRes = 0
-        var transitionNameRes = 0
         val category = categoryFromIndex(position)
         when(category) {
             Category.DESSERT -> {
                 iconRes = Category.DESSERT.iconRes
-                transitionNameRes = R.string.category_transition_image_dessert
             }
             Category.VEGETARIAN -> {
                 iconRes = Category.VEGETARIAN.iconRes
-                transitionNameRes = R.string.category_transition_image_vegetarian
             }
             Category.VEGAN -> {
                 iconRes = Category.VEGAN.iconRes
-                transitionNameRes = R.string.category_transition_image_vegan
             }
             Category.CHICKEN -> {
                 iconRes = Category.CHICKEN.iconRes
-                transitionNameRes = R.string.category_transition_image_chicken
             }
             Category.PORK -> {
                 iconRes = Category.PORK.iconRes
-                transitionNameRes = R.string.category_transition_image_pork
             }
             Category.SALMON ->{
                 iconRes = Category.SALMON.iconRes
-                transitionNameRes = R.string.category_transition_image_salmon
             }
         }
 
         holder.image.setImageResource(iconRes)
-//        holder.image.transitionName = holder.image.context.getString(transitionNameRes)
         holder.text.setText(category.displayName)
         holder.mask.show(category != selectedCategory)
         if (category == selectedCategory) {

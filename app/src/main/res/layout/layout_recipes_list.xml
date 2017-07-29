@@ -7,57 +7,91 @@
     android:layout_height="match_parent"
     tools:context="alexsullivan.gifrecipes.recipelist.RecipeCategoryContainerActivity">
 
-    <android.support.design.widget.AppBarLayout
+    <alexsullivan.gifrecipes.components.StateAwareAppBarLayout
+        android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fitsSystemWindows="true">
+        android:layout_height="300dp"
+        app:expanded="false">
 
-        <android.support.v7.widget.Toolbar
-            android:id="@+id/toolbar"
+        <android.support.design.widget.CollapsingToolbarLayout
+            android:id="@+id/collapsingToolbarLayout"
             android:layout_width="match_parent"
-            android:layout_height="?android:attr/actionBarSize"
-            android:theme="@style/WhiteToolbar"
-            app:layout_scrollFlags="scroll|enterAlways">
+            android:layout_height="match_parent"
+            android:fitsSystemWindows="true"
+            app:contentScrim="@color/colorPrimary"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
+            app:titleEnabled="false">
 
-            <LinearLayout
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/indicatorList"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingRight="24dp">
+                android:layout_marginTop="?attr/actionBarSize"
+                android:clipToPadding="false"
+                android:paddingBottom="38dp"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
+                android:paddingTop="24dp"/>
 
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/categoryImage"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_gravity="left|center_vertical"
-                    android:src="@drawable/big_chicken"
-                    android:transitionName="@string/category_transition_image_chicken"/>
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:minHeight="?attr/actionBarSize"
+                android:theme="@style/BlackToolbar"
+                android:background="@android:color/white"
+                android:foreground="?attr/selectableItemBackground"
+                app:layout_collapseMode="pin">
 
-                <TextView
-                    android:id="@+id/categoryTitle"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:gravity="center"
-                    android:layout_marginLeft="24dp"
-                    android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Title"/>
+                    android:paddingRight="24dp">
 
-                <android.support.v4.widget.Space
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"/>
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/categoryImage"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_gravity="left|center_vertical"
+                        android:src="@drawable/big_chicken"
+                        android:transitionName="@string/category_transition_image_chicken"/>
 
-                <ImageButton
-                    android:id="@+id/searchEditText"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:background="@drawable/ic_search"
-                    android:layout_gravity="right|center_vertical"/>
+                    <TextView
+                        android:id="@+id/categoryTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="24dp"
+                        android:gravity="center"
+                        android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Title"/>
 
-            </LinearLayout>
+                    <ImageView
+                        android:id="@+id/dropDownArrow"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="8dp"
+                        android:src="@drawable/ic_arrow_drop_down"/>
 
-        </android.support.v7.widget.Toolbar>
+                    <android.support.v4.widget.Space
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"/>
 
-    </android.support.design.widget.AppBarLayout>
+                    <ImageButton
+                        android:id="@+id/searchEditText"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="right|center_vertical"
+                        android:background="@drawable/ic_search"/>
+
+                </LinearLayout>
+
+            </android.support.v7.widget.Toolbar>
+
+        </android.support.design.widget.CollapsingToolbarLayout>
+
+    </alexsullivan.gifrecipes.components.StateAwareAppBarLayout>
 
     <android.support.v4.view.ViewPager
         android:id="@+id/pager"

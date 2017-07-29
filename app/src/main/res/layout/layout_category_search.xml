@@ -13,7 +13,6 @@
         android:id="@+id/toolbar"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingTop="24dp"
         android:background="@android:color/white"
         android:minHeight="?attr/actionBarSize"
         android:theme="?attr/actionBarTheme"

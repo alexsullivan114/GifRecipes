@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorPrimary">@android:color/white</color>
+    <color name="colorPrimaryDark">#DDD</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="colorGrayMask">#AA000000</color>
+    <color name="colorGrayMask">#55000000</color>
+    <color name="grayIconIndicator">#77000000</color>
     <color name="background_list">#DDD</color>
     <color name="disabledGrey">#7e7e7e</color>
     <color name="transparentActivityBackground">#AA000000</color>

@@ -3,8 +3,10 @@ package alexsullivan.gifrecipes.recipelist
 
 import alexsullivan.gifrecipes.Category
 import alexsullivan.gifrecipes.R
+import alexsullivan.gifrecipes.components.StateAwareAppBarLayout
 import alexsullivan.gifrecipes.search.CategorySearchActivity
 import alexsullivan.gifrecipes.utils.animatedSetImage
+import alexsullivan.gifrecipes.utils.castedAdapter
 import alexsullivan.gifrecipes.utils.pageChangeListener
 import alexsullivan.gifrecipes.utils.str
 import alexsullivan.gifrecipes.viewarchitecture.BaseActivity
@@ -15,10 +17,12 @@ import android.graphics.Rect
 import android.os.Bundle
 import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.app.SharedElementCallback
+import android.support.v7.widget.GridLayoutManager
+import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import kotlinx.android.synthetic.main.layout_recipes_list.*
 
-class RecipeCategoryContainerActivity : BaseActivity<RecipesListViewState, RecipesListPresenter>() {
+class RecipeCategoryContainerActivity : BaseActivity<RecipesListViewState, RecipesListPresenter>(), SelectedIndexCallback {
 
     lateinit var category: Category
 
@@ -43,9 +47,21 @@ class RecipeCategoryContainerActivity : BaseActivity<RecipesListViewState, Recip
         categoryImage.transitionName = str(category.transitionName)
         categoryImage.setImageResource(category.iconRes)
         categoryTitle.setText(category.displayName)
-        pager.currentItem = indexFromCategory(category)
         pager.adapter = RecipeListPagerAdapter(supportFragmentManager, applicationContext)
+        pager.currentItem = indexFromCategory(category)
         pager.offscreenPageLimit = 1
+        indicatorList.layoutManager = GridLayoutManager(this, 2, LinearLayoutManager.HORIZONTAL, false)
+        indicatorList.adapter = RecipeListIndicatorAdapter(this, indicatorList.layoutManager)
+        indicatorList.castedAdapter(RecipeListIndicatorAdapter::class.java).selectedCategory = category
+        appBarLayout.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
+            val totalRange = appBarLayout.totalScrollRange
+            val percentScrolled = -1 * (verticalOffset / totalRange.toFloat())
+            dropDownArrow.rotation = 180 * (1 - percentScrolled)
+        }
+        toolbar.setOnClickListener {
+            appBarLayout.setExpanded(appBarLayout.currentState() == StateAwareAppBarLayout.State.COLLAPSED)
+        }
+        appBarLayout
         // Note: I'm not sure why this works - it seems ambiguous which method this would call in the
         // page change listener...
         pager.pageChangeListener {
@@ -78,6 +94,7 @@ class RecipeCategoryContainerActivity : BaseActivity<RecipesListViewState, Recip
                     categoryImage.transitionName = str(category.transitionName)
                     categoryImage.animatedSetImage(category.iconRes)
                     categoryTitle.setText(category.displayName)
+                    indicatorList.castedAdapter(RecipeListIndicatorAdapter::class.java).selectedCategory = category
                 }
             }
         }
@@ -85,6 +102,10 @@ class RecipeCategoryContainerActivity : BaseActivity<RecipesListViewState, Recip
 
     override fun acknowledge(error: Throwable) {
         TODO("not implemented")
+    }
+
+    override fun categorySelected(category: Category) {
+        presenter.categorySelected(category)
     }
 
     private fun setupEnterSharedTransitionCallback() {

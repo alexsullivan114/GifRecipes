@@ -86,7 +86,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.79"
+            app:layout_constraintGuide_percent="0.785"
             tools:layout_editor_absoluteX="0dp"
             tools:layout_editor_absoluteY="369dp"/>
 
@@ -167,10 +167,10 @@
             android:id="@+id/pager"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginBottom="32dp"
+            android:layout_marginBottom="48dp"
             android:layout_marginLeft="0dp"
             android:layout_marginRight="0dp"
-            android:layout_marginTop="32dp"
+            android:layout_marginTop="8dp"
             app:layout_constraintBottom_toTopOf="@+id/vegetarian"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
