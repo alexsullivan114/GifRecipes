@@ -9,4 +9,5 @@
     <color name="disabledGrey">#7e7e7e</color>
     <color name="transparentActivityBackground">#AA000000</color>
     <color name="transparentViewOverlayBackground">#44000000</color>
+    <color name="yellow">#ffff00</color>
 </resources>

@@ -1,20 +1,17 @@
 package alexsullivan.gifrecipes.utils
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
 import android.graphics.Matrix
+import android.graphics.Rect
 import android.graphics.SurfaceTexture
-import android.support.annotation.IdRes
 import android.support.v4.view.ViewPager
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.TextureView
+import android.view.TouchDelegate
 import android.view.View
-import android.view.ViewAnimationUtils
 import android.widget.EditText
-import android.widget.ImageView
 import io.reactivex.Observable
 
 fun View.show(value: Boolean) {
@@ -130,22 +127,35 @@ fun EditText.textObservable(): Observable<String> {
     }
 }
 
-fun ImageView.animatedSetImage(@IdRes resource: Int) {
-    // Don't try to animate if we're not attached to the window...
-    if (!isAttachedToWindow) {
-        setImageResource(resource)
-        return
-    }
-    val startRadius = Math.sqrt((width * width + height * height).toDouble()).toFloat()
-    val startAnimator = ViewAnimationUtils.createCircularReveal(this, width / 2, height / 2, startRadius, 0f)
-    val endAnimator = ViewAnimationUtils.createCircularReveal(this, width / 2, height / 2, 0f, startRadius)
+fun View.bumpTapTarget() {
 
-    startAnimator.addListener(object: AnimatorListenerAdapter(){
-        override fun onAnimationEnd(animation: Animator?) {
-            setImageResource(resource)
-            endAnimator.start()
+    val runnable = {
+        val delegateArea = Rect()
+        getHitRect(delegateArea)
+        val touchAreaExpansion = 50
+        delegateArea.top -= touchAreaExpansion
+        delegateArea.left -= touchAreaExpansion
+        delegateArea.right += touchAreaExpansion
+        delegateArea.bottom += touchAreaExpansion
+        val touchDelegate = TouchDelegate(delegateArea, this)
+        if (parent is View) {
+            (parent as View).touchDelegate = touchDelegate
         }
-    })
+    }
 
-    startAnimator.start()
+    if (isAttachedToWindow && isLaidOut) {
+        runnable()
+    } else {
+        addOnAttachStateChangeListener(object: View.OnAttachStateChangeListener{
+            var hasRun = false
+            override fun onViewDetachedFromWindow(v: View?) = Unit
+
+            override fun onViewAttachedToWindow(v: View?) {
+                if (!hasRun) {
+                    post(runnable)
+                    hasRun = true
+                }
+            }
+        })
+    }
 }

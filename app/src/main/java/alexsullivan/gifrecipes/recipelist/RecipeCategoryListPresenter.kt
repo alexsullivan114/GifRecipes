@@ -3,7 +3,6 @@ package alexsullivan.gifrecipes.recipelist;
 import alexsullivan.gifrecipes.GifRecipeUI
 import alexsullivan.gifrecipes.viewarchitecture.Presenter
 import alexsullivan.gifrecipes.viewarchitecture.ViewState
-import android.util.Log
 import com.alexsullivan.GifRecipeRepository
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -24,7 +23,6 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
 
     override var searchTerm = searchTerm
         set(value) {
-            Log.d("ff", value)
             field = value
             lastPageKey = ""
             querySearchTerm()

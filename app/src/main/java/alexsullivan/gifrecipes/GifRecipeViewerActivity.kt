@@ -1,10 +1,7 @@
 package alexsullivan.gifrecipes
 
 import alexsullivan.gifrecipes.cache.CacheServerImpl
-import alexsullivan.gifrecipes.utils.adjustAspectRatio
-import alexsullivan.gifrecipes.utils.endListener
-import alexsullivan.gifrecipes.utils.safeApply
-import alexsullivan.gifrecipes.utils.surfaceTextureAvailableListener
+import alexsullivan.gifrecipes.utils.*
 import alexsullivan.gifrecipes.viewarchitecture.BaseActivity
 import android.annotation.SuppressLint
 import android.content.Context
@@ -12,6 +9,7 @@ import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.media.MediaPlayer
 import android.os.Bundle
+import android.support.v4.content.ContextCompat
 import android.view.Surface
 import android.view.View
 import android.view.WindowManager
@@ -60,6 +58,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
     @SuppressLint("Recycle")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Keep the screen on so we don't get annoyingly dimmed.
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         // If our activity is being recreated, the shared element transition already happened.
         savedInstanceState?.let {
@@ -71,6 +70,13 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
         window.enterTransition.addListener(endListener { sharedElementTransitionDone = true })
         video.surfaceTextureAvailableListener { surface, _, _ -> this@GifRecipeViewerActivity.surface = Surface(surface) }
         root.setOnClickListener { finishAfterTransition() }
+        favorite.bumpTapTarget()
+        favorite.setOnClickListener {
+            favorite.animateImageChange {
+                favorite.setImageResource(R.drawable.ic_star)
+                favorite.setColorFilter(ContextCompat.getColor(this, android.R.color.white))
+            }
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
