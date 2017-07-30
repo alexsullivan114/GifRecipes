@@ -74,12 +74,13 @@
 
         <TextView
             android:id="@+id/titleText"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:textAppearance="@style/BaseTextAppearance"
             android:textColor="@android:color/white"
             android:textSize="14sp"
+            android:layout_weight="4"
             tools:text="Testing"/>
 
         <android.support.v4.widget.Space
