@@ -1,6 +1,8 @@
 package alexsullivan.gifrecipes
 
+import alexsullivan.gifrecipes.application.AndroidLogger
 import alexsullivan.gifrecipes.cache.CacheServerImpl
+import alexsullivan.gifrecipes.database.RoomRecipeDatabaseHolder
 import alexsullivan.gifrecipes.utils.*
 import alexsullivan.gifrecipes.viewarchitecture.BaseActivity
 import android.annotation.SuppressLint
@@ -9,7 +11,6 @@ import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.media.MediaPlayer
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
 import android.view.Surface
 import android.view.View
 import android.view.WindowManager
@@ -52,7 +53,8 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
 
     override fun initPresenter(): GifRecipeViewerPresenter {
         return GifRecipeViewerPresenter.create(intent.getParcelableExtra(RECIPE_KEY),
-                CacheServerImpl.instance())
+                CacheServerImpl.instance(), RoomRecipeDatabaseHolder.get(this.applicationContext),
+                AndroidLogger)
     }
 
     @SuppressLint("Recycle")
@@ -70,12 +72,12 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
         window.enterTransition.addListener(endListener { sharedElementTransitionDone = true })
         video.surfaceTextureAvailableListener { surface, _, _ -> this@GifRecipeViewerActivity.surface = Surface(surface) }
         root.setOnClickListener { finishAfterTransition() }
+        // We're doing this so that if a user accidentally clicks the bottom bar (i.e. when trying to
+        // click the favorite button or something) we dont frustratingly close the page.
+        bottomBar.isClickable = true
         favorite.bumpTapTarget()
         favorite.setOnClickListener {
-            favorite.animateImageChange {
-                favorite.setImageResource(R.drawable.ic_star)
-                favorite.setColorFilter(ContextCompat.getColor(this, android.R.color.white))
-            }
+            presenter.favoriteClicked()
         }
     }
 
@@ -109,12 +111,14 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
                 loadPlaceholderImage(viewState.recipe)
                 progress.visibility = View.VISIBLE
                 titleText.text = viewState.recipe.title
+                favorite.liked = viewState.favorite
             }
             is GifRecipeViewerViewState.Loading -> {
                 loadPlaceholderImage(viewState.recipe)
                 progress.visibility = View.VISIBLE
                 progress.progress = viewState.progress.toFloat()
                 titleText.text = viewState.recipe.title
+                favorite.liked = viewState.favorite
             }
             is GifRecipeViewerViewState.PlayingVideo -> {
                 progress.visibility = View.GONE
@@ -122,6 +126,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
                 loadPlaceholderImage(viewState.recipe)
                 url = viewState.url
                 toggleVideoMode()
+                favorite.liked = viewState.favorite
             }
             is GifRecipeViewerViewState.PlayingGif -> {
                 progress.visibility = View.GONE
@@ -129,6 +134,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
                 loadPlaceholderImage(viewState.recipe, {aspectRatio ->
                     toggleGifMode(aspectRatio, viewState.url)
                 })
+                favorite.liked = viewState.favorite
             }
         }
     }
@@ -139,6 +145,8 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
 
     private fun triggerPlaybackCheck() {
         if (sharedElementTransitionDone && surface != null && !url.isNullOrEmpty()) {
+            // If our media player ISNT null here it means we've already set this up...
+            if (mediaPlayer != null) return
             mediaPlayer = MediaPlayer()
             mediaPlayer?.isLooping = true
             mediaPlayer?.setDataSource(url)

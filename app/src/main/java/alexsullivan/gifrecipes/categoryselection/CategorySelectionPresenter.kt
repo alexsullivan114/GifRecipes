@@ -26,7 +26,7 @@ class CategorySelectionPresenterImpl(repository: GifRecipeRepository) : Category
                 // First push out our loading screen...
                 .doOnSubscribe { stateStream.onNext(CategorySelectionViewState.FetchingGifs()) }
                 .map {it.copy(url = it.url, imageType = it.imageType)}
-                .map {GifRecipeUI(it.url, it.thumbnail, it.imageType, it.title)}
+                .map {GifRecipeUI(it.url, it.id, it.thumbnail, it.imageType, it.title)}
                 .toList()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(

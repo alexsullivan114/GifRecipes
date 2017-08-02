@@ -19,10 +19,7 @@ class GifRecipesApp: Application(){
     override fun onCreate() {
         super.onCreate()
         // TODO: Real device ID.
-        val logger = object: Logger {
-            override fun printLn(priority: Int, tag: String, msg: String) = Log.println(priority, tag, msg)
-        }
-        CoreInitializer.initialize(RedditGifRecipeProvider.create("385ad0c4-31cc-11e7-93ae-92361f002671", logger))
+        CoreInitializer.initialize(RedditGifRecipeProvider.create("385ad0c4-31cc-11e7-93ae-92361f002671", AndroidLogger))
         CacheServerImpl.initialize(this)
         Fresco.initialize(this);
 
@@ -48,6 +45,10 @@ class GifRecipesApp: Application(){
                 // that's a bug in RxJava or in a custom operator
                 Thread.currentThread().uncaughtExceptionHandler.uncaughtException(Thread.currentThread(), updated)
                 return@Consumer
+            }
+            if (updated is RuntimeException) {
+                // Probably our bug.
+                Thread.currentThread().uncaughtExceptionHandler.uncaughtException(Thread.currentThread(), updated)
             }
             Log.w("Application", "Undeliverable exception received, not sure what to do", it)
         }))

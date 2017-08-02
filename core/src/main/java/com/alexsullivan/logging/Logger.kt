@@ -39,7 +39,8 @@ interface Logger {
     fun v(tag: String, msg: String) = printLn(VERBOSE, tag, msg)
     fun i(tag: String, msg: String) = printLn(INFO, tag, msg)
     fun w(tag: String, msg: String) = printLn(WARN, tag, msg)
-    fun e(tag: String, msg: String) = printLn(ERROR, tag, msg)
     fun a(tag: String, msg: String) = printLn(ASSERT, tag, msg)
+    fun e(tag: String, msg: String) = printLn(ERROR, tag, msg)
+    fun e(tag: String, msg: String, error: Throwable)
 
 }

@@ -60,6 +60,7 @@
         />
 
     <LinearLayout
+        android:id="@+id/bottomBar"
         android:layout_width="0dp"
         android:layout_height="60dp"
         android:layout_marginLeft="0dp"
@@ -88,12 +89,11 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"/>
 
-        <ImageView
+        <alexsullivan.gifrecipes.components.LikeButton
             android:id="@+id/favorite"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:src="@drawable/ic_star_border"
             android:tint="@android:color/white"/>
 
     </LinearLayout>

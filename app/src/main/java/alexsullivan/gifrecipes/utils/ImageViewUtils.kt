@@ -40,12 +40,33 @@ fun ImageView.animateImageChange(block: (ImageView) -> Unit) {
     val endSet = AnimatorSet()
     endSet.playTogether(endAnimatorX, endAnimatorY)
     endSet.interpolator = OvershootInterpolator(4.0f)
+    val wasClickable = isClickable
     startSet.addListener(object: AnimatorListenerAdapter() {
+
+        override fun onAnimationCancel(animation: Animator?) {
+            isClickable = wasClickable
+        }
+
+        override fun onAnimationStart(animation: Animator?) {
+            isClickable = false
+        }
+
         override fun onAnimationEnd(animation: Animator?) {
             super.onAnimationEnd(animation)
             block(this@animateImageChange)
             endSet.start()
         }
     })
+
+    endSet.addListener(object: AnimatorListenerAdapter() {
+        override fun onAnimationCancel(animation: Animator?) {
+            isClickable = wasClickable
+        }
+
+        override fun onAnimationEnd(animation: Animator?) {
+            isClickable = wasClickable
+        }
+    })
+
     startSet.start()
 }

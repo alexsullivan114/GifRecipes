@@ -52,7 +52,7 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
                 stateStream.onNext(RecipeCategoryListViewState.LoadingMore(lastValue.recipes))
                 disposables.add(repository.consumeGifRecipes(pageRequestSize, searchTerm, lastPageKey)
                         .doOnNext { lastPageKey = it.pageKey ?: "" }
-                        .map { GifRecipeUI(it.url, it.thumbnail, it.imageType, it.title) }
+                        .map { GifRecipeUI(it.url, it.id, it.thumbnail, it.imageType, it.title) }
                         .toList()
                         .doOnSuccess {
                             if (it.size == 0) {
@@ -90,7 +90,7 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
                 .subscribeOn(Schedulers.io())
                 .doOnSubscribe { stateStream.onNext(RecipeCategoryListViewState.Loading()) }
                 .doOnNext { lastPageKey = it.pageKey ?: lastPageKey }
-                .map { GifRecipeUI(it.url, it.thumbnail, it.imageType, it.title) }
+                .map { GifRecipeUI(it.url, it.id, it.thumbnail, it.imageType, it.title) }
                 .toList()
                 .subscribe({ result: List<GifRecipeUI> ->
                     stateStream.onNext(RecipeCategoryListViewState.RecipeList(result))
