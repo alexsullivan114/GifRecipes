@@ -21,14 +21,21 @@ abstract class RoomGifRecipeDao : GifRecipeDao {
     @Query("SELECT count(1) FROM favorites WHERE id = :id")
     abstract fun gifRecipeIdInFavoritesInternal(id: String): Flowable<Int>
 
+    @Query("SELECT count(1) FROM favorites WHERE id = :id")
+    abstract fun isRecipeFavoritedInternal(id: String): Int
+
     override fun insertFavoriteRecipe(gifRecipe: FavoriteRecipe) = insertRoomFavorite(gifRecipe)
 
     override fun deleteFavoriteRecipe(gifRecipe: FavoriteRecipe) = deleteRoomFavorite(gifRecipe)
 
     override fun findFavorites(ids: List<String>): Flowable<String> = findRoomFavorites(ids)
 
-    override fun recipeIsFavorited(id: String): Flowable<Boolean> {
+    override fun recipeIsFavoritedStream(id: String): Flowable<Boolean> {
         return gifRecipeIdInFavoritesInternal(id)
                 .map { it == 1 }
+    }
+
+    override fun isRecipeFavorited(id: String): Boolean {
+        return isRecipeFavoritedInternal(id) == 1
     }
 }

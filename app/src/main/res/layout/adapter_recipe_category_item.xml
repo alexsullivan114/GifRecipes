@@ -13,10 +13,12 @@
         android:scaleType="centerCrop"
         android:transitionName="@string/recipe_transition_image_name"/>
 
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="65dp"
         android:background="@android:color/white"
+        android:orientation="horizontal"
+        android:layout_weight="4"
         android:padding="12dp">
 
         <TextView
@@ -25,6 +27,18 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical|left"/>
 
-    </FrameLayout>
+        <android.support.v4.widget.Space
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"/>
+
+        <alexsullivan.gifrecipes.components.LikeButton
+            android:id="@+id/favorite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|right"
+            android:tint="@android:color/black"/>
+
+    </LinearLayout>
 
 </LinearLayout>

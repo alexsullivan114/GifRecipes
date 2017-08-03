@@ -1,8 +1,10 @@
 package alexsullivan.gifrecipes.recipelist;
 
 import alexsullivan.gifrecipes.GifRecipeUI
+import alexsullivan.gifrecipes.database.RecipeDatabase
 import alexsullivan.gifrecipes.viewarchitecture.Presenter
 import alexsullivan.gifrecipes.viewarchitecture.ViewState
+import com.alexsullivan.GifRecipe
 import com.alexsullivan.GifRecipeRepository
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -14,7 +16,8 @@ import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 class RecipeCategoryListPresenterImpl(searchTerm: String,
-                                      val repository: GifRecipeRepository) : RecipeCategoryListPresenter {
+                                      val repository: GifRecipeRepository,
+                                      val recipeDatabase: RecipeDatabase) : RecipeCategoryListPresenter {
 
     val disposables = CompositeDisposable()
     val pageRequestSize = 10
@@ -52,7 +55,7 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
                 stateStream.onNext(RecipeCategoryListViewState.LoadingMore(lastValue.recipes))
                 disposables.add(repository.consumeGifRecipes(pageRequestSize, searchTerm, lastPageKey)
                         .doOnNext { lastPageKey = it.pageKey ?: "" }
-                        .map { GifRecipeUI(it.url, it.id, it.thumbnail, it.imageType, it.title) }
+                        .map(this::mapRecipeToUi)
                         .toList()
                         .doOnSuccess {
                             if (it.size == 0) {
@@ -90,7 +93,7 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
                 .subscribeOn(Schedulers.io())
                 .doOnSubscribe { stateStream.onNext(RecipeCategoryListViewState.Loading()) }
                 .doOnNext { lastPageKey = it.pageKey ?: lastPageKey }
-                .map { GifRecipeUI(it.url, it.id, it.thumbnail, it.imageType, it.title) }
+                .map(this::mapRecipeToUi)
                 .toList()
                 .subscribe({ result: List<GifRecipeUI> ->
                     stateStream.onNext(RecipeCategoryListViewState.RecipeList(result))
@@ -103,12 +106,17 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
             disposables.add(it)
         }
     }
+
+    private fun mapRecipeToUi(recipe: GifRecipe): GifRecipeUI {
+        val favorited = recipeDatabase.gifRecipeDao().isRecipeFavorited(recipe.id)
+        return GifRecipeUI(recipe.url, recipe.id, recipe.thumbnail, recipe.imageType, recipe.title, favorited)
+    }
 }
 
 interface RecipeCategoryListPresenter : Presenter<RecipeCategoryListViewState> {
     companion object {
-        fun create(searchTerm: String, repository: GifRecipeRepository): RecipeCategoryListPresenter {
-            return RecipeCategoryListPresenterImpl(searchTerm, repository)
+        fun create(searchTerm: String, repository: GifRecipeRepository, database: RecipeDatabase): RecipeCategoryListPresenter {
+            return RecipeCategoryListPresenterImpl(searchTerm, repository, database)
         }
     }
 

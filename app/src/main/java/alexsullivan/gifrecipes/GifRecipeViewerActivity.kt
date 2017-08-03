@@ -78,7 +78,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
         bottomBar.isClickable = true
         favorite.bumpTapTarget()
         favorite.setOnClickListener {
-            favorite.liked = !favorite.liked
+            favorite.setLiked(!favorite.liked, true)
             presenter.favoriteClicked(favorite.liked)
         }
     }
@@ -110,7 +110,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
                 loadPlaceholderImage(viewState.recipe)
                 progress.visibility = View.VISIBLE
                 titleText.text = viewState.recipe.title
-                favorite.liked = viewState.favorited
+                favorite.setLiked(viewState.recipe.favorite, false)
                 favorite.isClickable = !viewState.favoriteLocked
             }
             is GifRecipeViewerViewState.Loading -> {
@@ -118,7 +118,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
                 progress.visibility = View.VISIBLE
                 progress.progress = viewState.progress.toFloat()
                 titleText.text = viewState.recipe.title
-                favorite.liked = viewState.favorited
+                favorite.setLiked(viewState.recipe.favorite, false)
                 favorite.isClickable = !viewState.favoriteLocked
             }
             is GifRecipeViewerViewState.PlayingVideo -> {
@@ -127,7 +127,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
                 loadPlaceholderImage(viewState.recipe)
                 url = viewState.url
                 toggleVideoMode()
-                favorite.liked = viewState.favorited
+                favorite.setLiked(viewState.recipe.favorite, false)
                 favorite.isClickable = !viewState.favoriteLocked
             }
             is GifRecipeViewerViewState.PlayingGif -> {
@@ -136,7 +136,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
                 loadPlaceholderImage(viewState.recipe, {aspectRatio ->
                     toggleGifMode(aspectRatio, viewState.url)
                 })
-                favorite.liked = viewState.favorited
+                favorite.setLiked(viewState.recipe.favorite, false)
                 favorite.isClickable = !viewState.favoriteLocked
             }
         }

@@ -3,6 +3,7 @@ package alexsullivan.gifrecipes.recipelist
 import alexsullivan.gifrecipes.GifRecipeUI
 import alexsullivan.gifrecipes.GifRecipeViewerActivity
 import alexsullivan.gifrecipes.R
+import alexsullivan.gifrecipes.database.RoomRecipeDatabaseHolder
 import alexsullivan.gifrecipes.search.SearchProvider
 import alexsullivan.gifrecipes.utils.*
 import alexsullivan.gifrecipes.viewarchitecture.BaseFragment
@@ -34,7 +35,8 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
 
     override fun initPresenter(): RecipeCategoryListPresenter {
         val searchTerm = arguments.getString(SEARCH_KEY)
-        return RecipeCategoryListPresenter.create(searchTerm, GifRecipeRepository.default)
+        return RecipeCategoryListPresenter.create(searchTerm, GifRecipeRepository.default,
+                RoomRecipeDatabaseHolder.get(context.applicationContext))
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -89,5 +91,9 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
         val options = ActivityOptionsCompat.makeSceneTransitionAnimation(activity, imagePair)
         val intent = GifRecipeViewerActivity.IntentFactory.build(activity, recipe)
         startActivity(intent, options.toBundle())
+    }
+
+    override fun recipeFavoriteToggled(recipe: GifRecipeUI) {
+//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }

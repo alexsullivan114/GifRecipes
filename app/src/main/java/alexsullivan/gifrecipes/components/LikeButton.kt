@@ -9,15 +9,7 @@ import android.widget.ImageView
 class LikeButton : ImageView {
 
     var liked = false
-        set(value) {
-            if (value != field) {
-                field = value
-                val drawableId = if (value) R.drawable.ic_star else R.drawable.ic_star_border
-                animateImageChange {
-                    setImageResource(drawableId)
-                }
-            }
-        }
+        private set
 
     constructor(context: Context) : super(context) {
         initImage()
@@ -37,6 +29,19 @@ class LikeButton : ImageView {
 
     private fun initImage() {
         setImageResource(R.drawable.ic_star_border)
-        setColorFilter(context.resources.getColor(android.R.color.white))
+    }
+
+    fun setLiked(liked: Boolean, animate: Boolean) {
+        if (this.liked != liked) {
+            this.liked = liked
+            val drawableId = if (liked) R.drawable.ic_star else R.drawable.ic_star_border
+            if (animate) {
+                animateImageChange {
+                    setImageResource(drawableId)
+                }
+            } else {
+                setImageResource(drawableId)
+            }
+        }
     }
 }
