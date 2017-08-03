@@ -47,7 +47,6 @@ class GifRecipeViewerPresenterImpl(private val gifRecipe: GifRecipeUI,
         favoriteStream
                 .observeOn(Schedulers.io())
                 .subscribe {
-                    logger.d(TAG, "Presenter favorite stream received value: $it")
                     saveFavorite(it)
                     propagateFavoriteInfo(false, it)
                 }

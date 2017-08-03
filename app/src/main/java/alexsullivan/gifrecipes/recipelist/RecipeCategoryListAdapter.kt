@@ -50,7 +50,7 @@ class RecipeCategoryListAdapter(gifList: List<GifRecipeUI>,
                 }
                 holder.view.favorite.setOnClickListener {
                     holder.view.favorite.setLiked(!holder.view.favorite.liked, true)
-                    clickCallback.recipeFavoriteToggled(recipe.copy(favorite = !recipe.favorite))
+                    clickCallback.recipeFavoriteToggled(recipe.copy(favorite = holder.view.favorite.liked))
                 }
             }
         }

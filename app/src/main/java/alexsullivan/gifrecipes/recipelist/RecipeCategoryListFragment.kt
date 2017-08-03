@@ -94,6 +94,6 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
     }
 
     override fun recipeFavoriteToggled(recipe: GifRecipeUI) {
-//        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        presenter.recipeFavoriteToggled(recipe)
     }
 }

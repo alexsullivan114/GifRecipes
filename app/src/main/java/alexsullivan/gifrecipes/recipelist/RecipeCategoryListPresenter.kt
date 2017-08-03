@@ -2,6 +2,8 @@ package alexsullivan.gifrecipes.recipelist;
 
 import alexsullivan.gifrecipes.GifRecipeUI
 import alexsullivan.gifrecipes.database.RecipeDatabase
+import alexsullivan.gifrecipes.database.toFavorite
+import alexsullivan.gifrecipes.toGifRecipe
 import alexsullivan.gifrecipes.viewarchitecture.Presenter
 import alexsullivan.gifrecipes.viewarchitecture.ViewState
 import com.alexsullivan.GifRecipe
@@ -12,6 +14,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.subjects.PublishSubject
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
@@ -23,6 +26,7 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
     val pageRequestSize = 10
     var lastPageKey = ""
     var lastQueryDisposable: Disposable? = null
+    val favoriteDatabaseStream: PublishSubject<GifRecipeUI> = PublishSubject.create()
 
     override var searchTerm = searchTerm
         set(value) {
@@ -37,6 +41,7 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
 
     init {
         querySearchTerm()
+        bindFavoriteDatabaseStream()
     }
 
     override fun destroy() {
@@ -87,6 +92,22 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
                 .subscribe { searchTerm = it })
     }
 
+    private fun bindFavoriteDatabaseStream() {
+        val saveFavorite = fun(recipe: GifRecipeUI) {
+            if (recipe.favorite) {
+                recipeDatabase.gifRecipeDao().insertFavoriteRecipe(recipe.toGifRecipe().toFavorite())
+            } else {
+                recipeDatabase.gifRecipeDao().deleteFavoriteRecipe(recipe.toGifRecipe().toFavorite())
+            }
+        }
+
+        favoriteDatabaseStream
+                .observeOn(Schedulers.io())
+                .subscribe {
+                    saveFavorite(it)
+                }
+    }
+
     private fun querySearchTerm() {
         lastQueryDisposable?.dispose()
         lastQueryDisposable = repository.consumeGifRecipes(pageRequestSize, searchTerm, lastPageKey)
@@ -111,6 +132,10 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
         val favorited = recipeDatabase.gifRecipeDao().isRecipeFavorited(recipe.id)
         return GifRecipeUI(recipe.url, recipe.id, recipe.thumbnail, recipe.imageType, recipe.title, favorited)
     }
+
+    override fun recipeFavoriteToggled(recipe: GifRecipeUI) {
+        favoriteDatabaseStream.onNext(recipe)
+    }
 }
 
 interface RecipeCategoryListPresenter : Presenter<RecipeCategoryListViewState> {
@@ -122,6 +147,7 @@ interface RecipeCategoryListPresenter : Presenter<RecipeCategoryListViewState> {
 
     fun reachedBottom()
     fun setSearchTermSource(source: Observable<String>)
+    fun recipeFavoriteToggled(recipe: GifRecipeUI)
     var searchTerm: String
 }
 
