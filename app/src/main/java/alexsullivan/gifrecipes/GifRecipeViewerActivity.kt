@@ -77,7 +77,8 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
         bottomBar.isClickable = true
         favorite.bumpTapTarget()
         favorite.setOnClickListener {
-            presenter.favoriteClicked()
+            favorite.liked = !favorite.liked
+            presenter.favoriteClicked(favorite.liked)
         }
     }
 
@@ -111,14 +112,16 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
                 loadPlaceholderImage(viewState.recipe)
                 progress.visibility = View.VISIBLE
                 titleText.text = viewState.recipe.title
-                favorite.liked = viewState.favorite
+                favorite.liked = viewState.favorited
+                favorite.isClickable = !viewState.favoriteLocked
             }
             is GifRecipeViewerViewState.Loading -> {
                 loadPlaceholderImage(viewState.recipe)
                 progress.visibility = View.VISIBLE
                 progress.progress = viewState.progress.toFloat()
                 titleText.text = viewState.recipe.title
-                favorite.liked = viewState.favorite
+                favorite.liked = viewState.favorited
+                favorite.isClickable = !viewState.favoriteLocked
             }
             is GifRecipeViewerViewState.PlayingVideo -> {
                 progress.visibility = View.GONE
@@ -126,7 +129,8 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
                 loadPlaceholderImage(viewState.recipe)
                 url = viewState.url
                 toggleVideoMode()
-                favorite.liked = viewState.favorite
+                favorite.liked = viewState.favorited
+                favorite.isClickable = !viewState.favoriteLocked
             }
             is GifRecipeViewerViewState.PlayingGif -> {
                 progress.visibility = View.GONE
@@ -134,7 +138,8 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
                 loadPlaceholderImage(viewState.recipe, {aspectRatio ->
                     toggleGifMode(aspectRatio, viewState.url)
                 })
-                favorite.liked = viewState.favorite
+                favorite.liked = viewState.favorited
+                favorite.isClickable = !viewState.favoriteLocked
             }
         }
     }
@@ -146,6 +151,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
     private fun triggerPlaybackCheck() {
         if (sharedElementTransitionDone && surface != null && !url.isNullOrEmpty()) {
             // If our media player ISNT null here it means we've already set this up...
+            // TODO: This doesn't work - if we go through onStop the video won't resume playing.
             if (mediaPlayer != null) return
             mediaPlayer = MediaPlayer()
             mediaPlayer?.isLooping = true
