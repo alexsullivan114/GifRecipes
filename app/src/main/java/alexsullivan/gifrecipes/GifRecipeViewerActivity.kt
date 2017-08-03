@@ -2,6 +2,8 @@ package alexsullivan.gifrecipes
 
 import alexsullivan.gifrecipes.application.AndroidLogger
 import alexsullivan.gifrecipes.cache.CacheServerImpl
+import alexsullivan.gifrecipes.components.State
+import alexsullivan.gifrecipes.components.StateAwareMediaPlayer
 import alexsullivan.gifrecipes.database.RoomRecipeDatabaseHolder
 import alexsullivan.gifrecipes.utils.*
 import alexsullivan.gifrecipes.viewarchitecture.BaseActivity
@@ -9,7 +11,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Drawable
-import android.media.MediaPlayer
 import android.os.Bundle
 import android.view.Surface
 import android.view.View
@@ -26,7 +27,7 @@ import kotlin.properties.Delegates
 class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipeViewerPresenter>() {
 
     private val PLAYBACK_POSITION_KEY = "PLAYBACK_POSITION_KEY"
-    private var mediaPlayer: MediaPlayer? = null
+    private var mediaPlayer: StateAwareMediaPlayer? = null
     private var initPlaybackPosition = 0
 
     private var url: String? by Delegates.observable<String?>(null) {
@@ -91,13 +92,10 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
 
     override fun onStop() {
         super.onStop()
-        mediaPlayer?.apply {
-            try {
-                stop()
-                release()
-            } catch (ignored: IllegalStateException) {
-                // do nothing. Mediaplayer wasn't initialized.
-            }
+        mediaPlayer?.safeApply {
+            initPlaybackPosition = currentPosition
+            stop()
+            release()
         }
     }
 
@@ -150,10 +148,9 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
 
     private fun triggerPlaybackCheck() {
         if (sharedElementTransitionDone && surface != null && !url.isNullOrEmpty()) {
-            // If our media player ISNT null here it means we've already set this up...
-            // TODO: This doesn't work - if we go through onStop the video won't resume playing.
-            if (mediaPlayer != null) return
-            mediaPlayer = MediaPlayer()
+            // If our media player is already initialized don't go through the rest.
+            if (mediaPlayer != null && mediaPlayer?.state != State.UNINITIALIZED) return
+            mediaPlayer = StateAwareMediaPlayer()
             mediaPlayer?.isLooping = true
             mediaPlayer?.setDataSource(url)
             mediaPlayer?.setSurface(surface)
