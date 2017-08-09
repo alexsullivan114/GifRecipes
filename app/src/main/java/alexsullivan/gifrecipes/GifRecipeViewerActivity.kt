@@ -4,6 +4,7 @@ import alexsullivan.gifrecipes.application.AndroidLogger
 import alexsullivan.gifrecipes.cache.CacheServerImpl
 import alexsullivan.gifrecipes.components.State
 import alexsullivan.gifrecipes.components.StateAwareMediaPlayer
+import alexsullivan.gifrecipes.database.RoomFavoriteCache
 import alexsullivan.gifrecipes.database.RoomRecipeDatabaseHolder
 import alexsullivan.gifrecipes.utils.*
 import alexsullivan.gifrecipes.viewarchitecture.BaseActivity
@@ -54,7 +55,9 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
 
     override fun initPresenter(): GifRecipeViewerPresenter {
         return GifRecipeViewerPresenter.create(intent.getParcelableExtra(RECIPE_KEY),
-                CacheServerImpl.instance(), RoomRecipeDatabaseHolder.get(this.applicationContext),
+                CacheServerImpl.instance(),
+                RoomFavoriteCache.getInstance(RoomRecipeDatabaseHolder.get(applicationContext).gifRecipeDao()
+        ),
                 AndroidLogger)
     }
 

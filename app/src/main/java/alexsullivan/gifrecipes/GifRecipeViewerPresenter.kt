@@ -2,8 +2,7 @@ package alexsullivan.gifrecipes
 
 import alexsullivan.gifrecipes.GifRecipeViewerViewState.*
 import alexsullivan.gifrecipes.cache.CacheServer
-import alexsullivan.gifrecipes.database.RecipeDatabase
-import alexsullivan.gifrecipes.database.toFavorite
+import alexsullivan.gifrecipes.database.FavoriteCache
 import alexsullivan.gifrecipes.viewarchitecture.Presenter
 import alexsullivan.gifrecipes.viewarchitecture.ViewState
 import com.alexsullivan.ImageType
@@ -16,7 +15,7 @@ import io.reactivex.subjects.PublishSubject
 
 class GifRecipeViewerPresenterImpl(private val gifRecipe: GifRecipeUI,
                                    private val cacheServer: CacheServer,
-                                   private val recipeDatabase: RecipeDatabase,
+                                   private val favoriteCache: FavoriteCache,
                                    private val logger: Logger) : GifRecipeViewerPresenter {
 
     val disposables = CompositeDisposable()
@@ -38,9 +37,9 @@ class GifRecipeViewerPresenterImpl(private val gifRecipe: GifRecipeUI,
 
         val saveFavorite = fun(favorited: Boolean) {
             if (favorited) {
-                recipeDatabase.gifRecipeDao().insertFavoriteRecipe(gifRecipe.toGifRecipe().toFavorite())
+                favoriteCache.insertFavoriteRecipe(gifRecipe.toGifRecipe()).subscribeOn(Schedulers.io()).subscribe()
             } else {
-                recipeDatabase.gifRecipeDao().deleteFavoriteRecipe(gifRecipe.toGifRecipe().toFavorite())
+                favoriteCache.deleteFavoriteRecipe(gifRecipe.toGifRecipe()).subscribeOn(Schedulers.io()).subscribe()
             }
         }
 
@@ -54,8 +53,7 @@ class GifRecipeViewerPresenterImpl(private val gifRecipe: GifRecipeUI,
 
     private fun loadInitialFavoriteState() {
         // Load our initial favorited state.
-        disposables.add(recipeDatabase.gifRecipeDao().recipeIsFavoritedStream(gifRecipe.id)
-                .first(false)
+        disposables.add(favoriteCache.isRecipeFavorited(gifRecipe.id)
                 .subscribeOn(Schedulers.io())
                 .subscribe({ favorited ->
                     propagateFavoriteInfo(false, favorited)
@@ -125,8 +123,8 @@ class GifRecipeViewerPresenterImpl(private val gifRecipe: GifRecipeUI,
 
 interface GifRecipeViewerPresenter : Presenter<GifRecipeViewerViewState> {
     companion object {
-        fun create(gifRecipe: GifRecipeUI, cacheServer: CacheServer, recipeDatabase: RecipeDatabase, logger: Logger): GifRecipeViewerPresenter {
-            return GifRecipeViewerPresenterImpl(gifRecipe, cacheServer, recipeDatabase, logger)
+        fun create(gifRecipe: GifRecipeUI, cacheServer: CacheServer, favoriteCache: FavoriteCache, logger: Logger): GifRecipeViewerPresenter {
+            return GifRecipeViewerPresenterImpl(gifRecipe, cacheServer, favoriteCache, logger)
         }
     }
 

@@ -41,6 +41,7 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
 
     init {
         querySearchTerm()
+        bindSavingFavoriteDatabaseStream()
         bindFavoriteDatabaseStream()
     }
 
@@ -92,7 +93,7 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
                 .subscribe { searchTerm = it })
     }
 
-    private fun bindFavoriteDatabaseStream() {
+    private fun bindSavingFavoriteDatabaseStream() {
         val saveFavorite = fun(recipe: GifRecipeUI) {
             if (recipe.favorite) {
                 recipeDatabase.gifRecipeDao().insertFavoriteRecipe(recipe.toGifRecipe().toFavorite())
@@ -106,6 +107,10 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
                 .subscribe {
                     saveFavorite(it)
                 }
+    }
+
+    private fun bindFavoriteDatabaseStream() {
+//        recipeDatabase.gifRecipeDao().findFavorites()
     }
 
     private fun querySearchTerm() {
@@ -156,5 +161,5 @@ sealed class RecipeCategoryListViewState : ViewState {
     class LoadingMore(val recipes: List<GifRecipeUI>): RecipeCategoryListViewState()
     class RecipeList(val recipes: List<GifRecipeUI>): RecipeCategoryListViewState()
     class LoadMoreError(val recipes: List<GifRecipeUI>): RecipeCategoryListViewState()
-    class NetworkError(): RecipeCategoryListViewState()
+    class NetworkError : RecipeCategoryListViewState()
 }
