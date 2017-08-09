@@ -2,6 +2,8 @@ package alexsullivan.gifrecipes.recipelist
 
 import alexsullivan.gifrecipes.GifRecipeUI
 import alexsullivan.gifrecipes.R
+import alexsullivan.gifrecipes.utils.GifRecipeUiDiffCallback
+import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -13,16 +15,8 @@ import kotlin.properties.Delegates
 class RecipeCategoryListAdapter(gifList: List<GifRecipeUI>,
                                 private val clickCallback: ClickCallback): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    // Our list is always increasing unless we change search terms, so we don't need to worry
-    // about what happens in other cases here.
     var gifList: List<GifRecipeUI> by Delegates.observable(gifList) { _, oldValue, newValue ->
-        if (newValue.isEmpty()) {
-            notifyItemRangeRemoved(0, oldValue.size)
-        } else {
-            if (oldValue != newValue) {
-                notifyItemRangeInserted(oldValue.size, newValue.size - oldValue.size)
-            }
-        }
+        DiffUtil.calculateDiff(GifRecipeUiDiffCallback(oldValue, newValue)).dispatchUpdatesTo(this)
     }
 
     var showBottomLoading: Boolean by Delegates.observable(false) {_, oldValue, newValue ->
