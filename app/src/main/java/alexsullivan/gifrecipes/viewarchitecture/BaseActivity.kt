@@ -20,7 +20,10 @@ abstract class BaseActivity<T: ViewState, P: Presenter<T>>: AppCompatActivity() 
     protected lateinit var presenter: P
 
     abstract fun accept(viewState: T)
-    abstract fun acknowledge(error: Throwable)
+    @Deprecated("Acknowledge is no longer used")
+    open fun acknowledge(error: Throwable) {
+
+    }
     abstract fun initPresenter(): P
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,7 +63,7 @@ abstract class BaseActivity<T: ViewState, P: Presenter<T>>: AppCompatActivity() 
                 }
                 .subscribe({
                     Log.i(TAG, "Received View State: ${it.javaClass.simpleName}")
-                    accept(it) }, { acknowledge(it) }))
+                    accept(it) }))
     }
 
     override fun onStop() {

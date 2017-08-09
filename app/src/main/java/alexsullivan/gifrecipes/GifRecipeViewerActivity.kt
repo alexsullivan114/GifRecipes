@@ -1,6 +1,5 @@
 package alexsullivan.gifrecipes
 
-import alexsullivan.gifrecipes.application.AndroidLogger
 import alexsullivan.gifrecipes.cache.CacheServerImpl
 import alexsullivan.gifrecipes.components.State
 import alexsullivan.gifrecipes.components.StateAwareMediaPlayer
@@ -57,8 +56,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
         return GifRecipeViewerPresenter.create(intent.getParcelableExtra(RECIPE_KEY),
                 CacheServerImpl.instance(),
                 RoomFavoriteCache.getInstance(RoomRecipeDatabaseHolder.get(applicationContext).gifRecipeDao()
-        ),
-                AndroidLogger)
+                ))
     }
 
     @SuppressLint("Recycle")
@@ -81,8 +79,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
         bottomBar.isClickable = true
         favorite.bumpTapTarget()
         favorite.setOnClickListener {
-            favorite.setLiked(!favorite.liked, true)
-            presenter.favoriteClicked(favorite.liked)
+            presenter.favoriteClicked(!favorite.liked)
         }
     }
 
@@ -108,21 +105,19 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
     }
 
     override fun accept(viewState: GifRecipeViewerViewState) {
+        favorite.setLiked(viewState.favoriteStatus(), true)
+        favorite.isClickable = !viewState.favoriteLocked()
         when (viewState) {
             is GifRecipeViewerViewState.Preloading -> {
                 loadPlaceholderImage(viewState.recipe)
                 progress.visibility = View.VISIBLE
                 titleText.text = viewState.recipe.title
-                favorite.setLiked(viewState.recipe.favorite, false)
-                favorite.isClickable = !viewState.favoriteLocked
             }
             is GifRecipeViewerViewState.Loading -> {
                 loadPlaceholderImage(viewState.recipe)
                 progress.visibility = View.VISIBLE
                 progress.progress = viewState.progress.toFloat()
                 titleText.text = viewState.recipe.title
-                favorite.setLiked(viewState.recipe.favorite, false)
-                favorite.isClickable = !viewState.favoriteLocked
             }
             is GifRecipeViewerViewState.PlayingVideo -> {
                 progress.visibility = View.GONE
@@ -130,8 +125,6 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
                 loadPlaceholderImage(viewState.recipe)
                 url = viewState.url
                 toggleVideoMode()
-                favorite.setLiked(viewState.recipe.favorite, false)
-                favorite.isClickable = !viewState.favoriteLocked
             }
             is GifRecipeViewerViewState.PlayingGif -> {
                 progress.visibility = View.GONE
@@ -139,14 +132,11 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
                 loadPlaceholderImage(viewState.recipe, {aspectRatio ->
                     toggleGifMode(aspectRatio, viewState.url)
                 })
-                favorite.setLiked(viewState.recipe.favorite, false)
-                favorite.isClickable = !viewState.favoriteLocked
+            }
+            is GifRecipeViewerViewState.Favorited -> {
+                throw RuntimeException("Woops, got a favorited!")
             }
         }
-    }
-
-    override fun acknowledge(error: Throwable) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     private fun triggerPlaybackCheck() {
