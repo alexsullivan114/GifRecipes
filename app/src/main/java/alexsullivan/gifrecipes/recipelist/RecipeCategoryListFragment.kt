@@ -13,6 +13,7 @@ import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.util.Pair
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.SimpleItemAnimator
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -54,6 +55,7 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
         val view = inflater.inflate(R.layout.layout_recipe_category_list, container, false)
         view.list.layoutManager = LinearLayoutManager(context)
         view.list.adapter = RecipeCategoryListAdapter(listOf(), this)
+        ((view.list.itemAnimator) as SimpleItemAnimator).supportsChangeAnimations = false
         return view
     }
 
