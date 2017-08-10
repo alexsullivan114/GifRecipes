@@ -3,6 +3,7 @@ package alexsullivan.gifrecipes.recipelist
 import alexsullivan.gifrecipes.GifRecipeUI
 import alexsullivan.gifrecipes.R
 import alexsullivan.gifrecipes.utils.GifRecipeUiDiffCallback
+import alexsullivan.gifrecipes.utils.previewImageUrl
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -36,7 +37,7 @@ class RecipeCategoryListAdapter(gifList: List<GifRecipeUI>,
         when (holder) {
             is GifRecipeViewHolder -> {
                 val recipe = gifList[position]
-                Glide.with(holder.itemView.context).load(recipe.thumbnail).into(holder.view.image)
+                Glide.with(holder.itemView.context).asBitmap().load(recipe.previewImageUrl()).into(holder.view.image)
                 holder.view.title.text = recipe.title
                 holder.view.favorite.setLiked(recipe.favorite, true)
                 holder.view.setOnClickListener {

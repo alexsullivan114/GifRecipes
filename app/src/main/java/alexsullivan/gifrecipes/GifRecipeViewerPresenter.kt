@@ -3,6 +3,7 @@ package alexsullivan.gifrecipes
 import alexsullivan.gifrecipes.GifRecipeViewerViewState.*
 import alexsullivan.gifrecipes.cache.CacheServer
 import alexsullivan.gifrecipes.database.FavoriteCache
+import alexsullivan.gifrecipes.utils.toGifRecipe
 import alexsullivan.gifrecipes.viewarchitecture.BasePresenter
 import alexsullivan.gifrecipes.viewarchitecture.ViewState
 import com.alexsullivan.ImageType

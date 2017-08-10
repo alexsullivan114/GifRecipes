@@ -1,8 +1,8 @@
-package alexsullivan.gifrecipes.recipelist;
+package alexsullivan.gifrecipes.recipelist
 
 import alexsullivan.gifrecipes.GifRecipeUI
 import alexsullivan.gifrecipes.database.FavoriteCache
-import alexsullivan.gifrecipes.toGifRecipe
+import alexsullivan.gifrecipes.utils.toGifRecipe
 import alexsullivan.gifrecipes.viewarchitecture.BasePresenter
 import alexsullivan.gifrecipes.viewarchitecture.ViewState
 import com.alexsullivan.GifRecipe

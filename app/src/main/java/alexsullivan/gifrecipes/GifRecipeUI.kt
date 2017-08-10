@@ -2,7 +2,6 @@ package alexsullivan.gifrecipes
 
 import android.os.Parcel
 import android.os.Parcelable
-import com.alexsullivan.GifRecipe
 import com.alexsullivan.ImageType
 
 // A slimmed down version of {@Link GifRecipe} that implements parcelable and can be passed around Android
@@ -34,8 +33,4 @@ data class GifRecipeUI(val url: String, val id: String, val thumbnail: String?, 
             return arrayOfNulls(size)
         }
     }
-}
-
-fun GifRecipeUI.toGifRecipe(): GifRecipe {
-    return GifRecipe(url, id, thumbnail, imageType, title, null)
 }

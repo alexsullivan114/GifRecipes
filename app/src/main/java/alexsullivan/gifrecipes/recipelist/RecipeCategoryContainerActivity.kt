@@ -100,10 +100,6 @@ class RecipeCategoryContainerActivity : BaseActivity<RecipesListViewState, Recip
         }
     }
 
-    override fun acknowledge(error: Throwable) {
-        TODO("not implemented")
-    }
-
     override fun categorySelected(category: Category) {
         presenter.categorySelected(category)
     }
