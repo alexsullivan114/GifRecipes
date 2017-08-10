@@ -1,17 +1,16 @@
 package alexsullivan.gifrecipes.database
 
 import com.alexsullivan.GifRecipe
-import io.reactivex.Completable
-import io.reactivex.Observable
-import io.reactivex.Single
+import io.reactivex.*
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.AsyncSubject
 import io.reactivex.subjects.BehaviorSubject
 
 class RoomFavoriteCache private constructor(val gifRecipeDao: GifRecipeDao): FavoriteCache {
 
     private val recipeMap = HashMap<String, Boolean>()
-    private val favoriteStream = BehaviorSubject.create<Pair<GifRecipe, Boolean>>()
+    private val favoriteStream = AsyncSubject.create<Pair<GifRecipe, Boolean>>()
     private val initialFetchDisposable: Disposable
     private val initialFetchCompletedSubject = BehaviorSubject.create<Boolean>()
 
@@ -20,7 +19,9 @@ class RoomFavoriteCache private constructor(val gifRecipeDao: GifRecipeDao): Fav
                 .subscribeOn(Schedulers.io())
                 .flatMap { Observable.fromIterable(it) }
                 .doFinally { initialFetchCompletedSubject.onNext(true) }
-                .subscribe { recipeMap.put(it.id!!, true) }
+                .subscribe {
+                    recipeMap.put(it.id!!, true)
+                }
 
         bindSavingFavoriteDatabaseStream()
     }
@@ -56,6 +57,10 @@ class RoomFavoriteCache private constructor(val gifRecipeDao: GifRecipeDao): Fav
                     favoriteStream.onNext(Pair(gifRecipe, false))
                     Completable.complete()
                 }
+    }
+
+    override fun favoriteStateChangedFlowable(): Flowable<Pair<GifRecipe, Boolean>> {
+        return favoriteStream.toFlowable(BackpressureStrategy.BUFFER)
     }
 
     private fun bindSavingFavoriteDatabaseStream() {

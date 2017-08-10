@@ -15,8 +15,10 @@ abstract class BasePresenter<T: ViewState> : Presenter<T> {
 
         if (lastValue != null) {
             val reducedValue = reduce(lastValue, value)
-            stateStreamSubject.onNext(reducedValue)
-            this.lastValue = reducedValue
+            reducedValue?.let {
+                stateStreamSubject.onNext(reducedValue)
+                this.lastValue = reducedValue
+            }
         } else {
             stateStreamSubject.onNext(value)
             this.lastValue = value
@@ -24,7 +26,7 @@ abstract class BasePresenter<T: ViewState> : Presenter<T> {
 
     }
 
-    protected open fun reduce(old: T, new: T): T {
+    protected open fun reduce(old: T, new: T): T? {
         return new
     }
 }

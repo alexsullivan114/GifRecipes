@@ -3,6 +3,7 @@ package alexsullivan.gifrecipes.recipelist
 import alexsullivan.gifrecipes.GifRecipeUI
 import alexsullivan.gifrecipes.GifRecipeViewerActivity
 import alexsullivan.gifrecipes.R
+import alexsullivan.gifrecipes.database.RoomFavoriteCache
 import alexsullivan.gifrecipes.database.RoomRecipeDatabaseHolder
 import alexsullivan.gifrecipes.search.SearchProvider
 import alexsullivan.gifrecipes.utils.*
@@ -11,6 +12,7 @@ import android.os.Bundle
 import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.util.Pair
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,6 +23,8 @@ import kotlinx.android.synthetic.main.layout_recipe_category_list.view.*
 
 class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, RecipeCategoryListPresenter>(),
     RecipeCategoryListAdapter.ClickCallback {
+
+    var bottomScrollListner: RecyclerView.OnScrollListener? = null
 
     companion object {
         val SEARCH_KEY = "Search Key"
@@ -36,7 +40,7 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
     override fun initPresenter(): RecipeCategoryListPresenter {
         val searchTerm = arguments.getString(SEARCH_KEY)
         return RecipeCategoryListPresenter.create(searchTerm, GifRecipeRepository.default,
-                RoomRecipeDatabaseHolder.get(context.applicationContext))
+                RoomFavoriteCache.getInstance(RoomRecipeDatabaseHolder.get(context.applicationContext).gifRecipeDao()))
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -50,9 +54,6 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
         val view = inflater.inflate(R.layout.layout_recipe_category_list, container, false)
         view.list.layoutManager = LinearLayoutManager(context)
         view.list.adapter = RecipeCategoryListAdapter(listOf(), this)
-        view.list.addInfiniteScrollListener {
-            presenter.reachedBottom()
-        }
         return view
     }
 
@@ -70,9 +71,13 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
                 adapter.gifList = viewState.recipes
                 loading.gone()
                 list.visible()
+                bottomScrollListner = view?.list?.addInfiniteScrollListener {
+                    presenter.reachedBottom()
+                }
             }
             is RecipeCategoryListViewState.LoadingMore -> {
                 (list.adapter as RecipeCategoryListAdapter).showBottomLoading = true
+                bottomScrollListner?.let { list.removeInfiniteScrollListener(it) }
             }
             is RecipeCategoryListViewState.NetworkError -> {
                 list.gone()
