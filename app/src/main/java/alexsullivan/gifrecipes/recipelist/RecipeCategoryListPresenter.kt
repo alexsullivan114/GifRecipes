@@ -83,6 +83,35 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
                 }
                 return new
             }
+            is RecipeCategoryListViewState.Favorited -> {
+                if (old is RecipeCategoryListViewState.LoadingMore || old is RecipeCategoryListViewState.RecipeList) {
+                    val recipes = mutableListOf<GifRecipeUI>()
+                    if (old is RecipeCategoryListViewState.LoadingMore) {
+                        recipes.addAll(old.recipes)
+                    } else if (old is RecipeCategoryListViewState.RecipeList) {
+                        recipes.addAll(old.recipes)
+                    }
+
+                    for ((index, value) in recipes.withIndex()) {
+                        if (value.id == new.recipeId) {
+                            recipes[index] = value.copy(favorite = new.isFavorite)
+                        }
+                    }
+
+                    if (old is RecipeCategoryListViewState.LoadingMore) {
+                        return RecipeCategoryListViewState.LoadingMore(recipes)
+                    } else if (old is RecipeCategoryListViewState.RecipeList) {
+                        return RecipeCategoryListViewState.RecipeList(recipes)
+                    }
+
+                    // Can't ever get here...
+                    return null
+
+                } else {
+                    // Shouldn't ever happen...
+                    return null
+                }
+            }
             else -> {
                 return new
             }
@@ -126,9 +155,9 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
     private fun bindSavingFavoriteDatabaseStream() {
         val saveFavorite = fun(recipe: GifRecipeUI) {
             if (recipe.favorite) {
-                favoriteCache.insertFavoriteRecipe(recipe.toGifRecipe())
+                favoriteCache.insertFavoriteRecipe(recipe.toGifRecipe()).subscribeOn(Schedulers.io()).subscribe()
             } else {
-                favoriteCache.deleteFavoriteRecipe(recipe.toGifRecipe())
+                favoriteCache.deleteFavoriteRecipe(recipe.toGifRecipe()).subscribeOn(Schedulers.io()).subscribe()
             }
         }
 
@@ -140,11 +169,11 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
     }
 
     private fun bindFavoriteDatabaseStream() {
-//        disposables.add(favoriteCache.favoriteStateChangedFlowable()
-//                .subscribeOn(Schedulers.io())
-//                .subscribe {
-//                    stateStream
-//                })
+        disposables.add(favoriteCache.favoriteStateChangedFlowable()
+                .subscribeOn(Schedulers.io())
+                .subscribe {
+                    pushValue(RecipeCategoryListViewState.Favorited(it.second, it.first.id))
+                })
     }
 
     private fun querySearchTerm() {

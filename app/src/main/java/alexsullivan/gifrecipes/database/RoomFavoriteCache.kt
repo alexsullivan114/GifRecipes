@@ -4,13 +4,13 @@ import com.alexsullivan.GifRecipe
 import io.reactivex.*
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.AsyncSubject
 import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.subjects.PublishSubject
 
 class RoomFavoriteCache private constructor(val gifRecipeDao: GifRecipeDao): FavoriteCache {
 
     private val recipeMap = HashMap<String, Boolean>()
-    private val favoriteStream = AsyncSubject.create<Pair<GifRecipe, Boolean>>()
+    private val favoriteStream = PublishSubject.create<Pair<GifRecipe, Boolean>>()
     private val initialFetchDisposable: Disposable
     private val initialFetchCompletedSubject = BehaviorSubject.create<Boolean>()
 

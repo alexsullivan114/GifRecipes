@@ -38,13 +38,12 @@ class RecipeCategoryListAdapter(gifList: List<GifRecipeUI>,
                 val recipe = gifList[position]
                 Glide.with(holder.itemView.context).load(recipe.thumbnail).into(holder.view.image)
                 holder.view.title.text = recipe.title
-                holder.view.favorite.setLiked(recipe.favorite, false)
+                holder.view.favorite.setLiked(recipe.favorite, true)
                 holder.view.setOnClickListener {
                     clickCallback.recipeClicked(recipe, holder.view.image)
                 }
                 holder.view.favorite.setOnClickListener {
-                    holder.view.favorite.setLiked(!holder.view.favorite.liked, true)
-                    clickCallback.recipeFavoriteToggled(recipe.copy(favorite = holder.view.favorite.liked))
+                    clickCallback.recipeFavoriteToggled(recipe.copy(favorite = !holder.view.favorite.liked))
                 }
             }
         }
