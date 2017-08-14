@@ -93,10 +93,6 @@ fun TextureView.surfaceTextureAvailableListener(callback: (surface: SurfaceTextu
 
 fun RecyclerView.addInfiniteScrollListener(onScrolledToBottomListener: () -> Unit): RecyclerView.OnScrollListener {
     val listener = object: RecyclerView.OnScrollListener() {
-
-        var hasReportedOnThisAdapterCount = false
-        var lastAdapterItemCountWhenReported = -1
-
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             // We're scrolling down.
             if (dy > 0) {
@@ -104,15 +100,8 @@ fun RecyclerView.addInfiniteScrollListener(onScrolledToBottomListener: () -> Uni
                 val lastVisibleItemPosition = manager.findLastVisibleItemPosition()
                 val adapterCount = recyclerView.adapter.itemCount
                 if (lastVisibleItemPosition >= adapterCount - 2) {
-                    if (lastAdapterItemCountWhenReported != adapterCount || !hasReportedOnThisAdapterCount) {
-                        onScrolledToBottomListener()
-                        lastAdapterItemCountWhenReported = recyclerView.adapter.itemCount
-                        hasReportedOnThisAdapterCount = true
-                    }
+                    onScrolledToBottomListener()
                 }
-            } else {
-                hasReportedOnThisAdapterCount = false
-                lastAdapterItemCountWhenReported = -1
             }
         }
     }

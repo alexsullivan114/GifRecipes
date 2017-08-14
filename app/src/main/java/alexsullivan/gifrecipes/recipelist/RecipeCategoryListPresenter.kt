@@ -2,6 +2,9 @@ package alexsullivan.gifrecipes.recipelist
 
 import alexsullivan.gifrecipes.GifRecipeUI
 import alexsullivan.gifrecipes.database.FavoriteCache
+import alexsullivan.gifrecipes.utils.addTo
+import alexsullivan.gifrecipes.utils.emptyLet
+import alexsullivan.gifrecipes.utils.nonEmptyLet
 import alexsullivan.gifrecipes.utils.toGifRecipe
 import alexsullivan.gifrecipes.viewarchitecture.BasePresenter
 import alexsullivan.gifrecipes.viewarchitecture.ViewState
@@ -11,7 +14,9 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
+import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 import java.io.IOException
 import java.util.concurrent.TimeUnit
@@ -20,23 +25,20 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
                                       val repository: GifRecipeRepository,
                                       val favoriteCache: FavoriteCache) : RecipeCategoryListPresenter() {
 
-    val disposables = CompositeDisposable()
     val pageRequestSize = 10
-    var lastPageKey = ""
     var lastQueryDisposable: Disposable? = null
-    val favoriteDatabaseStream: PublishSubject<GifRecipeUI> = PublishSubject.create()
-
-    override var searchTerm = searchTerm
-        set(value) {
-            field = value
-            lastPageKey = ""
-            querySearchTerm()
-        }
+    val disposables = CompositeDisposable()
+    val lastPageKeyObservable = BehaviorSubject.createDefault("")
+    val searchTermObservable = BehaviorSubject.createDefault(searchTerm)
+    val favoriteDatabaseStream = PublishSubject.create<GifRecipeUI>()
+    val reachedBottomStream = PublishSubject.create<Boolean>()
 
     init {
-        querySearchTerm()
+        querySearchTerm(searchTerm)
+        bindSearchTermStream()
         bindSavingFavoriteDatabaseStream()
         bindFavoriteDatabaseStream()
+        bindReachedBottomStream()
     }
 
     override fun destroy() {
@@ -46,19 +48,6 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
 
     override fun reduce(old: RecipeCategoryListViewState, new: RecipeCategoryListViewState): RecipeCategoryListViewState? {
         when (new) {
-            // If we received a Loading more view state, we need to add all of the old recipes we had.
-            is RecipeCategoryListViewState.LoadingMore -> {
-                if (old is RecipeCategoryListViewState.RecipeList) {
-                    new.recipes.addAll(old.recipes)
-                }
-                // If we received two loading more view states, we must've re-triggered the bottom endless scrolling
-                // check. We should just wait for the first loading more to finish in that case.
-                if (old is RecipeCategoryListViewState.LoadingMore) {
-                    return null
-                }
-
-                return new
-            }
             // If we received a recipe list and our last value was loading more, we need to add all of the old
             // recipes to the new view state.
             is RecipeCategoryListViewState.RecipeList -> {
@@ -66,9 +55,6 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
                     new.recipes.addAll(0, old.recipes)
                 }
 
-                if (old is RecipeCategoryListViewState.RecipeList) {
-                    new.recipes.addAll(0, old.recipes)
-                }
                 return new
             }
             // If we received a loading more error, we need to add all of the old recipes in the list
@@ -78,9 +64,6 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
                     new.recipes.addAll(old.recipes)
                 }
 
-                if (old is RecipeCategoryListViewState.RecipeList) {
-                    new.recipes.addAll(old.recipes)
-                }
                 return new
             }
             is RecipeCategoryListViewState.Favorited -> {
@@ -119,37 +102,49 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
     }
 
     override fun reachedBottom() {
-        // If our last page key is blank, then we must've run out of items.
-        if (lastPageKey != "") {
-            // Send the message that we're loading new items.
-            pushValue(RecipeCategoryListViewState.LoadingMore(mutableListOf()))
-            disposables.add(repository.consumeGifRecipes(pageRequestSize, searchTerm, lastPageKey)
-                    .doOnNext { lastPageKey = it.pageKey ?: "" }
-                    .flatMap(this::mapRecipeToUi)
-                    .toList()
-                    .doOnSuccess {
-                        if (it.size == 0) {
-                            // Zero new items so we won't hit doOnNext, so we need to remember that
-                            // we're out.
-                            lastPageKey = ""
-                        }
-                    }
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe({
-                        pushValue(RecipeCategoryListViewState.RecipeList(it))
-                    }, {
-                        pushValue(RecipeCategoryListViewState.LoadMoreError(mutableListOf()))
-                    }))
-        }
+        reachedBottomStream.onNext(true)
+    }
+
+    fun loadMore() {
+        lastPageKeyObservable
+            .subscribeOn(Schedulers.io())
+            .take(1)
+            .filter { pageKey -> pageKey.isNotBlank() }
+            // Check our list view state, make sure its a RecipeList. This method can be called multiple times
+            // quickly depending on how the user interacts with the list (i.e. if they scroll down and up quickly
+            // we could trigger the reached bottom condition a few times). If our last state is anything
+            // other than a RecipeList then we want to drop it right here.
+            .zipWith(stateStream.take(1), BiFunction { t1: String, t2: RecipeCategoryListViewState -> t1 to t2 })
+            .filter { pair -> pair.second is RecipeCategoryListViewState.RecipeList }
+            // Push out our loading view state
+            .doOnNext { pair ->
+                pushValue(RecipeCategoryListViewState.LoadingMore(((pair.second as RecipeCategoryListViewState.RecipeList).recipes.toList())))
+            }
+            .zipWith(searchTermObservable, BiFunction { t1: Pair<String, RecipeCategoryListViewState>, t2: String -> t1.first to t2})
+            .flatMap { pair -> repository.consumeGifRecipes(pageRequestSize, pair.second, pair.first) }
+            .doOnNext { recipe -> lastPageKeyObservable.onNext(recipe.pageKey ?: "") }
+            .flatMap(this::mapRecipeToUi)
+            .toList()
+            .doOnSuccess { list ->
+                list.emptyLet { lastPageKeyObservable.onNext("") }
+            }
+            // We'll still get a list here, even if we filtered right at the beginning because of our
+            // page key being blank.
+            .subscribe({ list ->
+                list.nonEmptyLet { pushValue(RecipeCategoryListViewState.RecipeList(list)) }
+            }, {
+                pushValue(RecipeCategoryListViewState.LoadMoreError(mutableListOf()))
+            })
+            .addTo(disposables)
     }
 
     override fun setSearchTermSource(source: Observable<String>) {
-        disposables.add(source
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .debounce(500, TimeUnit.MILLISECONDS)
-                .subscribe { searchTerm = it })
+        source.subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .debounce(500, TimeUnit.MILLISECONDS)
+            .doOnNext { lastPageKeyObservable.onNext("") }
+            .subscribe { searchTermObservable.onNext(it) }
+            .addTo(disposables)
     }
 
     private fun bindSavingFavoriteDatabaseStream() {
@@ -162,44 +157,67 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
         }
 
         favoriteDatabaseStream
-                .observeOn(Schedulers.io())
-                .subscribe {
-                    saveFavorite(it)
-                }
+            .observeOn(Schedulers.io())
+            .subscribe {
+                saveFavorite(it)
+            }
+            .addTo(disposables)
     }
 
     private fun bindFavoriteDatabaseStream() {
-        disposables.add(favoriteCache.favoriteStateChangedFlowable()
-                .subscribeOn(Schedulers.io())
-                .subscribe {
-                    pushValue(RecipeCategoryListViewState.Favorited(it.second, it.first.id))
-                })
+        favoriteCache.favoriteStateChangedFlowable()
+            .subscribeOn(Schedulers.io())
+            .subscribe {
+                pushValue(RecipeCategoryListViewState.Favorited(it.second, it.first.id))
+            }
+            .addTo(disposables)
     }
 
-    private fun querySearchTerm() {
-        lastQueryDisposable?.dispose()
-        lastQueryDisposable = repository.consumeGifRecipes(pageRequestSize, searchTerm, lastPageKey)
-                .subscribeOn(Schedulers.io())
-                .doOnSubscribe { pushValue(RecipeCategoryListViewState.Loading()) }
-                .doOnNext { lastPageKey = it.pageKey ?: lastPageKey }
-                .flatMap(this::mapRecipeToUi)
-                .toList()
-                .subscribe({ result: MutableList<GifRecipeUI> ->
-                    pushValue(RecipeCategoryListViewState.RecipeList(result))
-                }, {
-                    if (it is IOException) {
-                        pushValue(RecipeCategoryListViewState.NetworkError())
-                    }
-                })
-        lastQueryDisposable?.let {
-            disposables.add(it)
-        }
+    private fun bindReachedBottomStream() {
+        reachedBottomStream
+            .subscribeOn(Schedulers.io())
+            .throttleFirst(1, TimeUnit.SECONDS)
+            .subscribe{ loadMore() }
+            .addTo(disposables)
     }
 
     private fun mapRecipeToUi(recipe: GifRecipe): Observable<GifRecipeUI> {
         return favoriteCache.isRecipeFavorited(recipe.id)
-                .toObservable()
-                .map { GifRecipeUI(recipe.url, recipe.id, recipe.thumbnail, recipe.imageType, recipe.title, it) }
+            .toObservable()
+            .map { GifRecipeUI(recipe.url, recipe.id, recipe.thumbnail, recipe.imageType, recipe.title, it) }
+    }
+
+    override fun searchTermChanged(searchTerm: String) {
+        searchTermObservable.onNext(searchTerm)
+    }
+
+    private fun bindSearchTermStream() {
+        searchTermObservable
+            .subscribeOn(Schedulers.io())
+            .subscribe { querySearchTerm(it) }
+            .addTo(disposables)
+    }
+
+    private fun querySearchTerm(searchTerm: String) {
+        lastQueryDisposable?.dispose()
+        lastQueryDisposable = lastPageKeyObservable
+            .take(1)
+            .flatMap { pageKey -> repository.consumeGifRecipes(pageRequestSize, searchTerm, pageKey) }
+            .subscribeOn(Schedulers.io())
+            .doOnSubscribe { pushValue(RecipeCategoryListViewState.Loading()) }
+            .doOnNext { lastPageKeyObservable.onNext(it.pageKey ?: "") }
+            .flatMap(this::mapRecipeToUi)
+            .toList()
+            .subscribe({ result: MutableList<GifRecipeUI> ->
+                pushValue(RecipeCategoryListViewState.RecipeList(result))
+            }, {
+                if (it is IOException) {
+                    pushValue(RecipeCategoryListViewState.NetworkError())
+                }
+            })
+        lastQueryDisposable?.let {
+            disposables.add(it)
+        }
     }
 
     override fun recipeFavoriteToggled(recipe: GifRecipeUI) {
@@ -217,12 +235,12 @@ abstract class RecipeCategoryListPresenter : BasePresenter<RecipeCategoryListVie
     abstract fun reachedBottom()
     abstract fun setSearchTermSource(source: Observable<String>)
     abstract fun recipeFavoriteToggled(recipe: GifRecipeUI)
-    abstract var searchTerm: String
+    abstract fun searchTermChanged(searchTerm: String)
 }
 
 sealed class RecipeCategoryListViewState : ViewState {
     class Loading : RecipeCategoryListViewState()
-    class LoadingMore(val recipes: MutableList<GifRecipeUI>): RecipeCategoryListViewState()
+    class LoadingMore(val recipes: List<GifRecipeUI>): RecipeCategoryListViewState()
     class RecipeList(val recipes: MutableList<GifRecipeUI>): RecipeCategoryListViewState()
     class LoadMoreError(val recipes: MutableList<GifRecipeUI>): RecipeCategoryListViewState()
     class NetworkError : RecipeCategoryListViewState()

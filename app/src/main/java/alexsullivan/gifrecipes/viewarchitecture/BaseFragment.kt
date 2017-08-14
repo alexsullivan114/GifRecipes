@@ -15,7 +15,7 @@ abstract class BaseFragment<T: ViewState, P: Presenter<T>>: Fragment() {
     protected lateinit var presenter: P
 
     abstract fun accept(viewState: T)
-    abstract fun acknowledge(error: Throwable)
+    open fun acknowledge(error: Throwable) {}
     abstract fun initPresenter(): P
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,7 +37,7 @@ abstract class BaseFragment<T: ViewState, P: Presenter<T>>: Fragment() {
                 .subscribe({
                     Log.i(TAG, "Received View State: ${it.javaClass.simpleName}")
                     accept(it)
-                }, { acknowledge(it) }))
+                }))
     }
 
     override fun onStop() {

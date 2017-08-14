@@ -12,7 +12,6 @@ import android.os.Bundle
 import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.util.Pair
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SimpleItemAnimator
 import android.view.LayoutInflater
 import android.view.View
@@ -24,8 +23,6 @@ import kotlinx.android.synthetic.main.layout_recipe_category_list.view.*
 
 class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, RecipeCategoryListPresenter>(),
     RecipeCategoryListAdapter.ClickCallback {
-
-    var bottomScrollListner: RecyclerView.OnScrollListener? = null
 
     companion object {
         val SEARCH_KEY = "Search Key"
@@ -56,6 +53,9 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
         view.list.layoutManager = LinearLayoutManager(context)
         view.list.adapter = RecipeCategoryListAdapter(listOf(), this)
         ((view.list.itemAnimator) as SimpleItemAnimator).supportsChangeAnimations = false
+        view.list.addInfiniteScrollListener {
+            presenter.reachedBottom()
+        }
         return view
     }
 
@@ -73,13 +73,9 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
                 adapter.gifList = viewState.recipes
                 loading.gone()
                 list.visible()
-                bottomScrollListner = view?.list?.addInfiniteScrollListener {
-                    presenter.reachedBottom()
-                }
             }
             is RecipeCategoryListViewState.LoadingMore -> {
                 (list.adapter as RecipeCategoryListAdapter).showBottomLoading = true
-                bottomScrollListner?.let { list.removeInfiniteScrollListener(it) }
             }
             is RecipeCategoryListViewState.NetworkError -> {
                 list.gone()
@@ -87,10 +83,6 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
                 error.visible()
             }
         }
-    }
-
-    override fun acknowledge(error: Throwable) {
-        TODO("not implemented")
     }
 
     override fun recipeClicked(recipe: GifRecipeUI, view: View) {
