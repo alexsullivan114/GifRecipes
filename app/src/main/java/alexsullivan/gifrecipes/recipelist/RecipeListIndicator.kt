@@ -3,7 +3,6 @@ package alexsullivan.gifrecipes.recipelist
 import alexsullivan.gifrecipes.Category
 import alexsullivan.gifrecipes.R
 import alexsullivan.gifrecipes.utils.show
-import android.graphics.Color
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -50,11 +49,6 @@ class RecipeListIndicatorAdapter(val selectedIndexCallback: SelectedIndexCallbac
         holder.image.setImageResource(iconRes)
         holder.text.setText(category.displayName)
         holder.mask.show(category != selectedCategory)
-        if (category == selectedCategory) {
-            holder.text.setTextColor(Color.WHITE)
-        } else {
-            holder.text.setTextColor(holder.text.context.resources.getColor(R.color.disabledGrey))
-        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecipeListIndicatorViewHolder {

@@ -65,6 +65,7 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
                 val adapter = list.castedAdapter(RecipeCategoryListAdapter::class.java)
                 adapter.gifList = listOf()
                 loading.visible()
+                empty.gone()
                 list.invisible()
             }
             is RecipeCategoryListViewState.RecipeList -> {
@@ -72,7 +73,12 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
                 adapter.showBottomLoading = false
                 adapter.gifList = viewState.recipes
                 loading.gone()
+                empty.gone()
                 list.visible()
+                viewState.recipes.emptyLet {
+                    empty.visible()
+                    list.gone()
+                }
             }
             is RecipeCategoryListViewState.LoadingMore -> {
                 (list.adapter as RecipeCategoryListAdapter).showBottomLoading = true
@@ -80,6 +86,7 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
             is RecipeCategoryListViewState.NetworkError -> {
                 list.gone()
                 loading.gone()
+                empty.gone()
                 error.visible()
             }
         }

@@ -9,4 +9,5 @@
 
     <string name="generic_network_error">Encountered a network error. Please try again later.</string>
     <string name="search_gif_recipes">Search recipes</string>
+    <string name="empty_gif_list">No recipes found.</string>
 </resources>
