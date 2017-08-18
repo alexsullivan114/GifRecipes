@@ -5,21 +5,24 @@ import alexsullivan.gifrecipes.GifRecipeUI
 import alexsullivan.gifrecipes.GifRecipeViewerActivity
 import alexsullivan.gifrecipes.R
 import alexsullivan.gifrecipes.recipelist.RecipeCategoryContainerActivity
-import alexsullivan.gifrecipes.utils.gone
-import alexsullivan.gifrecipes.utils.makeSceneTransitionWithNav
-import alexsullivan.gifrecipes.utils.str
-import alexsullivan.gifrecipes.utils.visible
+import alexsullivan.gifrecipes.recipelist.RecipeListIndicatorAdapter
+import alexsullivan.gifrecipes.recipelist.SelectedIndexCallback
+import alexsullivan.gifrecipes.recipelist.indexFromCategory
+import alexsullivan.gifrecipes.utils.*
 import alexsullivan.gifrecipes.viewarchitecture.BaseActivity
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.app.SharedElementCallback
 import android.support.v4.util.Pair
+import android.support.v7.widget.GridLayoutManager
+import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import com.alexsullivan.GifRecipeRepository
 import kotlinx.android.synthetic.main.layout_category.*
 
-class CategorySelectionActivity : BaseActivity<CategorySelectionViewState, CategorySelectionPresenter>(), RecipeAdapterCallback {
+class CategorySelectionActivity : BaseActivity<CategorySelectionViewState, CategorySelectionPresenter>(),
+                                  RecipeAdapterCallback, SelectedIndexCallback {
 
     override fun initPresenter() = CategorySelectionPresenter.create(GifRecipeRepository.default)
 
@@ -30,7 +33,8 @@ class CategorySelectionActivity : BaseActivity<CategorySelectionViewState, Categ
         pager.clipToPadding = false
         pager.setPageTransformer(true, HotGifPageTransformer())
         pager.offscreenPageLimit = 5
-        bindCategories()
+        recyclerView.layoutManager = GridLayoutManager(this, 2, LinearLayoutManager.HORIZONTAL, false)
+        recyclerView.adapter = RecipeListIndicatorAdapter(this, recyclerView.layoutManager, false)
     }
 
     override fun onActivityReenter(resultCode: Int, data: Intent?) {
@@ -77,10 +81,6 @@ class CategorySelectionActivity : BaseActivity<CategorySelectionViewState, Categ
         }
     }
 
-    override fun acknowledge(error: Throwable) {
-        TODO("not implemented")
-    }
-
     override fun recipeClicked(gifRecipe: GifRecipeUI, previewImage: View) {
         presenter.recipeClicked(gifRecipe)
         val imagePair = Pair(previewImage, getString(R.string.recipe_transition_image_name))
@@ -89,36 +89,19 @@ class CategorySelectionActivity : BaseActivity<CategorySelectionViewState, Categ
         startActivity(intent, options.toBundle())
     }
 
-    fun categoryClicked(view: View, category: Category) {
-        val imagePair = Pair(view, view.transitionName)
+    override fun categorySelected(category: Category) {
+        categoryClicked(category)
+    }
+
+    fun categoryClicked(category: Category) {
+        val holder = recyclerView.castedViewHolderAtPosition<RecipeListIndicatorAdapter.RecipeListIndicatorViewHolder>(indexFromCategory(category))
+        val imagePair: Pair<View, String> = Pair(holder.image, str(category.transitionName))
         val options = makeSceneTransitionWithNav(this, imagePair)
         startActivity(RecipeCategoryContainerActivity.buildIntent(this, category), options.toBundle())
     }
 
-    private fun bindCategories() {
-        dessert.setImageResource(Category.DESSERT.iconRes)
-        vegan.setImageResource(Category.VEGAN.iconRes)
-        vegetarian.setImageResource(Category.VEGETARIAN.iconRes)
-        chicken.setImageResource(Category.CHICKEN.iconRes)
-        pork.setImageResource(Category.PORK.iconRes)
-        salmon.setImageResource(Category.SALMON.iconRes)
-
-        dessert.setOnClickListener { categoryClicked(it, Category.DESSERT) }
-        vegan.setOnClickListener { categoryClicked(it, Category.VEGAN) }
-        vegetarian.setOnClickListener { categoryClicked(it, Category.VEGETARIAN) }
-        chicken.setOnClickListener { categoryClicked(it, Category.CHICKEN) }
-        pork.setOnClickListener { categoryClicked(it, Category.PORK) }
-        salmon.setOnClickListener { categoryClicked(it, Category.SALMON) }
-    }
-
     private fun viewForCategory(category: Category): View {
-        return when (category) {
-            Category.DESSERT -> dessert
-            Category.VEGAN -> vegan
-            Category.VEGETARIAN -> vegetarian
-            Category.CHICKEN -> chicken
-            Category.PORK -> pork
-            Category.SALMON -> salmon
-        }
+        val viewholder = recyclerView.castedViewHolderAtPosition<RecipeListIndicatorAdapter.RecipeListIndicatorViewHolder>(indexFromCategory(category))
+        return viewholder.image
     }
 }

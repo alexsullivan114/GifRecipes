@@ -35,9 +35,7 @@ class RecipeCategoryContainerActivity : BaseActivity<RecipesListViewState, Recip
         }
     }
 
-    override fun initPresenter(): RecipesListPresenter {
-        return RecipesListPresenter.create(intent.getSerializableExtra(CATEGORY_KEY) as Category)
-    }
+    override fun initPresenter() = RecipesListPresenter.create(intent.getSerializableExtra(CATEGORY_KEY) as Category)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,8 +49,8 @@ class RecipeCategoryContainerActivity : BaseActivity<RecipesListViewState, Recip
         pager.currentItem = indexFromCategory(category)
         pager.offscreenPageLimit = 1
         indicatorList.layoutManager = GridLayoutManager(this, 2, LinearLayoutManager.HORIZONTAL, false)
-        indicatorList.adapter = RecipeListIndicatorAdapter(this, indicatorList.layoutManager)
-        indicatorList.castedAdapter(RecipeListIndicatorAdapter::class.java).selectedCategory = category
+        indicatorList.adapter = RecipeListIndicatorAdapter(this, indicatorList.layoutManager, true)
+        indicatorList.castedAdapter<RecipeListIndicatorAdapter>().selectedCategory = category
         appBarLayout.addOnOffsetChangedListener { appBarLayout, verticalOffset ->
             val totalRange = appBarLayout.totalScrollRange
             val percentScrolled = -1 * (verticalOffset / totalRange.toFloat())
@@ -61,7 +59,6 @@ class RecipeCategoryContainerActivity : BaseActivity<RecipesListViewState, Recip
         toolbar.setOnClickListener {
             appBarLayout.setExpanded(appBarLayout.currentState() == StateAwareAppBarLayout.State.COLLAPSED)
         }
-        appBarLayout
         // Note: I'm not sure why this works - it seems ambiguous which method this would call in the
         // page change listener...
         pager.pageChangeListener {
@@ -94,7 +91,7 @@ class RecipeCategoryContainerActivity : BaseActivity<RecipesListViewState, Recip
                     categoryImage.transitionName = str(category.transitionName)
                     categoryImage.animatedSetImage(category.iconRes)
                     categoryTitle.setText(category.displayName)
-                    indicatorList.castedAdapter(RecipeListIndicatorAdapter::class.java).selectedCategory = category
+                    indicatorList.castedAdapter<RecipeListIndicatorAdapter>().selectedCategory = category
                 }
             }
         }

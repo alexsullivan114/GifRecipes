@@ -62,14 +62,14 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
     override fun accept(viewState: RecipeCategoryListViewState) {
         when (viewState) {
             is RecipeCategoryListViewState.Loading -> {
-                val adapter = list.castedAdapter(RecipeCategoryListAdapter::class.java)
+                val adapter = list.castedAdapter<RecipeCategoryListAdapter>()
                 adapter.gifList = listOf()
                 loading.visible()
                 empty.gone()
                 list.invisible()
             }
             is RecipeCategoryListViewState.RecipeList -> {
-                val adapter = list.castedAdapter(RecipeCategoryListAdapter::class.java)
+                val adapter = list.castedAdapter<RecipeCategoryListAdapter>()
                 adapter.showBottomLoading = false
                 adapter.gifList = viewState.recipes
                 loading.gone()

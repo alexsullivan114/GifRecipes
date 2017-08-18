@@ -28,9 +28,6 @@ internal class RedditGifRecipeProviderImpl(val service: RedditService, val urlMa
                                            val medidaChecker: (String) -> Boolean, val logger: Logger): RedditGifRecipeProvider {
 
     private val TAG: String = javaClass.simpleName
-    // Hold onto a map of after values so we can pageinate. Key will be the blank string for queries
-    // without search values and the search term otherwise.
-    val afterMap = mutableMapOf<String, String>()
 
     override val id: String
         get() = "RedditProvider"

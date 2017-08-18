@@ -13,7 +13,8 @@ import kotlinx.android.synthetic.main.adapter_recipe_indicator.view.*
 import kotlin.properties.Delegates
 
 class RecipeListIndicatorAdapter(val selectedIndexCallback: SelectedIndexCallback,
-                                 val layoutManager: RecyclerView.LayoutManager): RecyclerView.Adapter<RecipeListIndicatorAdapter.RecipeListIndicatorViewHolder>() {
+                                 private val layoutManager: RecyclerView.LayoutManager,
+                                 private val showMask: Boolean): RecyclerView.Adapter<RecipeListIndicatorAdapter.RecipeListIndicatorViewHolder>() {
 
     var selectedCategory: Category by Delegates.observable(Category.DESSERT) {
         _, oldValue, newValue ->
@@ -23,32 +24,12 @@ class RecipeListIndicatorAdapter(val selectedIndexCallback: SelectedIndexCallbac
     }
 
     override fun onBindViewHolder(holder: RecipeListIndicatorViewHolder, position: Int) {
-        var iconRes = 0
         val category = categoryFromIndex(position)
-        when(category) {
-            Category.DESSERT -> {
-                iconRes = Category.DESSERT.iconRes
-            }
-            Category.VEGETARIAN -> {
-                iconRes = Category.VEGETARIAN.iconRes
-            }
-            Category.VEGAN -> {
-                iconRes = Category.VEGAN.iconRes
-            }
-            Category.CHICKEN -> {
-                iconRes = Category.CHICKEN.iconRes
-            }
-            Category.PORK -> {
-                iconRes = Category.PORK.iconRes
-            }
-            Category.SALMON ->{
-                iconRes = Category.SALMON.iconRes
-            }
-        }
+        val iconRes = category.iconRes
 
         holder.image.setImageResource(iconRes)
         holder.text.setText(category.displayName)
-        holder.mask.show(category != selectedCategory)
+        holder.mask.show(category != selectedCategory && showMask)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecipeListIndicatorViewHolder {
@@ -64,7 +45,7 @@ class RecipeListIndicatorAdapter(val selectedIndexCallback: SelectedIndexCallbac
         val text: TextView = itemView.text
 
         init {
-            mask.setOnClickListener {
+            image.setOnClickListener {
                 selectedIndexCallback.categorySelected(categoryFromIndex(adapterPosition))
             }
         }

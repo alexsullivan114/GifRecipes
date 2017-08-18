@@ -114,10 +114,6 @@ fun RecyclerView.removeInfiniteScrollListener(scrollListener: RecyclerView.OnScr
     removeOnScrollListener(scrollListener)
 }
 
-fun <T: RecyclerView.Adapter<*>> RecyclerView.castedAdapter(clazz: Class<T>): T {
-    return adapter as T
-}
-
 fun EditText.textObservable(): Observable<String> {
     return Observable.create {
         addTextChangedListener(object: TextWatcher{
