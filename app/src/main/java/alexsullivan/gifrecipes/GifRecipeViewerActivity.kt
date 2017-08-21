@@ -3,7 +3,7 @@ package alexsullivan.gifrecipes
 import alexsullivan.gifrecipes.cache.CacheServerImpl
 import alexsullivan.gifrecipes.components.State
 import alexsullivan.gifrecipes.components.StateAwareMediaPlayer
-import alexsullivan.gifrecipes.database.RoomFavoriteCache
+import alexsullivan.gifrecipes.favoriting.RoomFavoriteCache
 import alexsullivan.gifrecipes.database.RoomRecipeDatabaseHolder
 import alexsullivan.gifrecipes.utils.*
 import alexsullivan.gifrecipes.viewarchitecture.BaseActivity

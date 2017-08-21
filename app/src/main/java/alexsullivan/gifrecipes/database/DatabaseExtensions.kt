@@ -1,5 +1,6 @@
 package alexsullivan.gifrecipes.database
 
+import alexsullivan.gifrecipes.favoriting.FavoriteRecipe
 import com.alexsullivan.GifRecipe
 
 fun GifRecipe.toFavorite(): FavoriteRecipe {

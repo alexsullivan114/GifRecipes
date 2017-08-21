@@ -1,5 +1,7 @@
-package alexsullivan.gifrecipes.database
+package alexsullivan.gifrecipes.favoriting
 
+import alexsullivan.gifrecipes.database.GifRecipeDao
+import alexsullivan.gifrecipes.database.toFavorite
 import com.alexsullivan.GifRecipe
 import io.reactivex.*
 import io.reactivex.disposables.Disposable
@@ -59,9 +61,7 @@ class RoomFavoriteCache private constructor(val gifRecipeDao: GifRecipeDao): Fav
                 }
     }
 
-    override fun favoriteStateChangedFlowable(): Flowable<Pair<GifRecipe, Boolean>> {
-        return favoriteStream.toFlowable(BackpressureStrategy.BUFFER)
-    }
+    override fun favoriteStateChangedFlowable() = favoriteStream.toFlowable(BackpressureStrategy.BUFFER)
 
     private fun bindSavingFavoriteDatabaseStream() {
         val saveFavorite = fun(recipe: GifRecipe, favorite: Boolean) {

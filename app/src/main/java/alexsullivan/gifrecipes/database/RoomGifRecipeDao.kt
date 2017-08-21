@@ -1,6 +1,6 @@
 package alexsullivan.gifrecipes.database
 
-import alexsullivan.gifrecipes.GifRecipeUI
+import alexsullivan.gifrecipes.favoriting.FavoriteRecipe
 import android.arch.persistence.room.Dao
 import android.arch.persistence.room.Delete
 import android.arch.persistence.room.Insert

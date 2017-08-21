@@ -1,5 +1,6 @@
 package alexsullivan.gifrecipes.database
 
+import alexsullivan.gifrecipes.favoriting.FavoriteRecipe
 import android.arch.persistence.room.Database
 import android.arch.persistence.room.RoomDatabase
 import android.arch.persistence.room.TypeConverters

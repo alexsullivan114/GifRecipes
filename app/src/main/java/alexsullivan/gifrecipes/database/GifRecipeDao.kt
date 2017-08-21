@@ -1,6 +1,6 @@
 package alexsullivan.gifrecipes.database
 
-import alexsullivan.gifrecipes.GifRecipeUI
+import alexsullivan.gifrecipes.favoriting.FavoriteRecipe
 import io.reactivex.Flowable
 
 interface GifRecipeDao {

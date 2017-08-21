@@ -7,14 +7,10 @@ object Converters {
 
     @TypeConverter
     @JvmStatic
-    fun fromValue(value: Int): ImageType {
-        return ImageType.fromInt(value)
-    }
+    fun fromValue(value: Int) = ImageType.fromInt(value)
 
     @TypeConverter
     @JvmStatic
-    fun toValue(imageType: ImageType): Int {
-        return imageType.value
-    }
+    fun toValue(imageType: ImageType) = imageType.value
 
 }

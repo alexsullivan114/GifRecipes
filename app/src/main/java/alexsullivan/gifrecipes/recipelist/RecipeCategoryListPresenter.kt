@@ -1,13 +1,12 @@
 package alexsullivan.gifrecipes.recipelist
 
 import alexsullivan.gifrecipes.GifRecipeUI
-import alexsullivan.gifrecipes.database.FavoriteCache
+import alexsullivan.gifrecipes.favoriting.FavoriteCache
 import alexsullivan.gifrecipes.utils.addTo
 import alexsullivan.gifrecipes.utils.emptyLet
 import alexsullivan.gifrecipes.utils.nonEmptyLet
 import alexsullivan.gifrecipes.utils.toGifRecipe
 import alexsullivan.gifrecipes.viewarchitecture.BasePresenter
-import alexsullivan.gifrecipes.viewarchitecture.ViewState
 import com.alexsullivan.GifRecipe
 import com.alexsullivan.GifRecipeRepository
 import io.reactivex.Observable
@@ -22,16 +21,16 @@ import java.io.IOException
 import java.util.concurrent.TimeUnit
 
 class RecipeCategoryListPresenterImpl(searchTerm: String,
-                                      val repository: GifRecipeRepository,
-                                      val favoriteCache: FavoriteCache) : RecipeCategoryListPresenter() {
+                                      private val repository: GifRecipeRepository,
+                                      private val favoriteCache: FavoriteCache) : RecipeCategoryListPresenter() {
 
-    val pageRequestSize = 10
-    var lastQueryDisposable: Disposable? = null
-    val disposables = CompositeDisposable()
-    val lastPageKeyObservable = BehaviorSubject.createDefault("")
-    val searchTermObservable = BehaviorSubject.createDefault(searchTerm)
-    val favoriteDatabaseStream = PublishSubject.create<GifRecipeUI>()
-    val reachedBottomStream = PublishSubject.create<Boolean>()
+    private val pageRequestSize = 10
+    private var lastQueryDisposable: Disposable? = null
+    private val disposables = CompositeDisposable()
+    private val lastPageKeyObservable = BehaviorSubject.createDefault("")
+    private val searchTermObservable = BehaviorSubject.createDefault(searchTerm)
+    private val favoriteDatabaseStream = PublishSubject.create<GifRecipeUI>()
+    private val reachedBottomStream = PublishSubject.create<Boolean>()
 
     init {
         querySearchTerm(searchTerm)
@@ -76,7 +75,7 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
                     }
 
                     for ((index, value) in recipes.withIndex()) {
-                        if (value.id == new.recipeId) {
+                        if (value.id == new.recipe.id) {
                             recipes[index] = value.copy(favorite = new.isFavorite)
                         }
                     }
@@ -105,7 +104,7 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
         reachedBottomStream.onNext(true)
     }
 
-    fun loadMore() {
+    private fun loadMore() {
         lastPageKeyObservable
             .subscribeOn(Schedulers.io())
             .take(1)
@@ -168,7 +167,7 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
         favoriteCache.favoriteStateChangedFlowable()
             .subscribeOn(Schedulers.io())
             .subscribe {
-                pushValue(RecipeCategoryListViewState.Favorited(it.second, it.first.id))
+                pushValue(RecipeCategoryListViewState.Favorited(it.second, it.first))
             }
             .addTo(disposables)
     }
@@ -236,13 +235,4 @@ abstract class RecipeCategoryListPresenter : BasePresenter<RecipeCategoryListVie
     abstract fun setSearchTermSource(source: Observable<String>)
     abstract fun recipeFavoriteToggled(recipe: GifRecipeUI)
     abstract fun searchTermChanged(searchTerm: String)
-}
-
-sealed class RecipeCategoryListViewState : ViewState {
-    class Loading : RecipeCategoryListViewState()
-    class LoadingMore(val recipes: List<GifRecipeUI>): RecipeCategoryListViewState()
-    class RecipeList(val recipes: MutableList<GifRecipeUI>): RecipeCategoryListViewState()
-    class LoadMoreError(val recipes: MutableList<GifRecipeUI>): RecipeCategoryListViewState()
-    class NetworkError : RecipeCategoryListViewState()
-    class Favorited(val isFavorite: Boolean, val recipeId: String): RecipeCategoryListViewState()
 }

@@ -9,6 +9,7 @@
     <string name="category_transition_image_salmon">"SALMON"</string>
     <string name="category_transition_image_breakfast">"BREAKFAST"</string>
     <string name="category_transition_image_dinner">"DINNER"</string>
+    <string name="category_transition_image_favorite">"FAVORITE"</string>
     <!-- Strings for the shared element callbacks using categories -->
     <string name="category_extra_key">Category</string>
     <string name="category_original_extra_key">Original Category</string>

@@ -1,10 +1,12 @@
 package alexsullivan.gifrecipes.recipelist
 
+import alexsullivan.gifrecipes.Category
 import alexsullivan.gifrecipes.GifRecipeUI
 import alexsullivan.gifrecipes.GifRecipeViewerActivity
 import alexsullivan.gifrecipes.R
-import alexsullivan.gifrecipes.database.RoomFavoriteCache
 import alexsullivan.gifrecipes.database.RoomRecipeDatabaseHolder
+import alexsullivan.gifrecipes.favoriting.FavoriteGifRecipeRepository
+import alexsullivan.gifrecipes.favoriting.RoomFavoriteCache
 import alexsullivan.gifrecipes.search.SearchProvider
 import alexsullivan.gifrecipes.utils.*
 import alexsullivan.gifrecipes.viewarchitecture.BaseFragment
@@ -37,8 +39,15 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
 
     override fun initPresenter(): RecipeCategoryListPresenter {
         val searchTerm = arguments.getString(SEARCH_KEY)
-        return RecipeCategoryListPresenter.create(searchTerm, GifRecipeRepository.default,
-                RoomFavoriteCache.getInstance(RoomRecipeDatabaseHolder.get(context.applicationContext).gifRecipeDao()))
+        val dao = RoomRecipeDatabaseHolder.get(context.applicationContext).gifRecipeDao()
+        val cache = RoomFavoriteCache.getInstance(dao)
+        val presenter = if(searchTerm == str(Category.FAVORITE.displayName)) {
+            val repo = FavoriteGifRecipeRepository(dao)
+            FavoriteRecipeListPresenter(repo, cache)
+        } else {
+            RecipeCategoryListPresenterImpl(searchTerm, GifRecipeRepository.default, cache)
+        }
+        return presenter
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {

@@ -1,4 +1,4 @@
-package alexsullivan.gifrecipes.database
+package alexsullivan.gifrecipes.favoriting
 
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.PrimaryKey

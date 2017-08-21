@@ -1,4 +1,4 @@
-package alexsullivan.gifrecipes.database
+package alexsullivan.gifrecipes.favoriting
 
 import com.alexsullivan.GifRecipe
 import io.reactivex.Completable

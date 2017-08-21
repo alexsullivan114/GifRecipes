@@ -2,29 +2,27 @@ package alexsullivan.gifrecipes.recipelist
 
 import alexsullivan.gifrecipes.Category
 
-fun indexFromCategory(category: Category): Int {
-    return when(category) {
-        Category.DESSERT -> 0
-        Category.VEGETARIAN -> 1
-        Category.VEGAN -> 2
-        Category.CHICKEN -> 3
-        Category.PORK -> 4
-        Category.SALMON -> 5
-        Category.BREAKFAST -> 6
-        Category.DINNER -> 7
-    }
+fun indexFromCategory(category: Category) = when (category) {
+    Category.FAVORITE -> 0
+    Category.DESSERT -> 1
+    Category.BREAKFAST -> 2
+    Category.DINNER -> 3
+    Category.VEGETARIAN -> 4
+    Category.VEGAN -> 5
+    Category.CHICKEN -> 6
+    Category.PORK -> 7
+    Category.SALMON -> 8
 }
 
-fun categoryFromIndex(position: Int): Category {
-    return when(position) {
-        0 -> Category.DESSERT
-        1 -> Category.VEGETARIAN
-        2 -> Category.VEGAN
-        3 -> Category.CHICKEN
-        4 -> Category.PORK
-        5 -> Category.SALMON
-        6 -> Category.BREAKFAST
-        7 -> Category.DINNER
-        else -> throw RuntimeException("Couldn't find category for position $position")
-    }
+fun categoryFromIndex(position: Int) = when (position) {
+    indexFromCategory(Category.FAVORITE) -> Category.FAVORITE
+    indexFromCategory(Category.DESSERT) -> Category.DESSERT
+    indexFromCategory(Category.BREAKFAST) -> Category.BREAKFAST
+    indexFromCategory(Category.DINNER) -> Category.DINNER
+    indexFromCategory(Category.VEGETARIAN) -> Category.VEGETARIAN
+    indexFromCategory(Category.VEGAN) -> Category.VEGAN
+    indexFromCategory(Category.CHICKEN) -> Category.CHICKEN
+    indexFromCategory(Category.PORK) -> Category.PORK
+    indexFromCategory(Category.SALMON) -> Category.SALMON
+    else -> throw RuntimeException("Cannot find category for postion $position")
 }
