@@ -9,5 +9,7 @@ enum class Category(@DrawableRes val iconRes: Int, @StringRes val transitionName
     VEGAN(R.drawable.big_vegan, R.string.category_transition_image_vegan, R.string.vegan),
     CHICKEN(R.drawable.big_chicken, R.string.category_transition_image_chicken, R.string.chicken),
     PORK(R.drawable.big_pork, R.string.category_transition_image_pork, R.string.pork),
-    SALMON(R.drawable.big_salmon, R.string.category_transition_image_salmon, R.string.salmon)
+    SALMON(R.drawable.big_salmon, R.string.category_transition_image_salmon, R.string.salmon),
+    BREAKFAST(R.drawable.big_breakfast, R.string.category_transition_image_breakfast, R.string.breakfast),
+    DINNER(R.drawable.big_dinner, R.string.category_transition_image_dinner, R.string.dinner)
 }

@@ -6,6 +6,8 @@
     <string name="chicken">Chicken</string>
     <string name="pork">Pork</string>
     <string name="salmon">Salmon</string>
+    <string name="breakfast">Breakfast</string>
+    <string name="dinner">Dinner</string>
 
     <string name="generic_network_error">Encountered a network error. Please try again later.</string>
     <string name="search_gif_recipes">Search recipes</string>

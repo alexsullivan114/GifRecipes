@@ -51,6 +51,7 @@ class CategorySelectionActivity : BaseActivity<CategorySelectionViewState, Categ
             override fun onMapSharedElements(names: MutableList<String>?, sharedElements: MutableMap<String, View>?) {
                 if (updatedCategory != originalCategory) {
                     //Add our new element to our transition
+                    recyclerView.scrollToPosition(indexFromCategory(updatedCategory))
                     sharedElements?.put(getString(updatedCategory.transitionName), viewForCategory(updatedCategory))
                     sharedElements?.remove(str(originalCategory.transitionName))
                     names?.add(str(updatedCategory.transitionName))
