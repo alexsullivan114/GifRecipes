@@ -7,6 +7,7 @@
     <string name="category_transition_image_chicken">"CHICKEN"</string>
     <string name="category_transition_image_pork">"PORK"</string>
     <string name="category_transition_image_salmon">"SALMON"</string>
+    <string name="category_transition_image_beef">"BEEF"</string>
     <string name="category_transition_image_breakfast">"BREAKFAST"</string>
     <string name="category_transition_image_dinner">"DINNER"</string>
     <string name="category_transition_image_favorite">"FAVORITE"</string>

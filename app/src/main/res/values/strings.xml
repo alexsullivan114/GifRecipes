@@ -9,6 +9,7 @@
     <string name="breakfast">Breakfast</string>
     <string name="dinner">Dinner</string>
     <string name="favorite">Favorites</string>
+    <string name="beef">Beef</string>
 
     <string name="generic_network_error">Encountered a network error. Please try again later.</string>
     <string name="search_gif_recipes">Search recipes</string>

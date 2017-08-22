@@ -12,6 +12,7 @@ fun indexFromCategory(category: Category) = when (category) {
     Category.CHICKEN -> 6
     Category.PORK -> 7
     Category.SALMON -> 8
+    Category.BEEF -> 9
 }
 
 fun categoryFromIndex(position: Int) = when (position) {
@@ -24,5 +25,6 @@ fun categoryFromIndex(position: Int) = when (position) {
     indexFromCategory(Category.CHICKEN) -> Category.CHICKEN
     indexFromCategory(Category.PORK) -> Category.PORK
     indexFromCategory(Category.SALMON) -> Category.SALMON
+    indexFromCategory(Category.BEEF) -> Category.BEEF
     else -> throw RuntimeException("Cannot find category for postion $position")
 }

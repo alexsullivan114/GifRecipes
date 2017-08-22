@@ -120,7 +120,7 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
                 pushValue(RecipeCategoryListViewState.LoadingMore(((pair.second as RecipeCategoryListViewState.RecipeList).recipes.toList())))
             }
             .zipWith(searchTermObservable, BiFunction { t1: Pair<String, RecipeCategoryListViewState>, t2: String -> t1.first to t2})
-            .flatMap { pair -> repository.consumeGifRecipes(pageRequestSize, pair.second, pair.first) }
+            .flatMap { (first, second) -> repository.consumeGifRecipes(pageRequestSize, second, first) }
             .doOnNext { recipe -> lastPageKeyObservable.onNext(recipe.pageKey ?: "") }
             .flatMap(this::mapRecipeToUi)
             .toList()
@@ -226,9 +226,7 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
 
 abstract class RecipeCategoryListPresenter : BasePresenter<RecipeCategoryListViewState>() {
     companion object {
-        fun create(searchTerm: String, repository: GifRecipeRepository, favoriteCache: FavoriteCache): RecipeCategoryListPresenter {
-            return RecipeCategoryListPresenterImpl(searchTerm, repository, favoriteCache)
-        }
+        fun create(searchTerm: String, repository: GifRecipeRepository, favoriteCache: FavoriteCache) = RecipeCategoryListPresenterImpl(searchTerm, repository, favoriteCache)
     }
 
     abstract fun reachedBottom()

@@ -47,11 +47,19 @@ class CategorySelectionActivity : BaseActivity<CategorySelectionViewState, Categ
         if (!data.hasExtra(originalExtraKey) || !data.hasExtra(updatedExtraKey)) return
         val updatedCategory = data.getSerializableExtra(updatedExtraKey) as Category
         val originalCategory = data.getSerializableExtra(originalExtraKey) as Category
+        // We need to make sure that the item we want to do a shared element transition on
+        // is actually on the screen - so we need to scroll there and wait for a layout pass.
+        postponeEnterTransition()
+        recyclerView.scrollToPosition(indexFromCategory(updatedCategory))
+        recyclerView.waitForLayout {
+            startPostponedEnterTransition()
+        }
+        // Set our shared element callback so that we can re-route whatever is being mapped to the
+        // category the user left the last screen on.
         setExitSharedElementCallback(object : SharedElementCallback() {
             override fun onMapSharedElements(names: MutableList<String>?, sharedElements: MutableMap<String, View>?) {
                 if (updatedCategory != originalCategory) {
                     //Add our new element to our transition
-                    recyclerView.scrollToPosition(indexFromCategory(updatedCategory))
                     sharedElements?.put(getString(updatedCategory.transitionName), viewForCategory(updatedCategory))
                     sharedElements?.remove(str(originalCategory.transitionName))
                     names?.add(str(updatedCategory.transitionName))
@@ -94,7 +102,7 @@ class CategorySelectionActivity : BaseActivity<CategorySelectionViewState, Categ
         categoryClicked(category)
     }
 
-    fun categoryClicked(category: Category) {
+    private fun categoryClicked(category: Category) {
         val holder = recyclerView.castedViewHolderAtPosition<RecipeListIndicatorAdapter.RecipeListIndicatorViewHolder>(indexFromCategory(category))
         val imagePair: Pair<View, String> = Pair(holder.image, str(category.transitionName))
         val options = makeSceneTransitionWithNav(this, imagePair)

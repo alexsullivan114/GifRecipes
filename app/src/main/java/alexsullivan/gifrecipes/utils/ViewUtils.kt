@@ -11,6 +11,7 @@ import android.text.TextWatcher
 import android.view.TextureView
 import android.view.TouchDelegate
 import android.view.View
+import android.view.ViewTreeObserver
 import android.widget.EditText
 import io.reactivex.Observable
 
@@ -163,4 +164,13 @@ fun View.bumpTapTarget() {
             }
         })
     }
+}
+
+inline fun View.waitForLayout(crossinline f: () -> Unit) = with(viewTreeObserver) {
+    addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+        override fun onGlobalLayout() {
+            removeOnGlobalLayoutListener(this)
+            f()
+        }
+    })
 }
