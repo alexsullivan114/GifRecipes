@@ -11,6 +11,7 @@ import alexsullivan.gifrecipes.search.SearchProvider
 import alexsullivan.gifrecipes.utils.*
 import alexsullivan.gifrecipes.viewarchitecture.BaseFragment
 import android.os.Bundle
+import android.os.Parcelable
 import android.support.v4.app.ActivityOptionsCompat
 import android.support.v4.util.Pair
 import android.support.v7.widget.LinearLayoutManager
@@ -26,8 +27,11 @@ import kotlinx.android.synthetic.main.layout_recipe_category_list.view.*
 class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, RecipeCategoryListPresenter>(),
     RecipeCategoryListAdapter.ClickCallback {
 
+    private var savedListState: Parcelable? = null
+
     companion object {
         val SEARCH_KEY = "Search Key"
+        val LIST_SAVE_STATE = "List Save Instance State"
         fun build(searchTerm: String): RecipeCategoryListFragment {
             val args = Bundle()
             args.putString(SEARCH_KEY, searchTerm)
@@ -55,6 +59,10 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
         if (activity is SearchProvider) {
             presenter.setSearchTermSource((activity as SearchProvider).getObservableSource())
         }
+
+        savedInstanceState?.let {
+            savedListState = savedInstanceState.getParcelable(LIST_SAVE_STATE)
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -68,11 +76,17 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
         return view
     }
 
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+        val state = list.layoutManager.onSaveInstanceState()
+        outState?.putParcelable(LIST_SAVE_STATE, state)
+    }
+
     override fun accept(viewState: RecipeCategoryListViewState) {
         when (viewState) {
             is RecipeCategoryListViewState.Loading -> {
                 val adapter = list.castedAdapter<RecipeCategoryListAdapter>()
-                adapter.gifList = listOf()
+                updateGifList(listOf())
                 loading.visible()
                 empty.gone()
                 list.invisible()
@@ -80,7 +94,7 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
             is RecipeCategoryListViewState.RecipeList -> {
                 val adapter = list.castedAdapter<RecipeCategoryListAdapter>()
                 adapter.showBottomLoading = false
-                adapter.gifList = viewState.recipes
+                updateGifList(viewState.recipes)
                 loading.gone()
                 empty.gone()
                 list.visible()
@@ -90,7 +104,9 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
                 }
             }
             is RecipeCategoryListViewState.LoadingMore -> {
-                (list.adapter as RecipeCategoryListAdapter).showBottomLoading = true
+                val adapter = list.castedAdapter<RecipeCategoryListAdapter>()
+                updateGifList(viewState.recipes)
+                adapter.showBottomLoading = true
             }
             is RecipeCategoryListViewState.NetworkError -> {
                 list.gone()
@@ -110,5 +126,14 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
 
     override fun recipeFavoriteToggled(recipe: GifRecipeUI) {
         presenter.recipeFavoriteToggled(recipe)
+    }
+
+    private fun updateGifList(reciepList: List<GifRecipeUI>) {
+        val adapter = list.castedAdapter<RecipeCategoryListAdapter>()
+        adapter.gifList = reciepList
+        savedListState?.let {
+            list.layoutManager?.onRestoreInstanceState(it)
+            savedListState = null
+        }
     }
 }
