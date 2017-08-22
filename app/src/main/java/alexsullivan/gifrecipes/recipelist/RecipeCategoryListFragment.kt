@@ -56,8 +56,8 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        if (activity is SearchProvider) {
-            presenter.setSearchTermSource((activity as SearchProvider).getObservableSource())
+        (activity as? SearchProvider)?.let {
+            presenter.setSearchTermSource(it.getObservableSource())
         }
 
         savedInstanceState?.let {

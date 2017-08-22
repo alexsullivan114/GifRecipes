@@ -11,7 +11,6 @@ import android.app.Fragment
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import io.reactivex.Observable
 import kotlinx.android.synthetic.main.layout_category_search.*
 
 class CategorySearchActivity : BaseActivity<CategorySearchViewState, CategorySearchPresenter>(), SearchProvider {
@@ -40,21 +39,13 @@ class CategorySearchActivity : BaseActivity<CategorySearchViewState, CategorySea
         super.onAttachFragment(fragment)
     }
 
-    override fun initPresenter(): CategorySearchPresenter {
-        return CategorySearchPresenter.create()
-    }
+    override fun initPresenter() = CategorySearchPresenter.create()
 
     override fun accept(viewState: CategorySearchViewState) {
         // no view states to handle.
     }
 
-    override fun acknowledge(error: Throwable) {
-
-    }
-
-    override fun getObservableSource(): Observable<String> {
-        return searchEditText.textObservable()
-    }
+    override fun getObservableSource() = searchEditText.textObservable()
 
     private fun setEnterTransition() {
         val circularReveal = CircularRevealTransition(intent.getFloatExtra(X_KEY, 0f), intent.getFloatExtra(Y_KEY, 0f))

@@ -116,9 +116,9 @@ fun RecyclerView.removeInfiniteScrollListener(scrollListener: RecyclerView.OnScr
 }
 
 fun EditText.textObservable(): Observable<String> {
-    return Observable.create {
-        addTextChangedListener(object: TextWatcher{
-            override fun afterTextChanged(s: Editable?) {
+    return Observable.create<String>({
+        addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable) {
                 it.onNext(s.toString())
             }
 
@@ -130,7 +130,7 @@ fun EditText.textObservable(): Observable<String> {
                 //no-op
             }
         })
-    }
+    })
 }
 
 fun View.bumpTapTarget() {

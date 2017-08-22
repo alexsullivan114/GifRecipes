@@ -141,8 +141,9 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
         source.subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .debounce(500, TimeUnit.MILLISECONDS)
-            .doOnNext { lastPageKeyObservable.onNext("") }
-            .subscribe { searchTermObservable.onNext(it) }
+            .subscribe {
+                searchTermObservable.onNext(it)
+            }
             .addTo(disposables)
     }
 
@@ -193,6 +194,8 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
     private fun bindSearchTermStream() {
         searchTermObservable
             .subscribeOn(Schedulers.io())
+            .doOnNext { lastPageKeyObservable.onNext("") }
+            .distinctUntilChanged()
             .subscribe { querySearchTerm(it) }
             .addTo(disposables)
     }
