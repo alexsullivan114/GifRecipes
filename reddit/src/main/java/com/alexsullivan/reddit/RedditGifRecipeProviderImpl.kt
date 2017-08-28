@@ -13,21 +13,21 @@ import com.alexsullivan.reddit.serialization.RedditResponseItemDeserializer
 import com.alexsullivan.reddit.urlmanipulation.GfycatUrlManipulator
 import com.alexsullivan.reddit.urlmanipulation.ImgurUrlManipulator
 import com.alexsullivan.reddit.urlmanipulation.UrlManipulator
+import com.alexsullivan.utils.TAG
 import com.google.gson.GsonBuilder
+import io.reactivex.BackpressureStrategy
 import io.reactivex.Observable
+import io.reactivex.schedulers.Schedulers
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import java.net.SocketTimeoutException
-import kotlin.system.measureTimeMillis
 
 /**
  * Created by Alexs on 5/10/2017.
  */
 internal class RedditGifRecipeProviderImpl(val service: RedditService, val urlManipulators: List<UrlManipulator>,
                                            val medidaChecker: (String) -> Boolean, val logger: Logger): RedditGifRecipeProvider {
-
-    private val TAG: String = javaClass.simpleName
 
     override val id: String
         get() = "RedditProvider"
@@ -73,23 +73,24 @@ internal class RedditGifRecipeProviderImpl(val service: RedditService, val urlMa
 
     private fun processListingResponse(listing: RedditListingResponse, searchTerm: String = ""): Observable<GifRecipe> {
         return Observable.just(listing)
-                .flatMap { response -> Observable.fromIterable(response.data.children)
-                        .map { it.copy(pageKey = response.data.after) }}
-                .filter { !it.removed }
-                .map { RedditGifRecipe(it.url, it.id, ImageType.GIF, it.thumbnail, it.previewUrl, it.domain, it.title, it.pageKey) }
-                .flatMap {
-                    var returnObservable = Observable.just(it)
-                    urlManipulators.filter { manipulator -> manipulator.matchesDomain(it.domain) }
-                            .forEach { manipulator -> returnObservable = manipulator.modifyRedditItem(it) }
-                    // Retry up to 2 times if we time out.
-                    returnObservable.retry(2, {t: Throwable -> t is SocketTimeoutException })
-                }
-                .filter {
-                    var isMedia = false
-                    val elapsedTime = measureTimeMillis { isMedia = medidaChecker(it.url) }
-                    logger.d(TAG, "Checking media type for ${it.url} took $elapsedTime milliseconds")
-                    isMedia
-                }
-                .map { GifRecipe(it.url, it.id, it.thumbnail, it.imageType, it.title, it.pageKey) }
+            .flatMap { response -> Observable.fromIterable(response.data.children)
+                .map { it.copy(pageKey = response.data.after) }}
+            .toFlowable(BackpressureStrategy.BUFFER)
+            .parallel()
+            .runOn(Schedulers.io())
+            .filter { !it.removed }
+            .map { RedditGifRecipe(it.url, it.id, ImageType.GIF, it.thumbnail, it.previewUrl, it.domain, it.title, it.pageKey) }
+            .flatMap {
+                var returnObservable = Observable.just(it)
+                urlManipulators.filter { manipulator -> manipulator.matchesDomain(it.domain) }
+                    .forEach { manipulator -> returnObservable = manipulator.modifyRedditItem(it) }
+                // Retry up to 2 times if we time out.
+                returnObservable.retry(2, {t: Throwable -> t is SocketTimeoutException })
+                    .toFlowable(BackpressureStrategy.BUFFER)
+            }
+            .filter { medidaChecker(it.url) }
+            .map { GifRecipe(it.url, it.id, it.thumbnail, it.imageType, it.title, it.pageKey) }
+            .sequential()
+            .toObservable()
     }
 }

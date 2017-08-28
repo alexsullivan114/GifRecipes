@@ -1,6 +1,8 @@
 package alexsullivan.gifrecipes.categoryselection;
 
 import alexsullivan.gifrecipes.GifRecipeUI
+import alexsullivan.gifrecipes.application.AndroidLogger
+import com.alexsullivan.utils.TAG
 import alexsullivan.gifrecipes.viewarchitecture.Presenter
 import alexsullivan.gifrecipes.viewarchitecture.ViewState
 import com.alexsullivan.GifRecipeRepository
@@ -20,26 +22,29 @@ class CategorySelectionPresenterImpl(repository: GifRecipeRepository) : Category
     }
 
     init {
-            // TODO: Make like a "top" thing in the reddit repo
+        var startTime = 0L
         disposables.add(repository.consumeGifRecipes(15)
                 .subscribeOn(Schedulers.io())
                 // First push out our loading screen...
-                .doOnSubscribe { stateStream.onNext(CategorySelectionViewState.FetchingGifs()) }
+                .doOnSubscribe {
+                    stateStream.onNext(CategorySelectionViewState.FetchingGifs())
+                    startTime = System.currentTimeMillis()
+                }
                 .map {it.copy(url = it.url, imageType = it.imageType)}
                 .map {GifRecipeUI(it.url, it.id, it.thumbnail, it.imageType, it.title)}
                 .toList()
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        {
-                            list: MutableList<GifRecipeUI> ->  stateStream.onNext(CategorySelectionViewState.GifList(list))
-                        },
-                        {
-                            if (it is IOException) {
-                                stateStream.onNext(CategorySelectionViewState.NetworkError())
-                            } else {
-                                throw it
-                            }
-                        }))
+                .subscribe({ list: MutableList<GifRecipeUI> ->
+                    val endTime = System.currentTimeMillis() - startTime
+                    AndroidLogger.d(TAG, "Total processing time took $endTime milliseconds")
+                    stateStream.onNext(CategorySelectionViewState.GifList(list))
+                }, {
+                    if (it is IOException) {
+                        stateStream.onNext(CategorySelectionViewState.NetworkError())
+                    } else {
+                        throw it
+                    }
+                }))
 
     }
 
