@@ -3,6 +3,7 @@ package alexsullivan.gifrecipes
 import alexsullivan.gifrecipes.GifRecipeViewerViewState.*
 import alexsullivan.gifrecipes.cache.CacheServer
 import alexsullivan.gifrecipes.favoriting.FavoriteCache
+import alexsullivan.gifrecipes.utils.addTo
 import alexsullivan.gifrecipes.utils.toGifRecipe
 import alexsullivan.gifrecipes.viewarchitecture.BasePresenter
 import alexsullivan.gifrecipes.viewarchitecture.ViewState
@@ -31,7 +32,24 @@ class GifRecipeViewerPresenterImpl(private val gifRecipe: GifRecipeUI,
         when (new) {
             // If a favorited came through our stream, favoriting is always unlocked.
             is Favorited -> return old.copyFavorite(new.favorite, false)
-            // If its not a new favoriting status we just carryover the old favorite info.
+            // If we're a loading video we need to carryover whether we've transitioned to the new loading position
+            is LoadingVideo -> {
+                var hasTransitioned = false
+                if (old is LoadingVideo) {
+                    hasTransitioned = old.hasTransitioned
+                } else if (old is TransitioningVideo) {
+                    hasTransitioned = true
+                }
+                val updatedFavoriteInfo = new.copyFavorite(old.favoriteStatus(), old.favoriteLocked())
+                return LoadingVideo(updatedFavoriteInfo.progress, updatedFavoriteInfo.recipe,
+                    updatedFavoriteInfo.favoriteLocked(), updatedFavoriteInfo.url, hasTransitioned)
+            }
+            // If we're transitioning the video but we've already transitioned, ditch it.
+            is TransitioningVideo -> {
+                if (old is LoadingVideo && old.hasTransitioned) return old
+                else return new.copyFavorite(old.favoriteStatus(), old.favoriteLocked())
+            }
+            // Otherwise just copy our favorite info and move on
             else -> return new.copyFavorite(old.favoriteStatus(), old.favoriteLocked())
         }
     }
@@ -43,6 +61,13 @@ class GifRecipeViewerPresenterImpl(private val gifRecipe: GifRecipeUI,
 
     override fun favoriteClicked(isFavorited: Boolean) {
         favoriteStream.onNext(isFavorited)
+    }
+
+    override fun videoStarted() {
+        cacheServer.cacheProgress(gifRecipe.url)
+            .subscribeOn(Schedulers.io())
+            .take(1)
+            .subscribe { pushValue(TransitioningVideo(gifRecipe, progress = it, url = cacheServer.get(gifRecipe.url))) }
     }
 
     private fun subscribeToFavoriteStream() {
@@ -78,17 +103,23 @@ class GifRecipeViewerPresenterImpl(private val gifRecipe: GifRecipeUI,
         }
 
         val buildLoadingState = fun(progress: Int): GifRecipeViewerViewState {
-            return Loading(progress, gifRecipe)
+            if (gifRecipe.imageType == ImageType.GIF) {
+                return LoadingGif(progress, gifRecipe, url = cacheServer.get(gifRecipe.url))
+            } else {
+                return LoadingVideo(progress, gifRecipe, url = cacheServer.get(gifRecipe.url), hasTransitioned = false)
+            }
         }
 
         if (cacheServer.isCached(gifRecipe.url)) {
             pushValue(buildPlayingState())
         } else {
             pushValue(Preloading(gifRecipe))
-            disposables.add(cacheServer.prefetch(gifRecipe.url)
-                    .subscribeOn(Schedulers.io())
-                    .doOnComplete { pushValue(buildPlayingState()) }
-                    .subscribe { pushValue(buildLoadingState(it)) })
+            cacheServer.cacheProgress(gifRecipe.url)
+                .doOnComplete { pushValue(buildPlayingState()) }
+                .doOnSubscribe { pushValue(buildLoadingState(0)) }
+                .subscribeOn(Schedulers.io())
+                .subscribe { pushValue(buildLoadingState(it)) }
+                .addTo(disposables)
         }
     }
 }
@@ -101,6 +132,7 @@ abstract class GifRecipeViewerPresenter : BasePresenter<GifRecipeViewerViewState
     }
 
     abstract fun favoriteClicked(isFavorited: Boolean)
+    abstract fun videoStarted()
 }
 
 sealed class GifRecipeViewerViewState : ViewState {
@@ -109,11 +141,24 @@ sealed class GifRecipeViewerViewState : ViewState {
         override fun favoriteStatus() = recipe.favorite
         override fun favoriteLocked() = favoriteLocked
     }
-    class Loading(val progress: Int, val recipe: GifRecipeUI, val favoriteLocked: Boolean = true) : GifRecipeViewerViewState() {
-        override fun copyFavorite(favorite: Boolean, favoriteLocked: Boolean) = Loading(progress, recipe.copy(favorite = favorite), favoriteLocked)
+    class LoadingGif(val progress: Int, val recipe: GifRecipeUI, val favoriteLocked: Boolean = true, val url: String) : GifRecipeViewerViewState() {
+        override fun copyFavorite(favorite: Boolean, favoriteLocked: Boolean) = LoadingGif(progress, recipe.copy(favorite = favorite), favoriteLocked, url)
         override fun favoriteStatus() = recipe.favorite
         override fun favoriteLocked() = favoriteLocked
     }
+
+    class LoadingVideo(val progress: Int, val recipe: GifRecipeUI, val favoriteLocked: Boolean = true, val url: String, val hasTransitioned: Boolean) : GifRecipeViewerViewState() {
+        override fun copyFavorite(favorite: Boolean, favoriteLocked: Boolean) = LoadingVideo(progress, recipe.copy(favorite = favorite), favoriteLocked, url, hasTransitioned)
+        override fun favoriteStatus() = recipe.favorite
+        override fun favoriteLocked() = favoriteLocked
+    }
+
+    class TransitioningVideo(val recipe: GifRecipeUI, val favoriteLocked: Boolean = true, val progress: Int, val url: String): GifRecipeViewerViewState() {
+        override fun copyFavorite(favorite: Boolean, favoriteLocked: Boolean) = TransitioningVideo(recipe.copy(favorite = favorite), favoriteLocked, progress, url)
+        override fun favoriteStatus() = recipe.favorite
+        override fun favoriteLocked() = favoriteLocked
+    }
+
     class PlayingVideo(val url: String, val recipe: GifRecipeUI, val favoriteLocked: Boolean = true) : GifRecipeViewerViewState() {
         override fun copyFavorite(favorite: Boolean, favoriteLocked: Boolean) = PlayingVideo(url, recipe.copy(favorite = favorite), favoriteLocked)
         override fun favoriteStatus() = recipe.favorite

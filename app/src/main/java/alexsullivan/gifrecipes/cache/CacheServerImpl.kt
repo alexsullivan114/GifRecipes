@@ -1,7 +1,7 @@
 package alexsullivan.gifrecipes.cache
 
+import alexsullivan.gifrecipes.application.AndroidLogger
 import android.content.Context
-import android.util.Log
 import com.danikula.videocache.CacheListener
 import com.danikula.videocache.HttpProxyCacheServer
 import io.reactivex.Completable
@@ -20,22 +20,11 @@ object CacheServerImpl: CacheServer {
         cacheServer = HttpProxyCacheServer(context)
     }
 
-    fun instance(): CacheServerImpl {
-        return this
-    }
+    fun instance() = this
 
-    override fun get(url: String): String {
-        if (!cacheServer.isCached(url)) {
-            cacheServer.registerCacheListener({cacheFile, cachedUrl, percentsAvailable ->
-                Log.d("CacheServer", "$cacheFile + $cachedUrl + $percentsAvailable")
-            }, url)
-        }
-        return cacheServer.getProxyUrl(url)
-    }
+    override fun get(url: String) = cacheServer.getProxyUrl(url)
 
-    override fun isCached(url: String): Boolean {
-        return cacheServer.isCached(url)
-    }
+    override fun isCached(url: String) = cacheServer.isCached(url)
 
     override fun cacheProgress(url: String): Observable<Int> {
         return Observable.create {
@@ -46,7 +35,6 @@ object CacheServerImpl: CacheServer {
                     it.onNext(percentsAvailable)
                     if (percentsAvailable == 100) {
                         it.onComplete()
-                        Log.d("Cache", "progress: $percentsAvailable")
                     }
                 }
                 cacheServer.registerCacheListener(listener, url)
@@ -77,7 +65,6 @@ object CacheServerImpl: CacheServer {
                     observableEmitter.onNext(percentsAvailable)
                     if (percentsAvailable == 100) {
                         observableEmitter.onComplete()
-                        Log.d("Cache", "progress: $percentsAvailable")
                     }
                 }
                 cacheServer.registerCacheListener(listener, url)
@@ -90,13 +77,18 @@ object CacheServerImpl: CacheServer {
         return Completable.fromAction {
             val cacheUrl = URL(cacheServer.getProxyUrl(url))
             val inputStream = cacheUrl.openStream()
-            val bufferSize = 1024
+            val bufferSize = 4096
             val buffer = ByteArray(bufferSize)
             var length = inputStream.read(buffer)
+            var totalSize = length
+            var startTime = System.currentTimeMillis()
             while (length != -1) {
                 length = inputStream.read(buffer)
-                //Since we just need to kick start the prefetching, dont need to do anything here
+                totalSize += length
+//                Since we just need to kick start the prefetching, dont need to do anything here
             }
+            var endTime = System.currentTimeMillis()
+            AndroidLogger.d("Downloading", "Total size: ${totalSize/1000000}, total time: ${endTime - startTime}")
         }
     }
 }

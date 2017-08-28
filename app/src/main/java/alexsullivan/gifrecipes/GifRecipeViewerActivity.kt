@@ -3,8 +3,8 @@ package alexsullivan.gifrecipes
 import alexsullivan.gifrecipes.cache.CacheServerImpl
 import alexsullivan.gifrecipes.components.State
 import alexsullivan.gifrecipes.components.StateAwareMediaPlayer
-import alexsullivan.gifrecipes.favoriting.RoomFavoriteCache
 import alexsullivan.gifrecipes.database.RoomRecipeDatabaseHolder
+import alexsullivan.gifrecipes.favoriting.RoomFavoriteCache
 import alexsullivan.gifrecipes.utils.*
 import alexsullivan.gifrecipes.viewarchitecture.BaseActivity
 import android.annotation.SuppressLint
@@ -12,6 +12,9 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.support.constraint.ConstraintSet
+import android.transition.ChangeBounds
+import android.transition.TransitionManager
 import android.view.Surface
 import android.view.View
 import android.view.WindowManager
@@ -29,6 +32,8 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
     private val PLAYBACK_POSITION_KEY = "PLAYBACK_POSITION_KEY"
     private var mediaPlayer: StateAwareMediaPlayer? = null
     private var initPlaybackPosition = 0
+    private var shouldPlayVideo = false
+    private var hasRepositionedLoadingView = false
 
     private var url: String? by Delegates.observable<String?>(null) {
         _, oldValue, newValue ->  triggerPlaybackCheck()
@@ -113,17 +118,39 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
                 progress.visibility = View.VISIBLE
                 titleText.text = viewState.recipe.title
             }
-            is GifRecipeViewerViewState.Loading -> {
+            is GifRecipeViewerViewState.LoadingGif -> {
                 loadPlaceholderImage(viewState.recipe)
-                progress.visibility = View.VISIBLE
+                progress.visible()
                 progress.progress = viewState.progress.toFloat()
                 titleText.text = viewState.recipe.title
+                shouldPlayVideo = false
+            }
+            is GifRecipeViewerViewState.LoadingVideo -> {
+                loadPlaceholderImage(viewState.recipe)
+                progress.visible()
+                progress.progress = viewState.progress.toFloat()
+                titleText.text = viewState.recipe.title
+                url = viewState.url
+                shouldPlayVideo = true
+                toggleVideoMode()
+                if (viewState.hasTransitioned && !hasRepositionedLoadingView) {
+                    repositionLoadingIndicator()
+                }
+            }
+            is GifRecipeViewerViewState.TransitioningVideo -> {
+                progress.visible()
+                progress.progress = viewState.progress.toFloat()
+                titleText.text = viewState.recipe.title
+                url = viewState.url
+                shouldPlayVideo = true
+                animateProgressDown()
             }
             is GifRecipeViewerViewState.PlayingVideo -> {
-                progress.visibility = View.GONE
+                progress.gone()
                 titleText.text = viewState.recipe.title
                 loadPlaceholderImage(viewState.recipe)
                 url = viewState.url
+                shouldPlayVideo = true
                 toggleVideoMode()
             }
             is GifRecipeViewerViewState.PlayingGif -> {
@@ -132,6 +159,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
                 loadPlaceholderImage(viewState.recipe, {aspectRatio ->
                     toggleGifMode(aspectRatio, viewState.url)
                 })
+                shouldPlayVideo = false
             }
             is GifRecipeViewerViewState.Favorited -> {
                 throw RuntimeException("Woops, got a favorited!")
@@ -139,8 +167,33 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
         }
     }
 
+    private fun animateProgressDown() {
+        TransitionManager.beginDelayedTransition(root, ChangeBounds())
+        repositionLoadingIndicator()
+    }
+
+    private fun repositionLoadingIndicator() {
+        hasRepositionedLoadingView = true
+        val constraintSet = ConstraintSet()
+        constraintSet.clone(root)
+        constraintSet.apply {
+            clear(R.id.progress)
+            constrainWidth(R.id.progress, progress.width/5)
+            constrainHeight(R.id.progress, progress.height/5)
+            connect(R.id.progress, ConstraintSet.LEFT, R.id.placeholder, ConstraintSet.LEFT)
+            connect(R.id.progress, ConstraintSet.TOP, R.id.placeholder, ConstraintSet.TOP)
+            setMargin(R.id.progress, ConstraintSet.START, 12f.toPx(this@GifRecipeViewerActivity).toInt())
+            setMargin(R.id.progress, ConstraintSet.TOP, 12f.toPx(this@GifRecipeViewerActivity).toInt())
+        }
+        constraintSet.applyTo(root)
+        progress.isShowText = false
+        progress.finishedStrokeWidth = 3f.toPx(this)
+        progress.unfinishedStrokeWidth= 5f.toPx(this)
+        progress.unfinishedStrokeColor = resources.getColor(R.color.grayIconIndicator)
+    }
+
     private fun triggerPlaybackCheck() {
-        if (sharedElementTransitionDone && surface != null && !url.isNullOrEmpty()) {
+        if (sharedElementTransitionDone && surface != null && !url.isNullOrEmpty() && shouldPlayVideo) {
             // If our media player is already initialized don't go through the rest.
             if (mediaPlayer != null && mediaPlayer?.state != State.UNINITIALIZED) return
             mediaPlayer = StateAwareMediaPlayer()
@@ -148,8 +201,9 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
             mediaPlayer?.setDataSource(url)
             mediaPlayer?.setSurface(surface)
             mediaPlayer?.prepareAsync()
-            mediaPlayer?.setOnPreparedListener {
-                mp -> mp.start()
+            mediaPlayer?.setOnPreparedListener { mp ->
+                presenter.videoStarted()
+                mp.start()
                 mp.seekTo(initPlaybackPosition)
                 video.adjustAspectRatio(mp.videoWidth, mp.videoHeight)
             }
