@@ -46,6 +46,9 @@ class RecipeCategoryListAdapter(gifList: List<GifRecipeUI>,
                 holder.view.favorite.setOnClickListener {
                     clickCallback.recipeFavoriteToggled(recipe.copy(favorite = !holder.view.favorite.liked))
                 }
+                holder.view.share.setOnClickListener {
+                    clickCallback.recipeShareClicked(recipe)
+                }
             }
         }
     }
@@ -59,8 +62,7 @@ class RecipeCategoryListAdapter(gifList: List<GifRecipeUI>,
             }
             else -> {
                 val view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_recipe_category_loading, parent, false)
-                val viewHolder = LoadingMoreViewHolder(view)
-                return viewHolder
+                return LoadingMoreViewHolder(view)
             }
         }
     }
@@ -85,6 +87,7 @@ class RecipeCategoryListAdapter(gifList: List<GifRecipeUI>,
     interface ClickCallback {
         fun recipeClicked(recipe: GifRecipeUI, view: View)
         fun recipeFavoriteToggled(recipe: GifRecipeUI)
+        fun recipeShareClicked(recipe: GifRecipeUI)
     }
 
     class GifRecipeViewHolder(val view: View): RecyclerView.ViewHolder(view)
