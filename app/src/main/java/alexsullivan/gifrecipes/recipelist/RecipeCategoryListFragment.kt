@@ -124,6 +124,10 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
         startActivity(intent, options.toBundle())
     }
 
+    override fun recipeShareClicked(recipe: GifRecipeUI) {
+        recipe.url.ifPresent(activity::shareRecipe)
+    }
+
     override fun recipeFavoriteToggled(recipe: GifRecipeUI) {
         presenter.recipeFavoriteToggled(recipe)
     }

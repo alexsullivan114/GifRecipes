@@ -7,7 +7,7 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentStatePagerAdapter
 
-class RecipeListPagerAdapter(val fm: FragmentManager, val context: Context): FragmentStatePagerAdapter(fm) {
+class RecipeListPagerAdapter(fm: FragmentManager, val context: Context): FragmentStatePagerAdapter(fm) {
 
     override fun getItem(position: Int): Fragment {
         val category = categoryFromIndex(position)

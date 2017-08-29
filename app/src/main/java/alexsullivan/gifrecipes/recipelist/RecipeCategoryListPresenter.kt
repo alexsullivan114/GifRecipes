@@ -132,7 +132,8 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
             .subscribe({ list ->
                 list.nonEmptyLet { pushValue(RecipeCategoryListViewState.RecipeList(list)) }
             }, {
-                pushValue(RecipeCategoryListViewState.LoadMoreError(mutableListOf()))
+                throw it
+//                pushValue(RecipeCategoryListViewState.LoadMoreError(mutableListOf()))
             })
             .addTo(disposables)
     }

@@ -34,6 +34,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
     private var initPlaybackPosition = 0
     private var shouldPlayVideo = false
     private var hasRepositionedLoadingView = false
+    private var shareUrl = ""
 
     private var url: String? by Delegates.observable<String?>(null) {
         _, oldValue, newValue ->  triggerPlaybackCheck()
@@ -86,6 +87,9 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
         favorite.setOnClickListener {
             presenter.favoriteClicked(!favorite.liked)
         }
+        share.setOnClickListener {
+            url?.ifPresent(this::shareRecipe)
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
@@ -117,6 +121,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
                 loadPlaceholderImage(viewState.recipe)
                 progress.visibility = View.VISIBLE
                 titleText.text = viewState.recipe.title
+                shareUrl = viewState.recipe.url
             }
             is GifRecipeViewerViewState.LoadingGif -> {
                 loadPlaceholderImage(viewState.recipe)
@@ -124,6 +129,8 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
                 progress.progress = viewState.progress.toFloat()
                 titleText.text = viewState.recipe.title
                 shouldPlayVideo = false
+                url = viewState.url
+                shareUrl = viewState.recipe.url
             }
             is GifRecipeViewerViewState.LoadingVideo -> {
                 loadPlaceholderImage(viewState.recipe)
@@ -136,6 +143,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
                 if (viewState.hasTransitioned && !hasRepositionedLoadingView) {
                     repositionLoadingIndicator()
                 }
+                shareUrl = viewState.recipe.url
             }
             is GifRecipeViewerViewState.TransitioningVideo -> {
                 progress.visible()
@@ -144,6 +152,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
                 url = viewState.url
                 shouldPlayVideo = true
                 animateProgressDown()
+                shareUrl = viewState.recipe.url
             }
             is GifRecipeViewerViewState.PlayingVideo -> {
                 progress.gone()
@@ -152,6 +161,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
                 url = viewState.url
                 shouldPlayVideo = true
                 toggleVideoMode()
+                shareUrl = viewState.recipe.url
             }
             is GifRecipeViewerViewState.PlayingGif -> {
                 progress.visibility = View.GONE
@@ -160,6 +170,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
                     toggleGifMode(aspectRatio, viewState.url)
                 })
                 shouldPlayVideo = false
+                shareUrl = viewState.recipe.url
             }
             is GifRecipeViewerViewState.Favorited -> {
                 throw RuntimeException("Woops, got a favorited!")
