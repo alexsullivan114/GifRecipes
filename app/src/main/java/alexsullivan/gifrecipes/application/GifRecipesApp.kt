@@ -1,10 +1,10 @@
 package alexsullivan.gifrecipes.application
 
 import alexsullivan.gifrecipes.cache.CacheServerImpl
+import alexsullivan.gifrecipes.preferences.RecipePreferences
 import android.app.Application
 import android.util.Log
 import com.alexsullivan.ApplicationInitialization.CoreInitializer
-import com.alexsullivan.logging.Logger
 import com.alexsullivan.reddit.RedditGifRecipeProvider
 import com.facebook.drawee.backends.pipeline.Fresco
 import io.reactivex.exceptions.UndeliverableException
@@ -12,17 +12,35 @@ import io.reactivex.functions.Consumer
 import io.reactivex.plugins.RxJavaPlugins
 import java.io.IOException
 import java.net.SocketException
+import java.util.*
 
 
 class GifRecipesApp: Application(){
 
     override fun onCreate() {
         super.onCreate()
-        // TODO: Real device ID.
-        CoreInitializer.initialize(RedditGifRecipeProvider.create("385ad0c4-31cc-11e7-93ae-92361f002671", AndroidLogger))
-        CacheServerImpl.initialize(this)
-        Fresco.initialize(this);
+        initDeviceId()
+        initModules()
+        initLibraries()
+    }
 
+    private fun initDeviceId() {
+        RecipePreferences.init(this)
+        if (RecipePreferences.deviceId.isEmpty()) {
+            RecipePreferences.deviceId = UUID.randomUUID().toString()
+        }
+    }
+
+    private fun initModules() {
+        CoreInitializer.initialize(RedditGifRecipeProvider.create(RecipePreferences.deviceId, AndroidLogger))
+    }
+
+    private fun initLibraries() {
+        CacheServerImpl.initialize(this)
+        Fresco.initialize(this)
+    }
+
+    private fun initErrorHandling() {
         RxJavaPlugins.setErrorHandler(Consumer<Throwable>({
             var updated: Throwable? = it
             if (it is UndeliverableException) {
