@@ -42,9 +42,25 @@ fun buildFakeCallFactory(response: Response.Builder): Call.Factory {
     }
 }
 
-fun fakeResponse(headers: Headers, protocol: Protocol): Response.Builder {
+fun buildFakeResponse(headers: Headers, body: ResponseBody? = null): Response.Builder {
     return Response.Builder()
             .headers(headers)
             .code(200)
-            .protocol(protocol)
+            .body(body)
+            .protocol(Protocol.HTTP_2)
+}
+
+fun buildFakeChain(request: Request, assertionBlock: (Request) -> Unit): Interceptor.Chain {
+    return object: Interceptor.Chain {
+        override fun proceed(request: Request): Response {
+            assertionBlock(request)
+            return buildFakeResponse(Headers.of()).request(request).build()
+        }
+
+        override fun connection(): Connection {
+            TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        }
+
+        override fun request() = request
+    }
 }

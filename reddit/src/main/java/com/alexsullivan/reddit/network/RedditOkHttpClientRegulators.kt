@@ -1,8 +1,9 @@
 package com.alexsullivan.reddit.network
 
+import com.google.gson.Gson
 import okhttp3.*
 
-internal class RedditAuthInterceptor(val accessTokenProvider: () -> String): Interceptor {
+internal class RedditAuthInterceptor(private val accessTokenProvider: () -> String): Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
         var request = chain.request()
@@ -14,9 +15,9 @@ internal class RedditAuthInterceptor(val accessTokenProvider: () -> String): Int
     }
 }
 
-internal class RedditAuthenticator(val accessTokenConsumer: (String) -> Unit, val clientProvider: () -> OkHttpClient,
-                          val deviceId: String): Authenticator {
-    override fun authenticate(route: Route, response: Response): Request? {
+internal class RedditAuthenticator(private val accessTokenConsumer: (String) -> Unit, private val clientProvider: () -> Call.Factory,
+                                   private val deviceId: String): Authenticator {
+    override fun authenticate(route: Route?, response: Response): Request? {
         if (response.count() > 5) {
             return null
         }
@@ -33,7 +34,7 @@ internal class RedditAuthenticator(val accessTokenConsumer: (String) -> Unit, va
                 .build()
 
         val authResponse = clientProvider().newCall(request).execute().body().string()
-        val gson = com.google.gson.Gson()
+        val gson = Gson()
         val auth = gson.fromJson(authResponse, com.alexsullivan.reddit.models.RedditAuth::class.java)
         val accessToken = auth.access_token
         accessTokenConsumer(accessToken)

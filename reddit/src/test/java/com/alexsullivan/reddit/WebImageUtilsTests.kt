@@ -2,10 +2,9 @@ package com.alexsullivan.reddit
 
 import com.alexsullivan.isPlayingMedia
 import com.alexsullivan.reddit.testutils.buildFakeCallFactory
-import com.alexsullivan.reddit.testutils.fakeResponse
+import com.alexsullivan.reddit.testutils.buildFakeResponse
 import okhttp3.Call
 import okhttp3.Headers
-import okhttp3.Protocol
 import org.junit.Assert
 import org.junit.Test
 
@@ -42,7 +41,7 @@ class WebImageUtilsTests {
 
     private fun buildCallFactory(contentType: String): Call.Factory {
         val headers = Headers.Builder().add("Content-Type", contentType).build()
-        val response = fakeResponse(headers, Protocol.HTTP_2)
+        val response = buildFakeResponse(headers)
         return buildFakeCallFactory(response)
     }
 }
