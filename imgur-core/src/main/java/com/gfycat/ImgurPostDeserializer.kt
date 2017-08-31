@@ -12,10 +12,6 @@ class ImgurPostDeserializer: JsonDeserializer<ImgurPost> {
         if (!post.has("mp4")) {
             throw JsonParseException("Imgur post does not have mp4 link")
         }
-
-        if (!post.has("link")) {
-            throw JsonParseException("Imgur post does not have link")
-        }
-        return ImgurPost(post.get("mp4").asString, post.get("link").asString)
+        return ImgurPost(post.get("mp4").asString)
     }
 }

@@ -5,6 +5,6 @@ import io.reactivex.Observable
 /**
  * Created by Alexs on 8/31/2017.
  */
-interface ImgurRepository {
-    fun getImageInfo(imageId: String): Observable<ImgurPost>
+interface GfycatRepository {
+    fun getImageInfo(imageId: String): Observable<GfycatPost>
 }

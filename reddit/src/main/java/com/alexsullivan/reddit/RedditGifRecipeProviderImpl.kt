@@ -14,6 +14,8 @@ import com.alexsullivan.reddit.urlmanipulation.GfycatUrlManipulator
 import com.alexsullivan.reddit.urlmanipulation.ImgurUrlManipulator
 import com.alexsullivan.reddit.urlmanipulation.UrlManipulator
 import com.alexsullivan.utils.TAG
+import com.gfycat.GfycatRepositoryImpl
+import com.gfycat.ImgurRepositoryImpl
 import com.google.gson.GsonBuilder
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Observable
@@ -26,8 +28,8 @@ import java.net.SocketTimeoutException
 /**
  * Created by Alexs on 5/10/2017.
  */
-internal class RedditGifRecipeProviderImpl(val service: RedditService, val urlManipulators: List<UrlManipulator>,
-                                           val medidaChecker: (String) -> Boolean, val logger: Logger): RedditGifRecipeProvider {
+internal class RedditGifRecipeProviderImpl(private val service: RedditService, private val urlManipulators: List<UrlManipulator>,
+                                           private val medidaChecker: (String) -> Boolean, private val logger: Logger): RedditGifRecipeProvider {
 
     override val id: String
         get() = "RedditProvider"
@@ -42,8 +44,10 @@ internal class RedditGifRecipeProviderImpl(val service: RedditService, val urlMa
                     .addConverterFactory(GsonConverterFactory.create(gson))
                     .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                     .build()
+            val imgurRepo = ImgurRepositoryImpl.create(logger)
+            val gfycatRepo = GfycatRepositoryImpl.create(logger)
             return RedditGifRecipeProviderImpl(retrofit.create(RedditService::class.java),
-                    listOf(ImgurUrlManipulator(logger), GfycatUrlManipulator(logger)), { isPlayingMedia(it, okClient) }, logger)
+                    listOf(ImgurUrlManipulator(imgurRepo), GfycatUrlManipulator(gfycatRepo)), { isPlayingMedia(it, okClient) }, logger)
         }
     }
 
