@@ -18,7 +18,9 @@ import com.gfycat.GfycatRepositoryImpl
 import com.gfycat.ImgurRepositoryImpl
 import com.google.gson.GsonBuilder
 import io.reactivex.BackpressureStrategy
+import io.reactivex.Flowable
 import io.reactivex.Observable
+import io.reactivex.Scheduler
 import io.reactivex.schedulers.Schedulers
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
@@ -29,7 +31,8 @@ import java.net.SocketTimeoutException
  * Created by Alexs on 5/10/2017.
  */
 internal class RedditGifRecipeProviderImpl(private val service: RedditService, private val urlManipulators: List<UrlManipulator>,
-                                           private val medidaChecker: (String) -> Boolean, private val logger: Logger): RedditGifRecipeProvider {
+                                           private val medidaChecker: (String) -> Boolean, private val logger: Logger,
+                                           private val backgroundScheduler: Scheduler): RedditGifRecipeProvider {
 
     override val id: String
         get() = "RedditProvider"
@@ -47,7 +50,8 @@ internal class RedditGifRecipeProviderImpl(private val service: RedditService, p
             val imgurRepo = ImgurRepositoryImpl.create(logger)
             val gfycatRepo = GfycatRepositoryImpl.create(logger)
             return RedditGifRecipeProviderImpl(retrofit.create(RedditService::class.java),
-                    listOf(ImgurUrlManipulator(imgurRepo), GfycatUrlManipulator(gfycatRepo)), { isPlayingMedia(it, okClient) }, logger)
+                    listOf(ImgurUrlManipulator(imgurRepo), GfycatUrlManipulator(gfycatRepo)), { isPlayingMedia(it, okClient) }, logger,
+                Schedulers.io())
         }
     }
 
@@ -77,24 +81,25 @@ internal class RedditGifRecipeProviderImpl(private val service: RedditService, p
 
     private fun processListingResponse(listing: RedditListingResponse): Observable<GifRecipe> {
         return Observable.just(listing)
-            .flatMap { response -> Observable.fromIterable(response.data.children)
-                .map { it.copy(pageKey = response.data.after) }}
+            .flatMap { response -> Observable.fromIterable(response.data.children).map { it.copy(pageKey = response.data.after) }}
             .toFlowable(BackpressureStrategy.BUFFER)
             .parallel()
-            .runOn(Schedulers.io())
+            .runOn(backgroundScheduler)
             .filter { !it.removed }
             .map { RedditGifRecipe(it.url, it.id, ImageType.GIF, it.thumbnail, it.previewUrl, it.domain, it.title, it.pageKey) }
-            .flatMap {
-                var returnObservable = Observable.just(it)
-                urlManipulators.filter { manipulator -> manipulator.matchesDomain(it.url) }
-                    .forEach { manipulator -> returnObservable = manipulator.modifyRedditItem(it) }
-                // Retry up to 2 times if we time out.
-                returnObservable.retry(2, {t: Throwable -> t is SocketTimeoutException })
-                    .toFlowable(BackpressureStrategy.BUFFER)
-            }
+            .flatMap(this::applyFilters)
             .filter { medidaChecker(it.url) }
             .map { GifRecipe(it.url, it.id, it.thumbnail, it.imageType, it.title, it.pageKey) }
             .sequential()
             .toObservable()
+    }
+
+    private fun applyFilters(recipe: RedditGifRecipe): Flowable<RedditGifRecipe> {
+        val manipulator : UrlManipulator? = urlManipulators.firstOrNull { it.matchesDomain(recipe.url) }
+        val observable = manipulator?.modifyRedditItem(recipe)
+            ?.retry(2, {it is SocketTimeoutException})
+            ?.toFlowable(BackpressureStrategy.BUFFER)
+
+        return observable ?: Flowable.just(recipe)
     }
 }

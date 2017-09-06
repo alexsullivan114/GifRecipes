@@ -1,8 +1,8 @@
 <component name="libraryTable">
   <library name="videocache-2.7.0">
     <CLASSES>
-      <root url="jar://$USER_HOME$/.android/build-cache/e05fffba59d96caf50d2cea03093394246a9ed2a/output/jars/classes.jar!/" />
-      <root url="file://$USER_HOME$/.android/build-cache/e05fffba59d96caf50d2cea03093394246a9ed2a/output/res" />
+      <root url="file://$USER_HOME$/.android/build-cache/d20f2fd074aad66cbc67e89bdfcb48ef05188f01/output/res" />
+      <root url="jar://$USER_HOME$/.android/build-cache/d20f2fd074aad66cbc67e89bdfcb48ef05188f01/output/jars/classes.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES>
