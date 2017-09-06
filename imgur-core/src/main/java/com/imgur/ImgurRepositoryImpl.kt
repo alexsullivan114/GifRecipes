@@ -1,4 +1,4 @@
-package com.gfycat
+package com.imgur
 
 import com.alexsullivan.logging.Logger
 import com.google.gson.GsonBuilder

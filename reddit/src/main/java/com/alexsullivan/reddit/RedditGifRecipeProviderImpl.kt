@@ -15,7 +15,7 @@ import com.alexsullivan.reddit.urlmanipulation.ImgurUrlManipulator
 import com.alexsullivan.reddit.urlmanipulation.UrlManipulator
 import com.alexsullivan.utils.TAG
 import com.gfycat.GfycatRepositoryImpl
-import com.gfycat.ImgurRepositoryImpl
+import com.imgur.ImgurRepositoryImpl
 import com.google.gson.GsonBuilder
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable

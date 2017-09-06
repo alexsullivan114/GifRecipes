@@ -20,7 +20,7 @@ object WebClient {
         return Interceptor { chain ->
             var request = chain.request()
             if (request.header("authorization") == null) {
-                request = request.newBuilder().addHeader("Authorization", "Bearer $accessToken").build()
+                request = request.newBuilder().addHeader("Authorization", "Bearer ${accessToken}").build()
             }
             return@Interceptor chain.proceed(request)
         }

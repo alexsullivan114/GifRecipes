@@ -2,8 +2,8 @@ package com.alexsullivan.reddit.urlmanipulation
 
 import com.alexsullivan.ImageType
 import com.alexsullivan.reddit.models.RedditGifRecipe
-import com.gfycat.ImgurPost
-import com.gfycat.ImgurRepository
+import com.imgur.ImgurPost
+import com.imgur.ImgurRepository
 import io.reactivex.Observable
 import io.reactivex.observers.TestObserver
 import org.junit.Assert

@@ -1,4 +1,4 @@
-package com.gfycat
+package com.imgur
 
 import io.reactivex.Observable
 
