@@ -59,7 +59,7 @@ internal class RedditGifRecipeProviderImpl(private val service: RedditService, p
     private fun fetchWithSearchTerm(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipe> {
         logger.d(TAG, "Making search request with limit $limit and search term $searchTerm and page key $pageKey")
         return service.searchRecipes(searchTerm, limit = limit, after = pageKey)
-                .flatMap { processListingResponse(it, searchTerm) }
+                .flatMap { processListingResponse(it) }
     }
 
     private fun fetchHot(limit: Int, lastItem: String, pageKey: String): Observable<GifRecipe> {
@@ -72,10 +72,10 @@ internal class RedditGifRecipeProviderImpl(private val service: RedditService, p
                     logger.d(TAG, "Fetching hot took $elapsedTime milliseconds")
                     startTime = 0
                 }
-                .flatMap { processListingResponse(it, "") }
+                .flatMap { processListingResponse(it) }
     }
 
-    private fun processListingResponse(listing: RedditListingResponse, searchTerm: String = ""): Observable<GifRecipe> {
+    private fun processListingResponse(listing: RedditListingResponse): Observable<GifRecipe> {
         return Observable.just(listing)
             .flatMap { response -> Observable.fromIterable(response.data.children)
                 .map { it.copy(pageKey = response.data.after) }}
@@ -86,7 +86,7 @@ internal class RedditGifRecipeProviderImpl(private val service: RedditService, p
             .map { RedditGifRecipe(it.url, it.id, ImageType.GIF, it.thumbnail, it.previewUrl, it.domain, it.title, it.pageKey) }
             .flatMap {
                 var returnObservable = Observable.just(it)
-                urlManipulators.filter { manipulator -> manipulator.matchesDomain(it.domain) }
+                urlManipulators.filter { manipulator -> manipulator.matchesDomain(it.url) }
                     .forEach { manipulator -> returnObservable = manipulator.modifyRedditItem(it) }
                 // Retry up to 2 times if we time out.
                 returnObservable.retry(2, {t: Throwable -> t is SocketTimeoutException })

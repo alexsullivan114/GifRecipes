@@ -22,6 +22,7 @@ class GfycatUrlManipulatorTests {
         Assert.assertTrue(manipulator.matchesDomain("https://gfycat.com/PlayfulIckyApisdorsatalaboriosa"))
         Assert.assertTrue(manipulator.matchesDomain("https://thumbs.gfycat.com/PlayfulIckyApisdorsatalaboriosa-size_restricted.gif"))
         Assert.assertTrue(manipulator.matchesDomain("https://giant.gfycat.com/PlayfulIckyApisdorsatalaboriosa.gif"))
+        Assert.assertTrue(manipulator.matchesDomain("https://gfycat.com/MarriedLazyInsect"))
     }
 
     @Test fun testHappyPathGfycatDomainNotMatch() {

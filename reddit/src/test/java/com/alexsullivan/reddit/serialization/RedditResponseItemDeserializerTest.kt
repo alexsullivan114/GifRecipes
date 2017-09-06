@@ -26,6 +26,11 @@ class RedditResponseItemDeserializerTest {
         JsonParser().parse(string)
     }
 
+    val removedPost by lazy {
+        val string = """{"kind":"t3","data":{"contest_mode":false,"subreddit_name_prefixed":"r/GifRecipes","banned_by":null,"media_embed":{},"thumbnail_width":140,"subreddit":"GifRecipes","selftext_html":null,"selftext":"","likes":null,"suggested_sort":null,"user_reports":[],"secure_media":null,"link_flair_text":null,"id":"6anl3c","view_count":null,"secure_media_embed":{},"clicked":false,"report_reasons":null,"author":"kickso","saved":false,"mod_reports":[],"name":"t3_6anl3c","score":1845,"approved_by":null,"over_18":false,"domain":"i.imgur.com","hidden":false,"preview":{"images":[{"source":{"url":"https://i.redditmedia.com/yko0qOonNg9fnro4tGdCltOQR63ZRz6AYQeNXJj-8l0.gif?fm=jpg&amp;s=16ec11f31c969a7c8970edb07b5cfa7a","width":600,"height":600},"resolutions":[{"url":"https://i.redditmedia.com/yko0qOonNg9fnro4tGdCltOQR63ZRz6AYQeNXJj-8l0.gif?fit=crop&amp;crop=faces%2Centropy&amp;arh=2&amp;w=108&amp;fm=jpg&amp;s=f30cc8b8f92196b567c7c2be16665196","width":108,"height":108},{"url":"https://i.redditmedia.com/yko0qOonNg9fnro4tGdCltOQR63ZRz6AYQeNXJj-8l0.gif?fit=crop&amp;crop=faces%2Centropy&amp;arh=2&amp;w=216&amp;fm=jpg&amp;s=654256293f1341c1ea0cb07cdd1d5181","width":216,"height":216},{"url":"https://i.redditmedia.com/yko0qOonNg9fnro4tGdCltOQR63ZRz6AYQeNXJj-8l0.gif?fit=crop&amp;crop=faces%2Centropy&amp;arh=2&amp;w=320&amp;fm=jpg&amp;s=0896312debb74348fc9e0f7609b75b87","width":320,"height":320}],"variants":{"gif":{"source":{"url":"https://g.redditmedia.com/yko0qOonNg9fnro4tGdCltOQR63ZRz6AYQeNXJj-8l0.gif?s=628cc5c99d5ebc429f59c9e3496cc15c","width":600,"height":600},"resolutions":[{"url":"https://g.redditmedia.com/yko0qOonNg9fnro4tGdCltOQR63ZRz6AYQeNXJj-8l0.gif?fit=crop&amp;crop=faces%2Centropy&amp;arh=2&amp;w=108&amp;s=96a696f2d317abda9c21c05994d6d22a","width":108,"height":108},{"url":"https://g.redditmedia.com/yko0qOonNg9fnro4tGdCltOQR63ZRz6AYQeNXJj-8l0.gif?fit=crop&amp;crop=faces%2Centropy&amp;arh=2&amp;w=216&amp;s=02ad38a7de2f87b99dff4fbee97f00cd","width":216,"height":216},{"url":"https://g.redditmedia.com/yko0qOonNg9fnro4tGdCltOQR63ZRz6AYQeNXJj-8l0.gif?fit=crop&amp;crop=faces%2Centropy&amp;arh=2&amp;w=320&amp;s=13720066d50c092675d058de7d7483a8","width":320,"height":320}]},"mp4":{"source":{"url":"https://g.redditmedia.com/yko0qOonNg9fnro4tGdCltOQR63ZRz6AYQeNXJj-8l0.gif?fm=mp4&amp;mp4-fragmented=false&amp;s=9e4126fb9aef55d6f36f5963164db00d","width":600,"height":600},"resolutions":[{"url":"https://g.redditmedia.com/yko0qOonNg9fnro4tGdCltOQR63ZRz6AYQeNXJj-8l0.gif?fit=crop&amp;crop=faces%2Centropy&amp;arh=2&amp;w=108&amp;fm=mp4&amp;mp4-fragmented=false&amp;s=70ed79f9118994a8caabdcc0fdc78b91","width":108,"height":108},{"url":"https://g.redditmedia.com/yko0qOonNg9fnro4tGdCltOQR63ZRz6AYQeNXJj-8l0.gif?fit=crop&amp;crop=faces%2Centropy&amp;arh=2&amp;w=216&amp;fm=mp4&amp;mp4-fragmented=false&amp;s=a13ddd73bc5dba5dc87cd8f1101e8f79","width":216,"height":216},{"url":"https://g.redditmedia.com/yko0qOonNg9fnro4tGdCltOQR63ZRz6AYQeNXJj-8l0.gif?fit=crop&amp;crop=faces%2Centropy&amp;arh=2&amp;w=320&amp;fm=mp4&amp;mp4-fragmented=false&amp;s=a762aececacd9fa1ea12db99568bc28b","width":320,"height":320}]}},"id":"-3KGbRgazIQM4uWdup2OmiH7Tk7HcemSiva247U8wUA"}],"enabled":true},"thumbnail":"https://b.thumbs.redditmedia.com/LFDHMhCqyo2UUfYSDo5C0u-HmJmzyhOGgg6ZENh2J1I.jpg","subreddit_id":"t5_3410y","edited":false,"link_flair_css_class":null,"author_flair_css_class":null,"gilded":0,"downs":0,"brand_safe":true,"archived":false,"removal_reason":legal,"post_hint":"link","can_gild":false,"thumbnail_height":140,"hide_score":false,"spoiler":false,"permalink":"/r/GifRecipes/comments/6anl3c/chorizo_gnocchi_traybake/","num_reports":null,"locked":false,"stickied":false,"created":1494571625,"url":"https://i.imgur.com/wejytsk.gifv","author_flair_text":null,"quarantine":false,"title":"Chorizo Gnocchi Traybake","created_utc":1494542825,"distinguished":null,"media":null,"num_comments":120,"is_self":false,"visited":false,"subreddit_type":"public","ups":1845}}"""
+        JsonParser().parse(string)
+    }
+
     val invalidJson by lazy {
         val string = """[]"""
         JsonParser().parse(string)
@@ -60,6 +65,12 @@ class RedditResponseItemDeserializerTest {
         Assert.assertTrue(listingItem.domain.contains("imgur"))
         Assert.assertEquals(listingItem.previewUrl, "https://g.redditmedia.com/yko0qOonNg9fnro4tGdCltOQR63ZRz6AYQeNXJj-8l0.gif?s=628cc5c99d5ebc429f59c9e3496cc15c")
         Assert.assertEquals(listingItem.thumbnail, "https://b.thumbs.redditmedia.com/LFDHMhCqyo2UUfYSDo5C0u-HmJmzyhOGgg6ZENh2J1I.jpg")
+    }
+
+    @Test fun deserializeRemovedPost() {
+        val deserializer = RedditResponseItemDeserializer()
+        val listingItem = deserializer.deserialize(removedPost, null, null)
+        Assert.assertTrue(listingItem.removed)
     }
 
     @Test(expected = IllegalStateException::class)
