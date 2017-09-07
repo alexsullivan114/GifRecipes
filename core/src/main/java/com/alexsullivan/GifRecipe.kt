@@ -11,7 +11,7 @@ enum class ImageType(val value: Int) {
         private val map = ImageType.values().associateBy(ImageType::value);
         fun fromInt(type: Int): ImageType {
             if (map[type] == null) {
-                throw RuntimeException("Can't create ImageType from value $type")
+                throw IllegalArgumentException("Can't create ImageType from value $type")
             }
 
             return map[type]!!
