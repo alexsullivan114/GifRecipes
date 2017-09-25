@@ -24,6 +24,7 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.facebook.drawee.backends.pipeline.Fresco
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.layout_gif_recipe_viewer.*
 import kotlin.properties.Delegates
 
@@ -61,8 +62,8 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
     override fun initPresenter(): GifRecipeViewerPresenter {
         return GifRecipeViewerPresenter.create(intent.getParcelableExtra(RECIPE_KEY),
                 CacheServerImpl.instance(),
-                RoomFavoriteCache.getInstance(RoomRecipeDatabaseHolder.get(applicationContext).gifRecipeDao()
-                ))
+                RoomFavoriteCache.getInstance(RoomRecipeDatabaseHolder.get(applicationContext).gifRecipeDao()),
+            Schedulers.io())
     }
 
     @SuppressLint("Recycle")

@@ -77,8 +77,7 @@ class GifRecipeRepositoryImplTests {
         }
 
         val repo = GifRecipeRepositoryImpl(listOf(provider1, provider2, provider3, provider4))
-        val observer = TestObserver<GifRecipe>()
-        repo.consumeGifRecipes(5, "", "").subscribe(observer)
+        val observer = repo.consumeGifRecipes(5, "", "").test()
         Assert.assertTrue(observer.awaitTerminalEvent())
         observer.assertComplete()
         Assert.assertEquals(8, observer.valueCount())

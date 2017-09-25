@@ -15,8 +15,8 @@ import com.alexsullivan.reddit.urlmanipulation.ImgurUrlManipulator
 import com.alexsullivan.reddit.urlmanipulation.UrlManipulator
 import com.alexsullivan.utils.TAG
 import com.gfycat.GfycatRepositoryImpl
-import com.imgur.ImgurRepositoryImpl
 import com.google.gson.GsonBuilder
+import com.imgur.ImgurRepositoryImpl
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -66,6 +66,7 @@ internal class RedditGifRecipeProviderImpl(private val service: RedditService, p
                 .flatMap { processListingResponse(it) }
     }
 
+    // Differentiate between hot recipe searches and search term searches.
     private fun fetchHot(limit: Int, lastItem: String, pageKey: String): Observable<GifRecipe> {
         logger.d(TAG, "Making hot request with limit $limit and last item $lastItem")
         var startTime = 0L
@@ -79,6 +80,11 @@ internal class RedditGifRecipeProviderImpl(private val service: RedditService, p
                 .flatMap { processListingResponse(it) }
     }
 
+    /**
+     * Takes the provided response from the Reddit API, maps it into appropriate model objects
+     * and checks each item for its type. Checking each item requires making a HEAD request, as such
+     * this method is parallelized.
+     */
     private fun processListingResponse(listing: RedditListingResponse): Observable<GifRecipe> {
         return Observable.just(listing)
             .flatMap { response -> Observable.fromIterable(response.data.children).map { it.copy(pageKey = response.data.after) }}
@@ -94,6 +100,9 @@ internal class RedditGifRecipeProviderImpl(private val service: RedditService, p
             .toObservable()
     }
 
+    /**
+     * Apply our list of url manipulators to this reddit gif recipe.
+     */
     private fun applyFilters(recipe: RedditGifRecipe): Flowable<RedditGifRecipe> {
         val manipulator : UrlManipulator? = urlManipulators.firstOrNull { it.matchesDomain(recipe.url) }
         val observable = manipulator?.modifyRedditItem(recipe)
