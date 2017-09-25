@@ -1,5 +1,6 @@
 package alexsullivan.gifrecipes
 
+import alexsullivan.gifrecipes.GifRecipeViewerViewState.*
 import alexsullivan.gifrecipes.cache.CacheServerImpl
 import alexsullivan.gifrecipes.components.State
 import alexsullivan.gifrecipes.components.StateAwareMediaPlayer
@@ -118,66 +119,80 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
         favorite.setLiked(viewState.favoriteStatus(), true)
         favorite.isClickable = !viewState.favoriteLocked()
         when (viewState) {
-            is GifRecipeViewerViewState.Preloading -> {
-                loadPlaceholderImage(viewState.recipe)
-                progress.visibility = View.VISIBLE
-                titleText.text = viewState.recipe.title
-                shareUrl = viewState.recipe.url
-            }
-            is GifRecipeViewerViewState.LoadingGif -> {
-                loadPlaceholderImage(viewState.recipe)
-                progress.visible()
-                progress.progress = viewState.progress.toFloat()
-                titleText.text = viewState.recipe.title
-                shouldPlayVideo = false
-                url = viewState.url
-                shareUrl = viewState.recipe.url
-            }
-            is GifRecipeViewerViewState.LoadingVideo -> {
-                loadPlaceholderImage(viewState.recipe)
-                progress.visible()
-                progress.progress = viewState.progress.toFloat()
-                titleText.text = viewState.recipe.title
-                url = viewState.url
-                shouldPlayVideo = true
-                toggleVideoMode()
-                if (viewState.hasTransitioned && !hasRepositionedLoadingView) {
-                    repositionLoadingIndicator()
-                }
-                shareUrl = viewState.recipe.url
-            }
-            is GifRecipeViewerViewState.TransitioningVideo -> {
-                progress.visible()
-                progress.progress = viewState.progress.toFloat()
-                titleText.text = viewState.recipe.title
-                url = viewState.url
-                shouldPlayVideo = true
-                animateProgressDown()
-                shareUrl = viewState.recipe.url
-            }
-            is GifRecipeViewerViewState.PlayingVideo -> {
-                progress.gone()
-                titleText.text = viewState.recipe.title
-                loadPlaceholderImage(viewState.recipe)
-                url = viewState.url
-                shouldPlayVideo = true
-                toggleVideoMode()
-                shareUrl = viewState.recipe.url
-            }
-            is GifRecipeViewerViewState.PlayingGif -> {
-                progress.visibility = View.GONE
-                titleText.text = viewState.recipe.title
-                loadPlaceholderImage(viewState.recipe, {aspectRatio ->
-                    toggleGifMode(aspectRatio, viewState.url)
-                })
-                shouldPlayVideo = false
-                shareUrl = viewState.recipe.url
-            }
+            is Preloading -> showPreloadingState(viewState)
+            is LoadingGif -> showLoadingGifState(viewState)
+            is LoadingVideo -> showLoadingVideoState(viewState)
+            is TransitioningVideo -> showTransitioningVideoState(viewState)
+            is PlayingVideo -> showPlayingVideoState(viewState)
+            is PlayingGif -> showPlayingGifState(viewState)
             is GifRecipeViewerViewState.Favorited -> {
                 throw RuntimeException("Woops, got a favorited!")
             }
         }
     }
+
+
+    private fun showPreloadingState(viewState: Preloading) {
+        loadPlaceholderImage(viewState.recipe)
+        progress.animateVisible()
+        titleText.text = viewState.recipe.title
+        shareUrl = viewState.recipe.url
+    }
+
+    private fun showLoadingGifState(viewState: LoadingGif) {
+        loadPlaceholderImage(viewState.recipe)
+        progress.animateVisible()
+        progress.progress = viewState.progress.toFloat()
+        titleText.text = viewState.recipe.title
+        shouldPlayVideo = false
+        url = viewState.url
+        shareUrl = viewState.recipe.url
+    }
+
+    private fun showLoadingVideoState(viewState: LoadingVideo) {
+        loadPlaceholderImage(viewState.recipe)
+        progress.animateVisible()
+        progress.progress = viewState.progress.toFloat()
+        titleText.text = viewState.recipe.title
+        url = viewState.url
+        shouldPlayVideo = true
+        toggleVideoMode()
+        if (viewState.hasTransitioned && !hasRepositionedLoadingView) {
+            repositionLoadingIndicator()
+        }
+        shareUrl = viewState.recipe.url
+    }
+
+    private fun showTransitioningVideoState(viewState: TransitioningVideo) {
+        progress.animateVisible()
+        progress.progress = viewState.progress.toFloat()
+        titleText.text = viewState.recipe.title
+        url = viewState.url
+        shouldPlayVideo = true
+        animateProgressDown()
+        shareUrl = viewState.recipe.url
+    }
+
+    private fun showPlayingVideoState(viewState: PlayingVideo) {
+        progress.animateGone()
+        titleText.text = viewState.recipe.title
+        loadPlaceholderImage(viewState.recipe)
+        url = viewState.url
+        shouldPlayVideo = true
+        toggleVideoMode()
+        shareUrl = viewState.recipe.url
+    }
+
+    private fun showPlayingGifState(viewState: PlayingGif) {
+        progress.animateGone()
+        titleText.text = viewState.recipe.title
+        loadPlaceholderImage(viewState.recipe, { aspectRatio ->
+            toggleGifMode(aspectRatio, viewState.url)
+        })
+        shouldPlayVideo = false
+        shareUrl = viewState.recipe.url
+    }
+
 
     private fun animateProgressDown() {
         TransitionManager.beginDelayedTransition(root, ChangeBounds())

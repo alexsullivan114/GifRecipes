@@ -10,7 +10,6 @@ import alexsullivan.gifrecipes.viewarchitecture.ViewState
 import com.alexsullivan.ImageType
 import io.reactivex.Scheduler
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.subjects.PublishSubject
 
 
 class GifRecipeViewerPresenterImpl(private val gifRecipe: GifRecipeUI,
@@ -20,14 +19,13 @@ class GifRecipeViewerPresenterImpl(private val gifRecipe: GifRecipeUI,
 
     val disposables = CompositeDisposable()
 
-    private val favoriteStream: PublishSubject<Boolean> = PublishSubject.create()
     private var shouldTransitionVideo = false
 
     init {
 
         loadInitialPlayingState()
         loadInitialFavoriteState()
-        subscribeToFavoriteStream()
+        bindFavoriteStateFlowable()
     }
 
     override fun reduce(old: GifRecipeViewerViewState, new: GifRecipeViewerViewState): GifRecipeViewerViewState {
@@ -62,22 +60,22 @@ class GifRecipeViewerPresenterImpl(private val gifRecipe: GifRecipeUI,
     }
 
     override fun favoriteClicked(isFavorited: Boolean) {
-        favoriteStream.onNext(isFavorited)
+        if (isFavorited) {
+            favoriteCache.insertFavoriteRecipe(gifRecipe.toGifRecipe()).subscribeOn(backgroundScheduler).subscribe()
+        } else {
+            favoriteCache.deleteFavoriteRecipe(gifRecipe.toGifRecipe()).subscribeOn(backgroundScheduler).subscribe()
+        }
     }
 
     override fun videoStarted() {
         shouldTransitionVideo = true
     }
 
-    private fun subscribeToFavoriteStream() {
-        favoriteStream.observeOn(backgroundScheduler).subscribe {
-            if (it) {
-                favoriteCache.insertFavoriteRecipe(gifRecipe.toGifRecipe()).subscribeOn(backgroundScheduler).subscribe()
-            } else {
-                favoriteCache.deleteFavoriteRecipe(gifRecipe.toGifRecipe()).subscribeOn(backgroundScheduler).subscribe()
-            }
-            pushValue(Favorited(it))
-        }
+    private fun bindFavoriteStateFlowable() {
+        favoriteCache.favoriteStateChangedFlowable()
+            .subscribeOn(backgroundScheduler)
+            .filter { it.first.id == gifRecipe.id }
+            .subscribe { pushValue(Favorited(it.second)) }
     }
 
     private fun loadInitialFavoriteState() {

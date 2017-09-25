@@ -1,5 +1,7 @@
 package alexsullivan.gifrecipes.utils
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.graphics.Matrix
 import android.graphics.Rect
 import android.graphics.SurfaceTexture
@@ -27,6 +29,30 @@ fun View.visible() {
     this.visibility = View.VISIBLE
 }
 
+fun View.animateVisible() {
+    if (this.visibility == View.VISIBLE) return
+
+    animate().alpha(0f).setListener(object: AnimatorListenerAdapter() {
+        override fun onAnimationEnd(animation: Animator?) {
+            animate().alpha(1.0f).setListener(object: AnimatorListenerAdapter() {
+                override fun onAnimationStart(animation: Animator?) {
+                    visible()
+                }
+            }).start()
+        }
+    }).start()
+}
+
+fun View.animateGone() {
+    if (this.visibility == View.GONE) return
+
+    animate().alpha(0.0f).setListener(object: AnimatorListenerAdapter() {
+        override fun onAnimationEnd(animation: Animator?) {
+            gone()
+        }
+    }).start()
+}
+
 fun View.gone() {
     this.visibility = View.GONE
 }
@@ -36,14 +62,10 @@ fun View.invisible() {
 }
 
 val View.isVisible: Boolean
-    get() {
-        return visibility == View.VISIBLE
-    }
+    get() = visibility == View.VISIBLE
 
 val View.isInvisible: Boolean
-    get() {
-        return visibility == View.INVISIBLE
-    }
+    get() = visibility == View.INVISIBLE
 
 fun ViewPager.pageChangeListener(pageScrollStateChanged: (Int) -> Unit = {},
                                  pageScrolled: (Int, Float, Int) -> Unit = { _, _, _ -> },

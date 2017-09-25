@@ -44,8 +44,9 @@
     <com.github.lzyzsd.circleprogress.DonutProgress
         android:id="@+id/progress"
         style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="150dp"
-        android:layout_height="150dp"
+        android:visibility="gone"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
         android:progressDrawable="@drawable/circular_determinate_progess"
         app:donut_max="100"
         app:donut_finished_color="@color/colorAccent"
