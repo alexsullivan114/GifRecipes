@@ -1,6 +1,10 @@
 apply plugin: 'java'
 apply plugin: 'kotlin'
 
+repositories {
+    maven { url 'https://maven.google.com' }
+}
+
 dependencies {
     compile project(':core')
     compile fileTree(dir: 'libs', include: ['*.jar'])

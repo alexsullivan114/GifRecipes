@@ -7,9 +7,10 @@ import com.imgur.ImgurRepository
 import io.reactivex.Observable
 import java.util.regex.Pattern
 
-internal class GfycatUrlManipulator(private val repository: GfycatRepository): UrlManipulator {
+internal class GfycatUrlManipulator(private val repository: GfycatRepository,
+                                    private val imageChecker: (String) -> Boolean) : UrlManipulator {
 
-    override fun matchesDomain(domain: String):Boolean {
+    override fun matchesDomain(domain: String): Boolean {
         val regexString = "^(https:\\/\\/)?(www\\.)?[A-Za-z]*\\.?gfycat\\.com\\/.*"
         val pattern = Pattern.compile(regexString)
         val matcher = pattern.matcher(domain)
@@ -18,15 +19,23 @@ internal class GfycatUrlManipulator(private val repository: GfycatRepository): U
 
     override fun modifyRedditItem(item: RedditGifRecipe): Observable<RedditGifRecipe> {
         val gfycatId = item.url.substringAfter(".com/").substringBefore(".")
-        val thumbnailId = "http://thumbs.gfycat.com/$gfycatId-poster.jpg"
+        val thumbnail = "http://thumbs.gfycat.com/$gfycatId-poster.jpg"
         return repository.getImageInfo(gfycatId)
-            .map { item.copy(url = it.mp4, imageType = ImageType.VIDEO, thumbnail = thumbnailId) }
-            .onErrorReturnItem(item)
+                .map { item.copy(url = it.mp4, imageType = ImageType.VIDEO, thumbnail = thumbnail) }
+                .map {
+                    if (!imageChecker(thumbnail)) {
+                        it.copy(thumbnail = item.thumbnail)
+                    } else {
+                        it
+                    }
+                }
+                .onErrorReturnItem(item)
     }
 }
 
- internal class ImgurUrlManipulator(private val repository: ImgurRepository) : UrlManipulator {
-    override fun matchesDomain(domain: String):Boolean {
+internal class ImgurUrlManipulator(private val repository: ImgurRepository,
+                                   private val imageChecker: (String) -> Boolean) : UrlManipulator {
+    override fun matchesDomain(domain: String): Boolean {
         val regexString = "(https:\\/\\/)?(www\\.)?(i\\.)?imgur.com\\/.*"
         val pattern = Pattern.compile(regexString)
         val matcher = pattern.matcher(domain)
@@ -38,6 +47,13 @@ internal class GfycatUrlManipulator(private val repository: GfycatRepository): U
         val thumbnail = "http://i.imgur.com/${imgurId}l.jpg"
         return repository.getImageInfo(imgurId)
                 .map { item.copy(url = it.mp4, imageType = ImageType.VIDEO, thumbnail = thumbnail) }
+                .map {
+                    if (!imageChecker(thumbnail)) {
+                        it.copy(thumbnail = item.thumbnail)
+                    } else {
+                        it
+                    }
+                }
                 .onErrorReturnItem(item)
     }
 }

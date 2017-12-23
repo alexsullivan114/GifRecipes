@@ -10,15 +10,15 @@ import org.junit.Assert
 import org.junit.Test
 
 /**
- * Created by Alexs on 8/31/2017.
- */
+* Created by Alex Sullivan on 8/31/2017.
+*/
 class GfycatUrlManipulatorTests {
 
     private val testUrl = "test.mp4"
     private val errorMessage = "fail"
 
     @Test fun testHappyPathGfycatDomainMatch() {
-        val manipulator = GfycatUrlManipulator(buildEmptyMockRepository())
+        val manipulator = GfycatUrlManipulator(buildEmptyMockRepository(), { true })
         Assert.assertTrue(manipulator.matchesDomain("https://gfycat.com/PlayfulIckyApisdorsatalaboriosa"))
         Assert.assertTrue(manipulator.matchesDomain("https://thumbs.gfycat.com/PlayfulIckyApisdorsatalaboriosa-size_restricted.gif"))
         Assert.assertTrue(manipulator.matchesDomain("https://giant.gfycat.com/PlayfulIckyApisdorsatalaboriosa.gif"))
@@ -26,13 +26,13 @@ class GfycatUrlManipulatorTests {
     }
 
     @Test fun testHappyPathGfycatDomainNotMatch() {
-        val manipulator = GfycatUrlManipulator(buildEmptyMockRepository())
+        val manipulator = GfycatUrlManipulator(buildEmptyMockRepository(), { true })
         Assert.assertFalse(manipulator.matchesDomain("https://imgur.com"))
         Assert.assertFalse(manipulator.matchesDomain("https://google.com"))
     }
 
     @Test fun testNotHappyPathGfycatDomainMatch() {
-        val manipulator = GfycatUrlManipulator(buildEmptyMockRepository())
+        val manipulator = GfycatUrlManipulator(buildEmptyMockRepository(), { true })
         Assert.assertFalse(manipulator.matchesDomain("https://imgur.com/gfycat"))
         // Don't match a URL that has no ID!
         Assert.assertFalse(manipulator.matchesDomain("https://gfycat.com"))
@@ -42,7 +42,7 @@ class GfycatUrlManipulatorTests {
 
     @Test fun testHappyPathLookup() {
         val url = "https://gfycat.com/PlayfulIckyApisdorsatalaboriosa"
-        val manipulator = GfycatUrlManipulator(buildMockRepository("PlayfulIckyApisdorsatalaboriosa"))
+        val manipulator = GfycatUrlManipulator(buildMockRepository("PlayfulIckyApisdorsatalaboriosa"), { true })
         val recipe = RedditGifRecipe(url, "fake", ImageType.VIDEO, "fake", "fake", "fake", "fake", "")
         val testObserver = TestObserver<RedditGifRecipe>()
         manipulator.modifyRedditItem(recipe).subscribe(testObserver)
@@ -54,7 +54,7 @@ class GfycatUrlManipulatorTests {
 
     @Test fun testHappyPathLookupAlternativeUrl() {
         val url = "https://giant.gfycat.com/PlayfulIckyApisdorsatalaboriosa"
-        val manipulator = GfycatUrlManipulator(buildMockRepository("PlayfulIckyApisdorsatalaboriosa"))
+        val manipulator = GfycatUrlManipulator(buildMockRepository("PlayfulIckyApisdorsatalaboriosa"), { true })
         val recipe = RedditGifRecipe(url, "fake", ImageType.VIDEO, "fake", "fake", "fake", "fake", "")
         val testObserver = TestObserver<RedditGifRecipe>()
         manipulator.modifyRedditItem(recipe).subscribe(testObserver)
@@ -66,7 +66,7 @@ class GfycatUrlManipulatorTests {
 
     @Test fun testFailedLookup() {
         val url = "https://giant.gfycat.com/PlayfulIckyApisdorsatalaboriosa"
-        val manipulator = GfycatUrlManipulator(buildErrorRepository())
+        val manipulator = GfycatUrlManipulator(buildErrorRepository(), { true })
         val recipe = RedditGifRecipe(url, "fake", ImageType.VIDEO, "fake", "fake", "fake", "fake", "")
         val testObserver = TestObserver<RedditGifRecipe>()
         manipulator.modifyRedditItem(recipe).subscribe(testObserver)
@@ -74,6 +74,18 @@ class GfycatUrlManipulatorTests {
         testObserver.assertNoErrors()
         Assert.assertTrue(testObserver.values().size == 1)
         Assert.assertEquals(testObserver.values()[0], recipe) // we should get back the same item.
+    }
+
+    @Test fun testReturnThumbnailNotImage() {
+        val url = "https://gfycat.com/PlayfulIckyApisdorsatalaboriosa"
+        val manipulator = GfycatUrlManipulator(buildMockRepository("PlayfulIckyApisdorsatalaboriosa"), { false })
+        val recipe = RedditGifRecipe(url, "fake", ImageType.VIDEO, "fake", "fake", "fake", "fake", "")
+        val testObserver = TestObserver<RedditGifRecipe>()
+        manipulator.modifyRedditItem(recipe).subscribe(testObserver)
+        testObserver.assertComplete()
+        testObserver.assertNoErrors()
+        Assert.assertTrue(testObserver.values().size == 1)
+        Assert.assertEquals(testObserver.values()[0].thumbnail, "fake")
     }
 
     private fun buildEmptyMockRepository(): GfycatRepository {

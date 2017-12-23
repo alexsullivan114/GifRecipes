@@ -3,6 +3,7 @@ package com.alexsullivan.reddit
 import com.alexsullivan.GifRecipe
 import com.alexsullivan.ImageType
 import com.alexsullivan.isPlayingMedia
+import com.alexsullivan.isStaticImgae
 import com.alexsullivan.logging.Logger
 import com.alexsullivan.reddit.models.RedditGifRecipe
 import com.alexsullivan.reddit.models.RedditListingItem
@@ -30,8 +31,10 @@ import java.net.SocketTimeoutException
 /**
  * Created by Alexs on 5/10/2017.
  */
-internal class RedditGifRecipeProviderImpl(private val service: RedditService, private val urlManipulators: List<UrlManipulator>,
-                                           private val medidaChecker: (String) -> Boolean, private val logger: Logger,
+internal class RedditGifRecipeProviderImpl(private val service: RedditService,
+                                           private val urlManipulators: List<UrlManipulator>,
+                                           private val dynamicMediaChecker: (String) -> Boolean,
+                                           private val logger: Logger,
                                            private val backgroundScheduler: Scheduler): RedditGifRecipeProvider {
 
     override val id: String
@@ -49,9 +52,15 @@ internal class RedditGifRecipeProviderImpl(private val service: RedditService, p
                     .build()
             val imgurRepo = ImgurRepositoryImpl.create(logger)
             val gfycatRepo = GfycatRepositoryImpl.create(logger)
+            val dynamicMediaChecker = fun(url: String) = isPlayingMedia(url, okClient)
+            val staticMediaChecker = fun(url: String) = isStaticImgae(url, okClient)
             return RedditGifRecipeProviderImpl(retrofit.create(RedditService::class.java),
-                    listOf(ImgurUrlManipulator(imgurRepo), GfycatUrlManipulator(gfycatRepo)), { isPlayingMedia(it, okClient) }, logger,
-                Schedulers.io())
+                    listOf(
+                            ImgurUrlManipulator(imgurRepo, staticMediaChecker),
+                            GfycatUrlManipulator(gfycatRepo, staticMediaChecker)),
+                    dynamicMediaChecker,
+                    logger,
+                    Schedulers.io())
         }
     }
 
@@ -94,8 +103,8 @@ internal class RedditGifRecipeProviderImpl(private val service: RedditService, p
             .filter { !it.removed }
             .map { RedditGifRecipe(it.url, it.id, ImageType.GIF, it.thumbnail, it.previewUrl, it.domain, it.title, it.pageKey) }
             .flatMap(this::applyFilters)
-            .filter { medidaChecker(it.url) }
-            .map { GifRecipe(it.url, it.id, it.thumbnail, it.imageType, it.title, it.pageKey) }
+            .filter { item -> dynamicMediaChecker(item.url) }
+            .map { item -> GifRecipe(item.url, item.id, item.thumbnail, item.imageType, item.title, item.pageKey) }
             .sequential()
             .toObservable()
     }

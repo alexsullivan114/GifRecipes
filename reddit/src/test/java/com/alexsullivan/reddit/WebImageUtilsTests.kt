@@ -1,6 +1,7 @@
 package com.alexsullivan.reddit
 
 import com.alexsullivan.isPlayingMedia
+import com.alexsullivan.isStaticImgae
 import com.alexsullivan.reddit.testutils.buildFakeCallFactory
 import com.alexsullivan.reddit.testutils.buildFakeResponse
 import okhttp3.Call
@@ -37,6 +38,16 @@ class WebImageUtilsTests {
     fun testMalformedExceptions() {
         val malformed = isPlayingMedia("", buildCallFactory(""))
         Assert.assertFalse(malformed)
+    }
+
+    @Test fun testIsStaticMediaTrue() {
+        val blank = isStaticImgae("https://www.google.com", buildCallFactory("image/jpg"))
+        Assert.assertTrue(blank)
+    }
+
+    @Test fun testIsStaticMediaFalse() {
+        val blank = isStaticImgae("https://www.google.com", buildCallFactory("image/gif"))
+        Assert.assertFalse(blank)
     }
 
     private fun buildCallFactory(contentType: String): Call.Factory {
