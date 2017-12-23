@@ -4,6 +4,7 @@ import alexsullivan.gifrecipes.Category
 import alexsullivan.gifrecipes.GifRecipeUI
 import alexsullivan.gifrecipes.GifRecipeViewerActivity
 import alexsullivan.gifrecipes.R
+import alexsullivan.gifrecipes.application.AndroidLogger
 import alexsullivan.gifrecipes.recipelist.RecipeCategoryContainerActivity
 import alexsullivan.gifrecipes.recipelist.RecipeListIndicatorAdapter
 import alexsullivan.gifrecipes.recipelist.SelectedIndexCallback
@@ -19,12 +20,14 @@ import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import com.alexsullivan.GifRecipeRepository
+import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.layout_category.*
 
 class CategorySelectionActivity : BaseActivity<CategorySelectionViewState, CategorySelectionPresenter>(),
                                   RecipeAdapterCallback, SelectedIndexCallback {
 
-    override fun initPresenter() = CategorySelectionPresenter.create(GifRecipeRepository.default)
+    override fun initPresenter() = CategorySelectionPresenter.create(GifRecipeRepository.default,
+        Schedulers.io(), AndroidLogger)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,7 +94,6 @@ class CategorySelectionActivity : BaseActivity<CategorySelectionViewState, Categ
     }
 
     override fun recipeClicked(gifRecipe: GifRecipeUI, previewImage: View) {
-        presenter.recipeClicked(gifRecipe)
         val imagePair = Pair(previewImage, getString(R.string.recipe_transition_image_name))
         val options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, imagePair)
         val intent = GifRecipeViewerActivity.IntentFactory.build(this, gifRecipe)

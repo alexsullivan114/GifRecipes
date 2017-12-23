@@ -1,50 +1,49 @@
 package alexsullivan.gifrecipes.categoryselection;
 
 import alexsullivan.gifrecipes.GifRecipeUI
-import alexsullivan.gifrecipes.application.AndroidLogger
-import com.alexsullivan.utils.TAG
+import alexsullivan.gifrecipes.categoryselection.CategorySelectionViewState.*
 import alexsullivan.gifrecipes.viewarchitecture.Presenter
 import alexsullivan.gifrecipes.viewarchitecture.ViewState
 import com.alexsullivan.GifRecipeRepository
-import io.reactivex.android.schedulers.AndroidSchedulers
+import com.alexsullivan.logging.Logger
+import com.alexsullivan.utils.TAG
+import io.reactivex.Scheduler
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 import java.io.IOException
 
 
-class CategorySelectionPresenterImpl(repository: GifRecipeRepository) : CategorySelectionPresenter {
+class CategorySelectionPresenterImpl(repository: GifRecipeRepository,
+                                     backgroundScheduler: Scheduler,
+                                     private val logger: Logger) : CategorySelectionPresenter() {
 
     val disposables = CompositeDisposable()
 
-    override val stateStream: BehaviorSubject<CategorySelectionViewState> by lazy {
-        BehaviorSubject.create<CategorySelectionViewState>()
-    }
+    override val stateStream = BehaviorSubject.create<CategorySelectionViewState>()
 
     init {
         var startTime = 0L
         disposables.add(repository.consumeGifRecipes(15)
-                .subscribeOn(Schedulers.io())
-                // First push out our loading screen...
-                .doOnSubscribe {
-                    stateStream.onNext(CategorySelectionViewState.FetchingGifs())
-                    startTime = System.currentTimeMillis()
+            .subscribeOn(backgroundScheduler)
+            // First push out our loading screen...
+            .doOnSubscribe {
+                stateStream.onNext(FetchingGifs())
+                startTime = System.currentTimeMillis()
+            }
+            .map { it.copy(url = it.url, imageType = it.imageType) }
+            .map { GifRecipeUI(it.url, it.id, it.thumbnail, it.imageType, it.title) }
+            .toList()
+            .subscribe({ list: MutableList<GifRecipeUI> ->
+                val endTime = System.currentTimeMillis() - startTime
+                logger.d(TAG, "Total processing time took $endTime milliseconds")
+                stateStream.onNext(GifList(list))
+            }, {
+                if (it is IOException) {
+                    stateStream.onNext(NetworkError())
+                } else {
+                    throw it
                 }
-                .map {it.copy(url = it.url, imageType = it.imageType)}
-                .map {GifRecipeUI(it.url, it.id, it.thumbnail, it.imageType, it.title)}
-                .toList()
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ list: MutableList<GifRecipeUI> ->
-                    val endTime = System.currentTimeMillis() - startTime
-                    AndroidLogger.d(TAG, "Total processing time took $endTime milliseconds")
-                    stateStream.onNext(CategorySelectionViewState.GifList(list))
-                }, {
-                    if (it is IOException) {
-                        stateStream.onNext(CategorySelectionViewState.NetworkError())
-                    } else {
-                        throw it
-                    }
-                }))
+            }))
 
     }
 
@@ -52,24 +51,17 @@ class CategorySelectionPresenterImpl(repository: GifRecipeRepository) : Category
         super.destroy()
         disposables.dispose()
     }
-
-    override fun recipeClicked(gifRecipe: GifRecipeUI) {
-//        BitmapHolder.put(hotGifRecipeItem.url, hotGifRecipeItem.bitmap)
-    }
 }
 
-interface CategorySelectionPresenter : Presenter<CategorySelectionViewState> {
+abstract class CategorySelectionPresenter : Presenter<CategorySelectionViewState> {
     companion object {
-        fun create(gifRecipeRepository: GifRecipeRepository): CategorySelectionPresenter {
-            return CategorySelectionPresenterImpl(gifRecipeRepository)
-        }
+        fun create(gifRecipeRepository: GifRecipeRepository, backgroundScheduler: Scheduler, logger: Logger) =
+            CategorySelectionPresenterImpl(gifRecipeRepository, backgroundScheduler, logger)
     }
-
-    fun recipeClicked(gifRecipe: GifRecipeUI)
 }
 
 sealed class CategorySelectionViewState : ViewState {
     class FetchingGifs: CategorySelectionViewState()
-    class GifList(val gifRecipes: List<GifRecipeUI>): CategorySelectionViewState()
+    data class GifList(val gifRecipes: List<GifRecipeUI>): CategorySelectionViewState()
     class NetworkError : CategorySelectionViewState()
 }
