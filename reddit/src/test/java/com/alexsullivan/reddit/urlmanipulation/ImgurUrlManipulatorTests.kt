@@ -66,6 +66,19 @@ class ImgurUrlManipulatorTests {
         Assert.assertEquals(testObserver.values()[0], recipe) // we should get back the same item.
     }
 
+    @Test fun testReturnThumbnailNotImage() {
+        val url = "https://gfycat.com/PlayfulIckyApisdorsatalaboriosa"
+        val manipulator = ImgurUrlManipulator(buildMockRepository("PlayfulIckyApisdorsatalaboriosa"), { false })
+        val recipe = RedditGifRecipe(url, "fake", ImageType.VIDEO, "fake", "fake", "fake", "fake", "")
+        val testObserver = TestObserver<RedditGifRecipe>()
+        manipulator.modifyRedditItem(recipe).subscribe(testObserver)
+        testObserver.assertComplete()
+        testObserver.assertNoErrors()
+        Assert.assertTrue(testObserver.values().size == 1)
+        Assert.assertEquals(testObserver.values()[0].thumbnail, "fake")
+    }
+
+
     private fun buildEmptyRepository(): ImgurRepository {
         return object: ImgurRepository {
             override fun getImageInfo(imageId: String): Observable<ImgurPost> = Observable.empty()
