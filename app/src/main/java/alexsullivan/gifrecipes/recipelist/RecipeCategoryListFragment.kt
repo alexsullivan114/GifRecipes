@@ -71,9 +71,6 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
         view.list.layoutManager = LinearLayoutManager(context)
         view.list.adapter = RecipeCategoryListAdapter(listOf(), this)
         ((view.list.itemAnimator) as SimpleItemAnimator).supportsChangeAnimations = false
-        view.list.addInfiniteScrollListener {
-            presenter.reachedBottom()
-        }
         return view
     }
 

@@ -25,9 +25,6 @@ class FavoriteRecipeListPresenter(private val repository: FavoriteGifRecipeRepos
         bindSavingFavoriteDatabaseStream()
         bindFavoriteDatabaseStream()
     }
-    override fun reachedBottom() {
-        // no-op. We'll serve up all of our recipes in one go.
-    }
 
     override fun setSearchTermSource(source: Observable<String>) {
         // no-op. This presenter should not be used for a searchable interface

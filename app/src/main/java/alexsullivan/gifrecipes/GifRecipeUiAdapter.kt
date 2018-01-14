@@ -6,9 +6,10 @@ import com.alexsullivan.GifRecipeRepository
 import io.reactivex.Observable
 
 class GifRecipeUiProviderImpl(private val repository: GifRecipeRepository,
-                         private val favoriteCache: FavoriteCache) : GifRecipeUiProvider {
+                              private val favoriteCache: FavoriteCache,
+                              private val searchTerm: String) : GifRecipeUiProvider {
   override fun fetchRecipes(count: Int, key: String): Observable<Pair<String?, List<GifRecipeUI>>> {
-    return repository.consumeGifRecipes(count, key)
+    return repository.consumeGifRecipes(count, searchTerm, key)
         .flatMap { recipe ->
           favoriteCache.isRecipeFavorited(recipe.id).toObservable()
               .map { recipe.pageKey to recipe.toGifRecipeUI(it) }
