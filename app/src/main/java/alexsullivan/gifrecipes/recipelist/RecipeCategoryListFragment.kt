@@ -42,16 +42,17 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
     }
 
     override fun initPresenter(): RecipeCategoryListPresenter {
+        val arguments = arguments ?: throw RuntimeException("Attempted to fetch search term from null arguments!")
+        val context = context ?: throw IllegalStateException("Attempted to initialize presenter before context is available!")
         val searchTerm = arguments.getString(SEARCH_KEY)
         val dao = RoomRecipeDatabaseHolder.get(context.applicationContext).gifRecipeDao()
         val cache = RoomFavoriteCache.getInstance(dao)
-        val presenter = if(searchTerm == str(Category.FAVORITE.displayName)) {
+        return if(searchTerm == str(Category.FAVORITE.displayName)) {
             val repo = FavoriteGifRecipeRepository(dao)
             FavoriteRecipeListPresenter(repo, cache)
         } else {
             RecipeCategoryListPresenterImpl(searchTerm, GifRecipeRepository.default, cache)
         }
-        return presenter
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -76,16 +77,15 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
         return view
     }
 
-    override fun onSaveInstanceState(outState: Bundle?) {
+    override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
         val state = list.layoutManager.onSaveInstanceState()
-        outState?.putParcelable(LIST_SAVE_STATE, state)
+        outState.putParcelable(LIST_SAVE_STATE, state)
     }
 
     override fun accept(viewState: RecipeCategoryListViewState) {
         when (viewState) {
             is RecipeCategoryListViewState.Loading -> {
-                val adapter = list.castedAdapter<RecipeCategoryListAdapter>()
                 updateGifList(listOf())
                 loading.visible()
                 empty.gone()
@@ -114,10 +114,15 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
                 empty.gone()
                 error.visible()
             }
+            is RecipeCategoryListViewState.PagingList -> {
+                val adapter = list.castedAdapter<RecipeCategoryListAdapter>()
+                adapter.setList(viewState.list)
+            }
         }
     }
 
     override fun recipeClicked(recipe: GifRecipeUI, view: View) {
+        val activity = activity ?: return
         val imagePair = Pair(view, getString(R.string.recipe_transition_image_name))
         val options = ActivityOptionsCompat.makeSceneTransitionAnimation(activity, imagePair)
         val intent = GifRecipeViewerActivity.IntentFactory.build(activity, recipe)
@@ -125,6 +130,7 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
     }
 
     override fun recipeShareClicked(recipe: GifRecipeUI) {
+        val activity = activity ?: return
         recipe.url.ifPresent(activity::shareRecipe)
     }
 

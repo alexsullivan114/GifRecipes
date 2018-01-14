@@ -2,6 +2,7 @@ package alexsullivan.gifrecipes.recipelist
 
 import alexsullivan.gifrecipes.GifRecipeUI
 import alexsullivan.gifrecipes.viewarchitecture.ViewState
+import android.arch.paging.PagedList
 import com.alexsullivan.GifRecipe
 
 /**
@@ -14,4 +15,5 @@ sealed class RecipeCategoryListViewState : ViewState {
     class LoadMoreError(val recipes: MutableList<GifRecipeUI>): RecipeCategoryListViewState()
     class NetworkError : RecipeCategoryListViewState()
     class Favorited(val isFavorite: Boolean, val recipe: GifRecipe): RecipeCategoryListViewState()
+    class PagingList(val list: PagedList<GifRecipeUI>): RecipeCategoryListViewState()
 }

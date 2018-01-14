@@ -1,12 +1,17 @@
 package alexsullivan.gifrecipes.recipelist
 
 import alexsullivan.gifrecipes.GifRecipeUI
+import alexsullivan.gifrecipes.GifRecipeUiProviderImpl
 import alexsullivan.gifrecipes.favoriting.FavoriteCache
+import alexsullivan.gifrecipes.recipelist.infiniteloadinglist.RecipeDataSource
 import alexsullivan.gifrecipes.utils.addTo
 import alexsullivan.gifrecipes.utils.emptyLet
 import alexsullivan.gifrecipes.utils.nonEmptyLet
 import alexsullivan.gifrecipes.utils.toGifRecipe
 import alexsullivan.gifrecipes.viewarchitecture.BasePresenter
+import android.arch.paging.DataSource.Factory
+import android.arch.paging.LivePagedListBuilder
+import android.arch.paging.PagedList
 import com.alexsullivan.GifRecipe
 import com.alexsullivan.GifRecipeRepository
 import io.reactivex.Observable
@@ -33,11 +38,16 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
     private val reachedBottomStream = PublishSubject.create<Boolean>()
 
     init {
-        querySearchTerm(searchTerm)
-        bindSearchTermStream()
-        bindSavingFavoriteDatabaseStream()
-        bindFavoriteDatabaseStream()
-        bindReachedBottomStream()
+//        querySearchTerm(searchTerm)
+//        bindSearchTermStream()
+//        bindSavingFavoriteDatabaseStream()
+//        bindFavoriteDatabaseStream()
+//        bindReachedBottomStream()
+        val uiProvider = GifRecipeUiProviderImpl(repository, favoriteCache)
+        val factory = Factory { RecipeDataSource(uiProvider) }
+        LivePagedListBuilder(factory, 10).build().observeForever { list: PagedList<GifRecipeUI>? ->
+            list?.let { pushValue(RecipeCategoryListViewState.PagingList(it)) }
+        }
     }
 
     override fun destroy() {

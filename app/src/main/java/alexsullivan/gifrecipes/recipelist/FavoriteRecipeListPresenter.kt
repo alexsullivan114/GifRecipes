@@ -5,7 +5,7 @@ import alexsullivan.gifrecipes.favoriting.FavoriteCache
 import alexsullivan.gifrecipes.favoriting.FavoriteGifRecipeRepository
 import alexsullivan.gifrecipes.utils.addTo
 import alexsullivan.gifrecipes.utils.toGifRecipe
-import alexsullivan.gifrecipes.utils.toGiveRecipeUi
+import alexsullivan.gifrecipes.utils.toGifRecipeUI
 import com.alexsullivan.GifRecipe
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
@@ -52,7 +52,7 @@ class FavoriteRecipeListPresenter(private val repository: FavoriteGifRecipeRepos
                     // If this recipe isn't contained in our list and we just favorited it,
                     // we need to add it.
                     if (!recipeContained && new.isFavorite) {
-                        recipes.add(new.recipe.toGiveRecipeUi(new.isFavorite))
+                        recipes.add(new.recipe.toGifRecipeUI(new.isFavorite))
                     } else if (recipeContained) {
                         // Otherwise if this recipe is contained in our list we need to update its state.
                         for ((index, value) in recipes.withIndex()) {

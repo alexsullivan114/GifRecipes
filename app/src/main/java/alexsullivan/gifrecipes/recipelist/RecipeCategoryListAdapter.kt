@@ -4,6 +4,9 @@ import alexsullivan.gifrecipes.GifRecipeUI
 import alexsullivan.gifrecipes.R
 import alexsullivan.gifrecipes.utils.GifRecipeUiDiffCallback
 import alexsullivan.gifrecipes.utils.previewImageUrl
+import android.arch.paging.PagedListAdapter
+import android.support.v7.recyclerview.extensions.DiffCallback
+import android.support.v7.recyclerview.extensions.ListAdapterConfig
 import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -14,7 +17,8 @@ import kotlinx.android.synthetic.main.adapter_recipe_category_item.view.*
 import kotlin.properties.Delegates
 
 class RecipeCategoryListAdapter(gifList: List<GifRecipeUI>,
-                                private val clickCallback: ClickCallback): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+                                private val clickCallback: ClickCallback):
+    PagedListAdapter<GifRecipeUI, RecyclerView.ViewHolder>(buildConfig()) {
 
     var gifList: List<GifRecipeUI> by Delegates.observable(gifList) { _, oldValue, newValue ->
         DiffUtil.calculateDiff(GifRecipeUiDiffCallback(oldValue, newValue)).dispatchUpdatesTo(this)
@@ -36,7 +40,7 @@ class RecipeCategoryListAdapter(gifList: List<GifRecipeUI>,
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
             is GifRecipeViewHolder -> {
-                val recipe = gifList[position]
+                val recipe = getItem(position)!!
                 Glide.with(holder.itemView.context).asBitmap().load(recipe.previewImageUrl()).into(holder.view.image)
                 holder.view.title.text = recipe.title
                 holder.view.favorite.setLiked(recipe.favorite, true)
@@ -67,19 +71,19 @@ class RecipeCategoryListAdapter(gifList: List<GifRecipeUI>,
         }
     }
 
-    override fun getItemCount(): Int {
-        var count = gifList.size
-        if (showBottomLoading) {
-            count += 1
-        }
-
-        return count
-    }
+//    override fun getItemCount(): Int {
+//        var count = gifList.size
+//        if (showBottomLoading) {
+//            count += 1
+//        }
+//
+//        return count
+//    }
 
     override fun getItemViewType(position: Int): Int {
-        if (position == gifList.size && showBottomLoading) {
-            return loadingViewType
-        }
+//        if (position == gifList.size && showBottomLoading) {
+//            return loadingViewType
+//        }
 
         return gifViewType
     }
@@ -92,4 +96,16 @@ class RecipeCategoryListAdapter(gifList: List<GifRecipeUI>,
 
     class GifRecipeViewHolder(val view: View): RecyclerView.ViewHolder(view)
     class LoadingMoreViewHolder(val view: View): RecyclerView.ViewHolder(view)
+}
+
+private fun buildConfig(): ListAdapterConfig<GifRecipeUI> {
+    return ListAdapterConfig.Builder<GifRecipeUI>()
+        .setDiffCallback(object: DiffCallback<GifRecipeUI>() {
+            override fun areItemsTheSame(oldItem: GifRecipeUI, newItem: GifRecipeUI) =
+                oldItem.id == newItem.id
+
+            override fun areContentsTheSame(oldItem: GifRecipeUI, newItem: GifRecipeUI) =
+                oldItem == newItem
+        })
+        .build()
 }

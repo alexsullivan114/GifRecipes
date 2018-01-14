@@ -12,7 +12,7 @@ import kotlinx.android.synthetic.main.adapter_hot_recipe.view.*
 
 class HotRecipesPagerAdapter(val gifList: List<GifRecipeUI>, val callback: RecipeAdapterCallback): PagerAdapter() {
 
-    override fun isViewFromObject(view: View?, `object`: Any?) = view == `object`
+    override fun isViewFromObject(view: View, `object`: Any) = view == `object`
 
     override fun getCount() = gifList.size
 
@@ -26,8 +26,8 @@ class HotRecipesPagerAdapter(val gifList: List<GifRecipeUI>, val callback: Recip
         return viewgroup
     }
 
-    override fun destroyItem(container: ViewGroup?, position: Int, `object`: Any?) {
-        container?.removeView(`object` as View)
+    override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
+        container.removeView(`object` as View)
     }
 }
 
