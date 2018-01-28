@@ -9,9 +9,10 @@ class GifRecipeUiProviderImpl(private val repository: GifRecipeRepository,
                               private val favoriteCache: FavoriteCache,
                               private val searchTerm: String) : GifRecipeUiProvider {
   override fun fetchRecipes(count: Int, key: String): Observable<Pair<String?, List<GifRecipeUI>>> {
+
     return repository.consumeGifRecipes(count, searchTerm, key)
         .flatMap { recipe ->
-          favoriteCache.isRecipeFavorited(recipe.id).toObservable()
+          favoriteCache.isRecipeFavorited(recipe.id).firstOrError().toObservable()
               .map { recipe.pageKey to recipe.toGifRecipeUI(it) }
         }
         .toList()
