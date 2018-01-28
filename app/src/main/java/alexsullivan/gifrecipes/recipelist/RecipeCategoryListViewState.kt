@@ -10,6 +10,7 @@ import com.alexsullivan.GifRecipe
  */
 sealed class RecipeCategoryListViewState : ViewState {
     class Loading : RecipeCategoryListViewState()
+    class LoadingDone: RecipeCategoryListViewState()
     class LoadingMore(val recipes: List<GifRecipeUI>): RecipeCategoryListViewState()
     class LoadingMoreDone(): RecipeCategoryListViewState()
     class RecipeList(val recipes: MutableList<GifRecipeUI>): RecipeCategoryListViewState()

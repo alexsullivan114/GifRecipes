@@ -92,6 +92,10 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
         list.invisible()
         loading_more.gone()
       }
+      is RecipeCategoryListViewState.LoadingDone -> {
+        loading.gone()
+        list.visible()
+      }
       is RecipeCategoryListViewState.LoadingMore -> {
         loading_more.visible()
       }
@@ -106,10 +110,6 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
         loading_more.gone()
       }
       is RecipeCategoryListViewState.PagingList -> {
-        loading.gone()
-        empty.gone()
-        list.visible()
-        loading_more.gone()
         val adapter = list.castedAdapter<RecipeCategoryListAdapter>()
         adapter.setList(viewState.list)
         savedListState?.let {

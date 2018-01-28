@@ -106,7 +106,13 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
 
     dataSource.initialLoadingFlowable
         .subscribeOn(Schedulers.io())
-        .subscribe { if (it) pushValue(RecipeCategoryListViewState.Loading()) }
+        .subscribe {
+          if (it) {
+            pushValue(RecipeCategoryListViewState.Loading())
+          } else {
+            pushValue(RecipeCategoryListViewState.LoadingDone())
+          }
+        }
         .addTo(disposables)
 
     dataSource.futherLoadingFlowable
