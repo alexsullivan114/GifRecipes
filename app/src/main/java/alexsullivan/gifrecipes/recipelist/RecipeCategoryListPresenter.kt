@@ -51,6 +51,14 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
         .addTo(disposables)
   }
 
+  override fun searchTermChanged(searchTerm: String) {
+    searchTermObservable.onNext(searchTerm)
+  }
+
+  override fun recipeFavoriteToggled(recipe: GifRecipeUI) {
+    favoriteDatabaseStream.onNext(recipe)
+  }
+
   private fun bindSavingFavoriteDatabaseStream() {
     val saveFavorite = fun(recipe: GifRecipeUI) {
       if (recipe.favorite) {
@@ -77,17 +85,12 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
         .addTo(disposables)
   }
 
-  override fun searchTermChanged(searchTerm: String) {
-    searchTermObservable.onNext(searchTerm)
-  }
-
   private fun bindSearchTermStream() {
     searchTermObservable
         .subscribeOn(Schedulers.io())
         .distinctUntilChanged()
         .subscribe {
-          val uiProvider = GifRecipeUiProviderImpl(repository, favoriteCache, it)
-          val factory = Factory { RecipeDataSource(uiProvider) }
+          val factory = Factory { createAndBindDataSource(it) }
           LivePagedListBuilder(factory, 10).build().observeForever { list: PagedList<GifRecipeUI>? ->
             list?.let {
               pushValue(RecipeCategoryListViewState.PagingList(it))
@@ -97,8 +100,27 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
         .addTo(disposables)
   }
 
-  override fun recipeFavoriteToggled(recipe: GifRecipeUI) {
-    favoriteDatabaseStream.onNext(recipe)
+  private fun createAndBindDataSource(searchTerm: String): RecipeDataSource {
+    val uiProvider = GifRecipeUiProviderImpl(repository, favoriteCache, searchTerm)
+    val dataSource = RecipeDataSource(uiProvider)
+
+    dataSource.initialLoadingFlowable
+        .subscribeOn(Schedulers.io())
+        .subscribe { if (it) pushValue(RecipeCategoryListViewState.Loading()) }
+        .addTo(disposables)
+
+    dataSource.futherLoadingFlowable
+        .subscribeOn(Schedulers.io())
+        .subscribe {
+          if (it) {
+            pushValue(RecipeCategoryListViewState.LoadingMore(emptyList()))
+          } else {
+            pushValue(RecipeCategoryListViewState.LoadingMoreDone())
+          }
+        }
+        .addTo(disposables)
+
+    return dataSource
   }
 }
 

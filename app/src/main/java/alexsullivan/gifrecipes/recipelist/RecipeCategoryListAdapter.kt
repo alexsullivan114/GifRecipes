@@ -3,6 +3,7 @@ package alexsullivan.gifrecipes.recipelist
 import alexsullivan.gifrecipes.GifRecipeUI
 import alexsullivan.gifrecipes.R
 import alexsullivan.gifrecipes.favoriting.FavoriteCache
+import alexsullivan.gifrecipes.recipelist.RecipeCategoryListAdapter.GifRecipeViewHolder
 import alexsullivan.gifrecipes.utils.previewImageUrl
 import android.arch.paging.PagedListAdapter
 import android.support.v7.recyclerview.extensions.DiffCallback
@@ -18,50 +19,33 @@ import kotlinx.android.synthetic.main.adapter_recipe_category_item.view.*
 
 class RecipeCategoryListAdapter(private val clickCallback: ClickCallback,
                                 private val favoriteCache: FavoriteCache) :
-    PagedListAdapter<GifRecipeUI, RecyclerView.ViewHolder>(buildConfig()) {
+    PagedListAdapter<GifRecipeUI, GifRecipeViewHolder>(buildConfig()) {
 
-  private val gifViewType = 0
-  private val loadingViewType = 1
-
-  override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-    when (holder) {
-      is GifRecipeViewHolder -> {
-        val recipe = getItem(position)!!
-        Glide.with(holder.itemView.context).asBitmap().load(recipe.previewImageUrl()).into(holder.view.image)
-        holder.view.title.text = recipe.title
-        holder.view.favorite.setLiked(recipe.favorite, true)
-        holder.view.setOnClickListener {
-          clickCallback.recipeClicked(recipe, holder.view.image)
-        }
-        holder.view.favorite.setOnClickListener {
-          clickCallback.recipeFavoriteToggled(recipe.copy(favorite = !holder.view.favorite.liked))
-        }
-        holder.view.share.setOnClickListener {
-          clickCallback.recipeShareClicked(recipe)
-        }
-        holder.bindToFavoriteStream(recipe)
-      }
+  override fun onBindViewHolder(holder: GifRecipeViewHolder, position: Int) {
+    val recipe = getItem(position)!!
+    Glide.with(holder.itemView.context).asBitmap().load(recipe.previewImageUrl()).into(holder.view.image)
+    holder.view.title.text = recipe.title
+    holder.view.favorite.setLiked(recipe.favorite, true)
+    holder.view.setOnClickListener {
+      clickCallback.recipeClicked(recipe, holder.view.image)
     }
+    holder.view.favorite.setOnClickListener {
+      clickCallback.recipeFavoriteToggled(recipe.copy(favorite = !holder.view.favorite.liked))
+    }
+    holder.view.share.setOnClickListener {
+      clickCallback.recipeShareClicked(recipe)
+    }
+    holder.bindToFavoriteStream(recipe)
   }
 
-  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-    when (viewType) {
-      gifViewType -> {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_recipe_category_item, parent, false)
-        return GifRecipeViewHolder(view)
-      }
-      else -> {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_recipe_category_loading, parent, false)
-        return LoadingMoreViewHolder(view)
-      }
-    }
+  override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GifRecipeViewHolder {
+    val view = LayoutInflater.from(parent.context).inflate(R.layout.adapter_recipe_category_item, parent, false)
+    return GifRecipeViewHolder(view)
   }
 
-  override fun onViewRecycled(holder: RecyclerView.ViewHolder?) {
+  override fun onViewRecycled(holder: GifRecipeViewHolder) {
     super.onViewRecycled(holder)
-    when (holder) {
-      is GifRecipeViewHolder -> holder.disposeFavoriteStream()
-    }
+    holder.disposeFavoriteStream()
   }
 
   interface ClickCallback {
@@ -84,8 +68,6 @@ class RecipeCategoryListAdapter(private val clickCallback: ClickCallback,
       favoriteDisposable?.dispose()
     }
   }
-
-  class LoadingMoreViewHolder(val view: View) : RecyclerView.ViewHolder(view)
 }
 
 private fun buildConfig(): ListAdapterConfig<GifRecipeUI> {
