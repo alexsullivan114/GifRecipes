@@ -48,7 +48,7 @@ class RoomFavoriteCache private constructor(val gifRecipeDao: GifRecipeDao) : Fa
     return initialFetchCompletedSubject
         .firstOrError()
         .flatMapCompletable {
-          recipeMap.put(gifRecipe.id, true)
+          recipeMap[gifRecipe.id] = true
           favoriteStream.onNext(Pair(gifRecipe, true))
           Completable.complete()
         }
