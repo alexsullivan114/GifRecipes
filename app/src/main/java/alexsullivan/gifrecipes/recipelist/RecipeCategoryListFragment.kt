@@ -30,8 +30,8 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
   private var savedListState: Parcelable? = null
 
   companion object {
-    val SEARCH_KEY = "Search Key"
-    val LIST_SAVE_STATE = "List Save Instance State"
+    const val SEARCH_KEY = "Search Key"
+    const val LIST_SAVE_STATE = "List Save Instance State"
     fun build(searchTerm: String): RecipeCategoryListFragment {
       val args = Bundle()
       args.putString(SEARCH_KEY, searchTerm)
@@ -86,37 +86,47 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
 
   override fun accept(viewState: RecipeCategoryListViewState) {
     when (viewState) {
-      is RecipeCategoryListViewState.Loading -> {
-        loading.visible()
-        empty.gone()
-        list.invisible()
-        loading_more.gone()
-      }
-      is RecipeCategoryListViewState.LoadingDone -> {
-        loading.gone()
+      is RecipeCategoryListViewState.Loading -> showLoadingState(viewState)
+      is RecipeCategoryListViewState.LoadingMore -> showLoadingMoreState(viewState)
+      is RecipeCategoryListViewState.NetworkError -> showNetworkErrorState(viewState)
+      is RecipeCategoryListViewState.PagingList -> showPagingListState(viewState)
+    }
+  }
+
+  private fun showLoadingState(state: RecipeCategoryListViewState.Loading) {
+    loading.visible()
+    empty.gone()
+    list.invisible()
+    loading_more.gone()
+  }
+  private fun showLoadingMoreState(state: RecipeCategoryListViewState.LoadingMore) {
+    loading_more.visible()
+  }
+  private fun showNetworkErrorState(state: RecipeCategoryListViewState.NetworkError) {
+    list.gone()
+    loading.gone()
+    empty.gone()
+    error.visible()
+    loading_more.gone()
+  }
+  private fun showPagingListState(state: RecipeCategoryListViewState.PagingList) {
+    loading_more.gone()
+    empty.gone()
+    error.gone()
+    if (state.finishedLoading) {
+      loading.gone()
+      if (state.list?.size ?: 0 > 0) {
         list.visible()
-      }
-      is RecipeCategoryListViewState.LoadingMore -> {
-        loading_more.visible()
-      }
-      is RecipeCategoryListViewState.LoadingMoreDone -> {
-        loading_more.gone()
-      }
-      is RecipeCategoryListViewState.NetworkError -> {
+      } else {
         list.gone()
-        loading.gone()
-        empty.gone()
-        error.visible()
-        loading_more.gone()
+        empty.visible()
       }
-      is RecipeCategoryListViewState.PagingList -> {
-        val adapter = list.castedAdapter<RecipeCategoryListAdapter>()
-        adapter.setList(viewState.list)
-        savedListState?.let {
-          list.layoutManager?.onRestoreInstanceState(it)
-          savedListState = null
-        }
-      }
+    }
+    val adapter = list.castedAdapter<RecipeCategoryListAdapter>()
+    adapter.setList(state.list)
+    savedListState?.let {
+      list.layoutManager?.onRestoreInstanceState(it)
+      savedListState = null
     }
   }
 

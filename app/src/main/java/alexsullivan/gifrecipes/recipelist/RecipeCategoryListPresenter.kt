@@ -30,7 +30,6 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
   init {
     bindSearchTermStream()
     bindSavingFavoriteDatabaseStream()
-    bindFavoriteDatabaseStream()
   }
 
   override fun destroy() {
@@ -76,15 +75,6 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
         .addTo(disposables)
   }
 
-  private fun bindFavoriteDatabaseStream() {
-    favoriteCache.favoriteStateChangedFlowable()
-        .subscribeOn(Schedulers.io())
-        .subscribe {
-          pushValue(RecipeCategoryListViewState.Favorited(it.second, it.first))
-        }
-        .addTo(disposables)
-  }
-
   private fun bindSearchTermStream() {
     searchTermObservable
         .subscribeOn(Schedulers.io())
@@ -93,7 +83,7 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
           val factory = Factory { createAndBindDataSource(it) }
           LivePagedListBuilder(factory, 10).build().observeForever { list: PagedList<GifRecipeUI>? ->
             list?.let {
-              pushValue(RecipeCategoryListViewState.PagingList(it))
+              pushValue(RecipeCategoryListViewState.PagingList(it, false))
             }
           }
         }
@@ -110,7 +100,7 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
           if (it) {
             pushValue(RecipeCategoryListViewState.Loading())
           } else {
-            pushValue(RecipeCategoryListViewState.LoadingDone())
+            pushValue(RecipeCategoryListViewState.PagingList(null, true))
           }
         }
         .addTo(disposables)
@@ -119,9 +109,9 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
         .subscribeOn(Schedulers.io())
         .subscribe {
           if (it) {
-            pushValue(RecipeCategoryListViewState.LoadingMore(emptyList()))
+            pushValue(RecipeCategoryListViewState.LoadingMore(null))
           } else {
-            pushValue(RecipeCategoryListViewState.LoadingMoreDone())
+            pushValue(RecipeCategoryListViewState.PagingList(null, true))
           }
         }
         .addTo(disposables)

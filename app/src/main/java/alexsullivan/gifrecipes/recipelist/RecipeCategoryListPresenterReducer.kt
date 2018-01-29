@@ -1,54 +1,27 @@
 package alexsullivan.gifrecipes.recipelist
 
-import alexsullivan.gifrecipes.GifRecipeUI
+import alexsullivan.gifrecipes.recipelist.RecipeCategoryListViewState.*
 
 fun RecipeCategoryListViewState.reduce(new: RecipeCategoryListViewState): RecipeCategoryListViewState? {
-  when (new) {
-  // If we received a recipe list and our last value was loading more, we need to add all of the this
-  // recipes to the new view state.
-    is RecipeCategoryListViewState.RecipeList -> {
-      if (this is RecipeCategoryListViewState.LoadingMore) {
-        new.recipes.addAll(0, this.recipes)
+  return when (new) {
+    is LoadMoreError -> {
+      if (this is LoadingMore) {
+        LoadMoreError(recipes)
       }
-
-      return new
+      new
     }
-  // If we received a loading more error, we need to add all of the this recipes in the list
-  // so it can properly display everything.
-    is RecipeCategoryListViewState.LoadMoreError -> {
-      if (this is RecipeCategoryListViewState.LoadingMore) {
-        new.recipes.addAll(this.recipes)
-      }
-
-      return new
-    }
-    is RecipeCategoryListViewState.Favorited -> {
-      if (this is RecipeCategoryListViewState.LoadingMore || this is RecipeCategoryListViewState.RecipeList) {
-        val recipes = mutableListOf<GifRecipeUI>()
-        if (this is RecipeCategoryListViewState.LoadingMore) {
-          recipes.addAll(this.recipes)
-        } else if (this is RecipeCategoryListViewState.RecipeList) {
-          recipes.addAll(this.recipes)
-        }
-
-        for ((index, value) in recipes.withIndex()) {
-          if (value.id == new.recipe.id) {
-            recipes[index] = value.copy(favorite = new.isFavorite)
-          }
-        }
-
-        if (this is RecipeCategoryListViewState.LoadingMore) {
-          return RecipeCategoryListViewState.LoadingMore(recipes)
-        } else if (this is RecipeCategoryListViewState.RecipeList) {
-          return RecipeCategoryListViewState.RecipeList(recipes)
-        }
-
-        // Can't ever get here...
-        return null
-
+    is LoadingMore -> {
+      return if (this is PagingList) {
+        LoadingMore(list)
       } else {
-        // Shouldn't ever happen...
-        return null
+        new
+      }
+    }
+    is PagingList -> {
+      when {
+        this is LoadingMore -> PagingList(this.recipes, true)
+        this is PagingList -> PagingList(list, true)
+        else -> new
       }
     }
     else -> {

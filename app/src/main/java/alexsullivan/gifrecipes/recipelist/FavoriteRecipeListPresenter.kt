@@ -5,7 +5,6 @@ import alexsullivan.gifrecipes.favoriting.FavoriteCache
 import alexsullivan.gifrecipes.favoriting.FavoriteGifRecipeRepository
 import alexsullivan.gifrecipes.utils.addTo
 import alexsullivan.gifrecipes.utils.toGifRecipe
-import alexsullivan.gifrecipes.utils.toGifRecipeUI
 import com.alexsullivan.GifRecipe
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
@@ -39,43 +38,43 @@ class FavoriteRecipeListPresenter(private val repository: FavoriteGifRecipeRepos
     // be used for favorite recipes.
   }
 
-  override fun reduce(old: RecipeCategoryListViewState, new: RecipeCategoryListViewState): RecipeCategoryListViewState? {
-    when (new) {
-      is RecipeCategoryListViewState.Favorited -> {
-        if (old is RecipeCategoryListViewState.RecipeList) {
-          val recipes = mutableListOf<GifRecipeUI>()
-          recipes.addAll(old.recipes)
-          val recipeContained = recipes.map { it.id }.contains(new.recipe.id)
-          // If this recipe isn't contained in our list and we just favorited it,
-          // we need to add it.
-          if (!recipeContained && new.isFavorite) {
-            recipes.add(new.recipe.toGifRecipeUI(new.isFavorite))
-          } else if (recipeContained) {
-            // Otherwise if this recipe is contained in our list we need to update its state.
-            for ((index, value) in recipes.withIndex()) {
-              if (value.id == new.recipe.id) {
-                recipes[index] = value.copy(favorite = new.isFavorite)
-              }
-            }
-            // Don't remove the recipe if its bee un-favorited. That would make for a
-            // jarring experience.
-          }
-
-          return RecipeCategoryListViewState.RecipeList(recipes)
-        }
-      }
-    }
-
-    return super.reduce(old, new)
-  }
+//  override fun reduce(old: RecipeCategoryListViewState, new: RecipeCategoryListViewState): RecipeCategoryListViewState? {
+//    when (new) {
+//      is RecipeCategoryListViewState.Favorited -> {
+//        if (old is RecipeCategoryListViewState.RecipeList) {
+//          val recipes = mutableListOf<GifRecipeUI>()
+//          recipes.addAll(old.recipes)
+//          val recipeContained = recipes.map { it.id }.contains(new.recipe.id)
+//          // If this recipe isn't contained in our list and we just favorited it,
+//          // we need to add it.
+//          if (!recipeContained && new.isFavorite) {
+//            recipes.add(new.recipe.toGifRecipeUI(new.isFavorite))
+//          } else if (recipeContained) {
+//            // Otherwise if this recipe is contained in our list we need to update its state.
+//            for ((index, value) in recipes.withIndex()) {
+//              if (value.id == new.recipe.id) {
+//                recipes[index] = value.copy(favorite = new.isFavorite)
+//              }
+//            }
+//            // Don't remove the recipe if its bee un-favorited. That would make for a
+//            // jarring experience.
+//          }
+//
+//          return RecipeCategoryListViewState.RecipeList(recipes)
+//        }
+//      }
+//    }
+//
+//    return super.reduce(old, new)
+//  }
 
   private fun bindFavoriteQueryStream() {
-    repository.consumeGifRecipes(0)
-        .flatMap(this::mapRecipeToUi)
-        .toList()
-        .subscribeOn(Schedulers.io())
-        .subscribe({ pushValue(RecipeCategoryListViewState.RecipeList(it)) }, {})
-        .addTo(disposables)
+//    repository.consumeGifRecipes(0)
+//        .flatMap(this::mapRecipeToUi)
+//        .toList()
+//        .subscribeOn(Schedulers.io())
+//        .subscribe({ pushValue(RecipeCategoryListViewState.RecipeList(it)) }, {})
+//        .addTo(disposables)
   }
 
   private fun mapRecipeToUi(recipe: GifRecipe): Observable<GifRecipeUI> {
@@ -105,7 +104,7 @@ class FavoriteRecipeListPresenter(private val repository: FavoriteGifRecipeRepos
     favoriteCache.favoriteStateChangedFlowable()
         .subscribeOn(Schedulers.io())
         .subscribe {
-          pushValue(RecipeCategoryListViewState.Favorited(it.second, it.first))
+//          pushValue(RecipeCategoryListViewState.Favorited(it.second, it.first))
         }
         .addTo(disposables)
   }
