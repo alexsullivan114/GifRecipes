@@ -3,13 +3,13 @@ package alexsullivan.gifrecipes.recipelist
 import alexsullivan.gifrecipes.Category
 
 fun indexFromCategory(category: Category) = when (category) {
-    Category.FAVORITE -> 6
+    Category.FAVORITE -> 0
     Category.DESSERT -> 1
     Category.BREAKFAST -> 2
     Category.DINNER -> 3
     Category.VEGETARIAN -> 4
     Category.VEGAN -> 5
-    Category.CHICKEN -> 0
+    Category.CHICKEN -> 6
     Category.PORK -> 7
     Category.SALMON -> 8
     Category.BEEF -> 9
