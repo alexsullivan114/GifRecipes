@@ -9,7 +9,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 
 abstract class BaseFragment<T: ViewState, P: Presenter<T>>: Fragment() {
-    val TAG: String = this.javaClass.simpleName
+    private val TAG = this.javaClass.simpleName
 
     protected var disposables: CompositeDisposable = CompositeDisposable()
     protected lateinit var presenter: P

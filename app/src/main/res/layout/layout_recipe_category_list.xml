@@ -47,4 +47,13 @@
         android:layout_height="wrap_content"
         android:background="@color/background_list"/>
 
+    <ProgressBar
+        android:id="@+id/loading_more"
+        android:layout_width="match_parent"
+        android:visibility="gone"
+        android:layout_gravity="bottom"
+        android:layout_height="wrap_content"
+        android:indeterminateOnly="true"
+        style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal" />
+
 </FrameLayout>

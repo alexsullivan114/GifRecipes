@@ -82,7 +82,7 @@ abstract class BaseActivity<T: ViewState, P: Presenter<T>>: AppCompatActivity() 
     }
 
     private fun bindToolbar() {
-        val toolbar = findViewById(R.id.toolbar)
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
         toolbar?.let {
             try {
                 setSupportActionBar(toolbar as Toolbar)

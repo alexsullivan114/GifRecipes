@@ -6,7 +6,7 @@ import com.alexsullivan.ImageType
 
 fun GifRecipeUI.toGifRecipe() = GifRecipe(url, id, thumbnail, imageType, title, null)
 
-fun GifRecipe.toGiveRecipeUi(favorited: Boolean) = GifRecipeUI(url, id, thumbnail, imageType, title,favorited)
+fun GifRecipe.toGifRecipeUI(favorited: Boolean) = GifRecipeUI(url, id, thumbnail, imageType, title,favorited)
 
 fun GifRecipeUI.previewImageUrl(): String {
     if (!thumbnail.isNullOrBlank()) {
