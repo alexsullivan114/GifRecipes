@@ -8,6 +8,7 @@ interface GifRecipeDao {
     fun deleteFavoriteRecipe(gifRecipe: FavoriteRecipe)
     fun findFavorites(ids: List<String>): Flowable<String>
     fun findFavorites(): List<FavoriteRecipe>
+    fun findFavorites(offset: Int, limit: Int): Flowable<List<FavoriteRecipe>>
     fun recipeIsFavoritedStream(id: String): Flowable<Boolean>
     fun isRecipeFavorited(id: String): Boolean
 }

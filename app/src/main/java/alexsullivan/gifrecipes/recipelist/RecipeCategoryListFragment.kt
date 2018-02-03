@@ -6,7 +6,9 @@ import alexsullivan.gifrecipes.GifRecipeViewerActivity
 import alexsullivan.gifrecipes.R
 import alexsullivan.gifrecipes.database.RoomRecipeDatabaseHolder
 import alexsullivan.gifrecipes.favoriting.FavoriteGifRecipeRepository
+import alexsullivan.gifrecipes.favoriting.FavoriteRecipeDataSource
 import alexsullivan.gifrecipes.favoriting.RoomFavoriteCache
+import alexsullivan.gifrecipes.recipelist.infiniteloadinglist.RecipeDataSource
 import alexsullivan.gifrecipes.search.SearchProvider
 import alexsullivan.gifrecipes.utils.*
 import alexsullivan.gifrecipes.viewarchitecture.BaseFragment
@@ -51,9 +53,11 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
     val cache = RoomFavoriteCache.getInstance(dao)
     return if (searchTerm == str(Category.FAVORITE.displayName)) {
       val repo = FavoriteGifRecipeRepository(dao)
-      FavoriteRecipeListPresenter(repo, cache)
+      val factory = FavoriteRecipeDataSource.factory(repo)
+      RecipeCategoryListPresenterImpl(searchTerm, factory, cache)
     } else {
-      RecipeCategoryListPresenterImpl(searchTerm, GifRecipeRepository.default, cache)
+      val factory = RecipeDataSource.factory(GifRecipeRepository.default)
+      RecipeCategoryListPresenterImpl(searchTerm, factory, cache)
     }
   }
 

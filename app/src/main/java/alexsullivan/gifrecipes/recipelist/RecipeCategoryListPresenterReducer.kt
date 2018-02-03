@@ -20,7 +20,7 @@ fun RecipeCategoryListViewState.reduce(new: RecipeCategoryListViewState): Recipe
     is PagingList -> {
       when {
         this is LoadingMore -> PagingList(this.recipes, true)
-        this is PagingList -> PagingList(list, true)
+        this is PagingList -> PagingList(new.list ?: list, true)
         else -> new
       }
     }

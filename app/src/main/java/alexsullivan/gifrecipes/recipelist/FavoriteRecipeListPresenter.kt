@@ -1,11 +1,10 @@
 package alexsullivan.gifrecipes.recipelist
 
 import alexsullivan.gifrecipes.GifRecipeUI
+import alexsullivan.gifrecipes.database.GifRecipeDao
 import alexsullivan.gifrecipes.favoriting.FavoriteCache
-import alexsullivan.gifrecipes.favoriting.FavoriteGifRecipeRepository
 import alexsullivan.gifrecipes.utils.addTo
 import alexsullivan.gifrecipes.utils.toGifRecipe
-import com.alexsullivan.GifRecipe
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -14,15 +13,20 @@ import io.reactivex.subjects.PublishSubject
 /**
  * Created by Alexs on 8/21/2017.
  */
-class FavoriteRecipeListPresenter(private val repository: FavoriteGifRecipeRepository, private val favoriteCache: FavoriteCache) : RecipeCategoryListPresenter() {
+class FavoriteRecipeListPresenter(private val favoriteDao: GifRecipeDao,
+                                  private val favoriteCache: FavoriteCache) : RecipeCategoryListPresenter() {
 
   private val disposables = CompositeDisposable()
   private val favoriteDatabaseStream = PublishSubject.create<GifRecipeUI>()
 
   init {
-    bindFavoriteQueryStream()
     bindSavingFavoriteDatabaseStream()
-    bindFavoriteDatabaseStream()
+//    LivePagedListBuilder(favoriteDataSourceFactory, 10).build().observeForever { list: PagedList<FavoriteRecipe>? ->
+//      list?.let {
+//        pushValue(RecipeCategoryListViewState.PagingList(it, false))
+//      }
+//    }
+
   }
 
   override fun setSearchTermSource(source: Observable<String>) {
@@ -68,22 +72,6 @@ class FavoriteRecipeListPresenter(private val repository: FavoriteGifRecipeRepos
 //    return super.reduce(old, new)
 //  }
 
-  private fun bindFavoriteQueryStream() {
-//    repository.consumeGifRecipes(0)
-//        .flatMap(this::mapRecipeToUi)
-//        .toList()
-//        .subscribeOn(Schedulers.io())
-//        .subscribe({ pushValue(RecipeCategoryListViewState.RecipeList(it)) }, {})
-//        .addTo(disposables)
-  }
-
-  private fun mapRecipeToUi(recipe: GifRecipe): Observable<GifRecipeUI> {
-    return favoriteCache.isRecipeFavorited(recipe.id)
-        .firstOrError()
-        .toObservable()
-        .map { GifRecipeUI(recipe.url, recipe.id, recipe.thumbnail, recipe.imageType, recipe.title, it) }
-  }
-
   private fun bindSavingFavoriteDatabaseStream() {
     val saveFavorite = fun(recipe: GifRecipeUI) {
       if (recipe.favorite) {
@@ -98,14 +86,5 @@ class FavoriteRecipeListPresenter(private val repository: FavoriteGifRecipeRepos
         .subscribe {
           saveFavorite(it)
         }.addTo(disposables)
-  }
-
-  private fun bindFavoriteDatabaseStream() {
-    favoriteCache.favoriteStateChangedFlowable()
-        .subscribeOn(Schedulers.io())
-        .subscribe {
-//          pushValue(RecipeCategoryListViewState.Favorited(it.second, it.first))
-        }
-        .addTo(disposables)
   }
 }
