@@ -93,7 +93,11 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
   private fun createAndBindDataSource(searchTerm: String): RecipeDataSource {
     val uiProvider = GifRecipeUiProviderImpl(repository, favoriteCache, searchTerm)
     val dataSource = RecipeDataSource(uiProvider)
+    bindDataSourceEvents(dataSource)
+    return dataSource
+  }
 
+  private fun bindDataSourceEvents(dataSource: RecipeDataSource) {
     dataSource.initialLoadingFlowable
         .subscribeOn(Schedulers.io())
         .subscribe {
@@ -116,7 +120,15 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
         }
         .addTo(disposables)
 
-    return dataSource
+    dataSource.initialLoadingErrorFlowable
+        .subscribeOn(Schedulers.io())
+        .subscribe { pushValue(RecipeCategoryListViewState.NetworkError()) }
+        .addTo(disposables)
+
+    dataSource.futherLoadingErrorFlowable
+        .subscribeOn(Schedulers.io())
+        .subscribe { pushValue(RecipeCategoryListViewState.LoadMoreError(null)) }
+        .addTo(disposables)
   }
 }
 
