@@ -90,7 +90,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
             presenter.favoriteClicked(!favorite.liked)
         }
         share.setOnClickListener {
-            url?.ifPresent(this::shareRecipe)
+            shareUrl.ifPresent(this::shareRecipe)
         }
     }
 
