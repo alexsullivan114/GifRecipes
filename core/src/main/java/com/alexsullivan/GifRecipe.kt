@@ -17,4 +17,6 @@ enum class ImageType(val value: Int) {
             return map[type]!!
         }
     }
+
+    fun isGif() = this == ImageType.GIF
 }
