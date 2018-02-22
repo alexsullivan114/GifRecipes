@@ -5,12 +5,9 @@ import io.reactivex.Observable
 import retrofit2.http.GET
 import retrofit2.http.Query
 
-/**
- * Created by Alexs on 5/10/2017.
- */
 internal interface RedditService {
     object statics {
-        val baseUrl = "https://oauth.reddit.com/"
+        const val baseUrl = "https://oauth.reddit.com/"
     }
 
     @GET("r/gifrecipes/hot")

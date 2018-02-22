@@ -1,6 +1,7 @@
 package com.alexsullivan.reddit
 
 import com.alexsullivan.GifRecipe
+import com.alexsullivan.GifRecipeProvider.Response
 import com.alexsullivan.ImageType
 import com.alexsullivan.isPlayingMedia
 import com.alexsullivan.isStaticImgae
@@ -64,9 +65,14 @@ internal class RedditGifRecipeProviderImpl(private val service: RedditService,
         }
     }
 
-    override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipe> {
+    override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<Response> {
         logger.d(TAG, "Consume recipes called with limit: $limit and search term: $searchTerm and page key: $pageKey")
-        return if (!searchTerm.isEmpty()) fetchWithSearchTerm(limit, searchTerm, pageKey) else fetchHot(limit, searchTerm, pageKey)
+        val shouldSearch = !searchTerm.isEmpty()
+        val observable = if (shouldSearch) fetchWithSearchTerm(limit, searchTerm, pageKey) else fetchHot(limit, searchTerm, pageKey)
+        return observable
+          .toList()
+          .toObservable()
+          .map { recipes -> Response(recipes, buildContinuation(limit, searchTerm, recipes.firstOrNull()?.pageKey)) }
     }
 
     private fun fetchWithSearchTerm(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipe> {
@@ -119,5 +125,9 @@ internal class RedditGifRecipeProviderImpl(private val service: RedditService,
             ?.toFlowable(BackpressureStrategy.BUFFER)
 
         return observable ?: Flowable.just(recipe)
+    }
+
+    private fun buildContinuation(limit: Int, searchTerm: String, pageKey: String?): Observable<Response> {
+      return if (pageKey != null) consumeRecipes(limit, searchTerm, pageKey) else return Observable.empty<Response>()
     }
 }
