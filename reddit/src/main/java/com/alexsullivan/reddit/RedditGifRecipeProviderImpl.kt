@@ -47,7 +47,7 @@ internal class RedditGifRecipeProviderImpl(private val service: RedditService,
       val gson = GsonBuilder().registerTypeAdapter(RedditListingItem::class.java, RedditResponseItemDeserializer()).create()
       val retrofit = Retrofit.Builder()
           .client(okClient)
-          .baseUrl(RedditService.statics.baseUrl)
+          .baseUrl(RedditService.baseUrl)
           .addConverterFactory(GsonConverterFactory.create(gson))
           .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
           .build()

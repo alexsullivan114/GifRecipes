@@ -6,7 +6,7 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 internal interface RedditService {
-    object statics {
+    companion object {
         const val baseUrl = "https://oauth.reddit.com/"
     }
 
