@@ -47,7 +47,7 @@ class RecipeCategoryContainerActivity : BaseActivity<RecipesListViewState, Recip
         categoryTitle.setText(category.displayName)
         pager.adapter = RecipeListPagerAdapter(supportFragmentManager, applicationContext)
         pager.currentItem = indexFromCategory(category)
-        pager.offscreenPageLimit = 1
+        pager.offscreenPageLimit = 0
         indicatorList.layoutManager = GridLayoutManager(this, 2, LinearLayoutManager.HORIZONTAL, false)
         indicatorList.adapter = RecipeListIndicatorAdapter(this, indicatorList.layoutManager, true)
         indicatorList.castedAdapter<RecipeListIndicatorAdapter>().selectedCategory = category
