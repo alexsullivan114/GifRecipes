@@ -4,7 +4,7 @@ import alexsullivan.gifrecipes.GifRecipeUI
 import com.alexsullivan.GifRecipe
 import com.alexsullivan.ImageType
 
-fun GifRecipeUI.toGifRecipe() = GifRecipe(url, id, thumbnail, imageType, title, null)
+fun GifRecipeUI.toGifRecipe() = GifRecipe(url, id, thumbnail, imageType, title)
 
 fun GifRecipe.toGifRecipeUI(favorited: Boolean) = GifRecipeUI(url, id, thumbnail, imageType, title,favorited)
 
