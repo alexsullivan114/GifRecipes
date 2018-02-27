@@ -36,13 +36,14 @@ internal class RedditGifRecipeProviderImpl(private val service: RedditService,
                                            private val urlManipulators: List<UrlManipulator>,
                                            private val dynamicMediaChecker: (String) -> Boolean,
                                            private val logger: Logger,
-                                           private val backgroundScheduler: Scheduler) : RedditGifRecipeProvider {
+                                           private val backgroundScheduler: Scheduler,
+                                           private val subreddit: String) : RedditGifRecipeProvider {
 
   override val id: String
     get() = "RedditProvider"
 
   companion object Factory {
-    fun create(deviceId: String, logger: Logger): RedditGifRecipeProviderImpl {
+    fun create(deviceId: String, logger: Logger, subreddit: String): RedditGifRecipeProviderImpl {
       val okClient = RedditOkHttpClient(deviceId, logger).client
       val gson = GsonBuilder().registerTypeAdapter(RedditListingItem::class.java, RedditResponseItemDeserializer()).create()
       val retrofit = Retrofit.Builder()
@@ -61,7 +62,8 @@ internal class RedditGifRecipeProviderImpl(private val service: RedditService,
               GfycatUrlManipulator(gfycatRepo, staticMediaChecker)),
           dynamicMediaChecker,
           logger,
-          Schedulers.io())
+          Schedulers.io(),
+          subreddit)
     }
   }
 
@@ -75,14 +77,14 @@ internal class RedditGifRecipeProviderImpl(private val service: RedditService,
 
   private fun fetchWithSearchTerm(limit: Int, searchTerm: String, pageKey: String): Observable<Pair<String, List<GifRecipe>>> {
     logger.d(TAG, "Making search request with limit $limit and search term $searchTerm and page key $pageKey")
-    return service.searchRecipes(searchTerm, limit = limit, after = pageKey)
+    return service.searchRecipes(subreddit, searchTerm, limit = limit, after = pageKey)
         .flatMap { processListingResponse(it) }
   }
 
   private fun fetchHot(limit: Int, lastItem: String, pageKey: String): Observable<Pair<String, List<GifRecipe>>> {
     logger.d(TAG, "Making hot request with limit $limit and last item $lastItem")
     var startTime = 0L
-    return service.hotRecipes(limit = limit, after = pageKey)
+    return service.hotRecipes(subreddit, limit = limit, after = pageKey)
         .doOnSubscribe { startTime = System.currentTimeMillis() }
         .doOnNext {
           val elapsedTime = System.currentTimeMillis() - startTime

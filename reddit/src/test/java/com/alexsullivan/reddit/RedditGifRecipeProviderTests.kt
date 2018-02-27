@@ -1,6 +1,7 @@
 package com.alexsullivan.reddit
 
 import com.alexsullivan.GifRecipe
+import com.alexsullivan.GifRecipeProvider
 import com.alexsullivan.ImageType
 import com.alexsullivan.logging.Logger
 import com.alexsullivan.reddit.models.RedditGifRecipe
@@ -31,21 +32,21 @@ class RedditGifRecipeProviderTests {
         val service = buildService(ids, urls, titles, count, key)
         val scheduler = TestScheduler()
         val gifRecipeProvider = buildProvider(service = service, scheduler = scheduler)
-        val testObserver = TestObserver<GifRecipe>()
+        val testObserver = TestObserver<GifRecipeProvider.Response>()
         gifRecipeProvider.consumeRecipes(count, "", "").subscribe(testObserver)
         scheduler.triggerActions()
         // Make sure we finish.
         Assert.assertTrue(testObserver.awaitTerminalEvent())
         // Make sure we only have our five desired elements.
-        Assert.assertTrue(testObserver.valueCount() == count)
+        Assert.assertTrue(testObserver.valueCount() == 1)
+        val recipes = testObserver.values().first().recipes
         // Make sure all of our titles are contained. We don't know what order they'll come in.
-        Assert.assertTrue(testObserver.values().map { it.title }.containsAll(titles))
+        Assert.assertTrue(recipes.map { it.title }.containsAll(titles))
         // Let's examine a single recipe and make sure it has everything we expect.
-        val firstRecipe = testObserver.values().first { it.title == "one" }
+        val firstRecipe = recipes.first { it.title == "one" }
         Assert.assertNotNull(firstRecipe)
         Assert.assertEquals(ids[0], firstRecipe.id)
         Assert.assertEquals(urls[0], firstRecipe.url)
-        Assert.assertEquals(key, firstRecipe.pageKey)
         // Default should be gif.
         Assert.assertEquals(ImageType.GIF, firstRecipe.imageType)
     }
@@ -156,7 +157,7 @@ class RedditGifRecipeProviderTests {
 
     private fun buildProvider(service: RedditService, scheduler: Scheduler, urlManipulator: List<UrlManipulator> = listOf(),
                               mediaChecker: (url: String) -> Boolean = fun(_: String) = true,
-                              logger: Logger = EmptyLogger) = RedditGifRecipeProviderImpl(service, urlManipulator, mediaChecker, logger, scheduler)
+                              logger: Logger = EmptyLogger) = RedditGifRecipeProviderImpl(service, urlManipulator, mediaChecker, logger, scheduler, "fake")
 
     private fun buildService(ids: List<String> = listOf(),
                              urls: List<String> = listOf(),
@@ -173,13 +174,13 @@ class RedditGifRecipeProviderTests {
         }
 
         return object: RedditService {
-            override fun hotRecipes(limit: Int, after: String?): Observable<RedditListingResponse> {
+            override fun hotRecipes(subreddit: String, limit: Int, after: String?): Observable<RedditListingResponse> {
                 val responeData = RedditListingResponseData("", items, "", key)
                 val response = RedditListingResponse("post", responeData)
                 return Observable.just(response)
             }
 
-            override fun searchRecipes(searchParam: String, after: String?, limit: Int, restrict: Boolean?, sort: String, useRawJson: Int): Observable<RedditListingResponse> {
+            override fun searchRecipes(subreddit: String, searchParam: String, after: String?, limit: Int, restrict: Boolean?, sort: String, useRawJson: Int): Observable<RedditListingResponse> {
                 val responeData = RedditListingResponseData("", items, "", key)
                 val response = RedditListingResponse("post", responeData)
                 return Observable.just(response)
@@ -189,12 +190,12 @@ class RedditGifRecipeProviderTests {
 
     private fun buildEmptyService(hotBlock: () -> Unit, searchBlock: () -> Unit): RedditService {
         return object: RedditService {
-            override fun hotRecipes(limit: Int, after: String?): Observable<RedditListingResponse> {
+            override fun hotRecipes(subreddit: String, limit: Int, after: String?): Observable<RedditListingResponse> {
                 hotBlock()
                 return Observable.empty()
             }
 
-            override fun searchRecipes(searchParam: String, after: String?, limit: Int, restrict: Boolean?, sort: String, useRawJson: Int): Observable<RedditListingResponse> {
+            override fun searchRecipes(subreddit: String, searchParam: String, after: String?, limit: Int, restrict: Boolean?, sort: String, useRawJson: Int): Observable<RedditListingResponse> {
                 searchBlock()
                 return Observable.empty()
             }
