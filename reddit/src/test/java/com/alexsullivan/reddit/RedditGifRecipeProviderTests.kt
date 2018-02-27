@@ -1,6 +1,5 @@
 package com.alexsullivan.reddit
 
-import com.alexsullivan.GifRecipe
 import com.alexsullivan.GifRecipeProvider
 import com.alexsullivan.ImageType
 import com.alexsullivan.logging.Logger
@@ -18,9 +17,6 @@ import io.reactivex.schedulers.TestScheduler
 import org.junit.Assert
 import org.junit.Test
 
-/**
- * Created by Alexs on 8/31/2017.
- */
 class RedditGifRecipeProviderTests {
 
     @Test fun simpleResponse() {
@@ -62,13 +58,15 @@ class RedditGifRecipeProviderTests {
                 Observable.just(item.copy(imageType = ImageType.VIDEO))
         }
         val gifRecipeProvider = buildProvider(service = service, scheduler = scheduler, urlManipulator = listOf(manipulator))
-        val testObserver = TestObserver<GifRecipe>()
+        val testObserver = TestObserver<GifRecipeProvider.Response>()
         gifRecipeProvider.consumeRecipes(count, "", "").subscribe(testObserver)
         scheduler.triggerActions()
         // Make sure we finish.
         Assert.assertTrue(testObserver.awaitTerminalEvent())
+        Assert.assertEquals(1, testObserver.values().size)
+        val recipes = testObserver.values().first().recipes
         // Make sure all of our recipes are of the video image type now.
-        Assert.assertEquals(count, testObserver.values().filter { it.imageType == ImageType.VIDEO }.size)
+        Assert.assertEquals(count, recipes.filter { it.imageType == ImageType.VIDEO }.size)
     }
 
     @Test fun testFilterRecipes() {
@@ -79,15 +77,17 @@ class RedditGifRecipeProviderTests {
         // Filter out everything but the first two urls.
         val imageChecker = fun(url: String) = url == urls[0] || url == urls[1]
         val gifRecipeProvider = buildProvider(service = service, scheduler = scheduler, mediaChecker = imageChecker)
-        val testObserver = TestObserver<GifRecipe>()
+        val testObserver = TestObserver<GifRecipeProvider.Response>()
         gifRecipeProvider.consumeRecipes(count, "foo", "").subscribe(testObserver)
         scheduler.triggerActions()
         // Make sure we finish.
         Assert.assertTrue(testObserver.awaitTerminalEvent())
+        Assert.assertEquals(1, testObserver.valueCount())
+        val recipes = testObserver.values().first().recipes
         // Now make sure we're only left with 2 recipes.
-        Assert.assertEquals(2, testObserver.valueCount())
+        Assert.assertEquals(2, recipes.size)
         // Make sure those two items are what we expect.
-        val returnedUrls = testObserver.values().map { it.url }
+        val returnedUrls = recipes.map { it.url }
         Assert.assertTrue(returnedUrls.contains(urls[0]))
         Assert.assertTrue(returnedUrls.contains(urls[1]))
     }
@@ -97,14 +97,14 @@ class RedditGifRecipeProviderTests {
         val hotOnlyService = buildEmptyService({}, {Assert.fail("Called search method on hot only service")})
         val scheduler = TestScheduler()
         val hotProvider = buildProvider(service = hotOnlyService, scheduler = scheduler)
-        val hotTestObserver = TestObserver<GifRecipe>()
+        val hotTestObserver = TestObserver<GifRecipeProvider.Response>()
         hotProvider.consumeRecipes(5, "", "").subscribe(hotTestObserver)
         scheduler.triggerActions()
         Assert.assertTrue(hotTestObserver.awaitTerminalEvent())
         // Test that if we have a search term we call through to search recipes.
         val searchOnlyService = buildEmptyService({Assert.fail("Called hot method on search only service")}, {})
         val searchProvider = buildProvider(service = searchOnlyService, scheduler = scheduler)
-        val searchTestObserver = TestObserver<GifRecipe>()
+        val searchTestObserver = TestObserver<GifRecipeProvider.Response>()
         searchProvider.consumeRecipes(5, "TestSearhTerm", "").subscribe(searchTestObserver)
         scheduler.triggerActions()
         Assert.assertTrue(searchTestObserver.awaitTerminalEvent())
@@ -115,13 +115,15 @@ class RedditGifRecipeProviderTests {
         val service = buildService(ids = ids, removedIds = listOf("2", "3"), count = 5, key = "")
         val testScheduler = TestScheduler()
         val provider = buildProvider(service, testScheduler)
-        val testObserver = TestObserver<GifRecipe>()
+        val testObserver = TestObserver<GifRecipeProvider.Response>()
         provider.consumeRecipes(5, "", "").subscribe(testObserver)
         testScheduler.triggerActions()
         Assert.assertTrue(testObserver.awaitTerminalEvent())
-        Assert.assertEquals(3, testObserver.valueCount())
-        Assert.assertFalse(testObserver.values().map { it.id }.contains("2"))
-        Assert.assertFalse(testObserver.values().map { it.id }.contains("3"))
+        Assert.assertEquals(1, testObserver.valueCount())
+        val recipes = testObserver.values().first().recipes
+        Assert.assertEquals(3, recipes.size)
+        Assert.assertFalse(recipes.map { it.id }.contains("2"))
+        Assert.assertFalse(recipes.map { it.id }.contains("3"))
     }
 
     @Test fun testUrlManipulatorModification() {
@@ -133,11 +135,12 @@ class RedditGifRecipeProviderTests {
         val service = buildService(urls = listOf("TestDomain", "NonTestDomain"), count = 2, key = "")
         val testScheduler = TestScheduler()
         val provider = buildProvider(service, testScheduler, urlManipulator = listOf(manipular))
-        val testObserver = TestObserver<GifRecipe>()
+        val testObserver = TestObserver<GifRecipeProvider.Response>()
         provider.consumeRecipes(2, "", "").subscribe(testObserver)
         testScheduler.triggerActions()
         Assert.assertTrue(testObserver.awaitTerminalEvent())
-        Assert.assertEquals("Modified", testObserver.values().map { it.url }.first { it == "Modified" })
+        val recipes = testObserver.values().first().recipes
+        Assert.assertEquals("Modified", recipes.map { it.url }.first { it == "Modified" })
     }
 
     @Test fun testUrlManipulatorErrorCaseHandled() {
@@ -149,7 +152,7 @@ class RedditGifRecipeProviderTests {
         val service = buildService(urls = listOf("TestDomain", "NonTestDomain"), count = 2, key = "")
         val testScheduler = TestScheduler()
         val provider = buildProvider(service, testScheduler, urlManipulator = listOf(manipular))
-        val testObserver = TestObserver<GifRecipe>()
+        val testObserver = TestObserver<GifRecipeProvider.Response>()
         provider.consumeRecipes(2, "", "").subscribe(testObserver)
         testScheduler.triggerActions()
         Assert.assertTrue(testObserver.awaitTerminalEvent())
