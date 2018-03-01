@@ -49,10 +49,11 @@ class GifRecipeRepositoryImplTests {
   @Test
   fun testProperMerging() {
     fun builder(vararg ids: String): GifRecipeProvider.Response {
-     return GifRecipeProvider.Response(
-         ids.map { GifRecipe("", it, "", ImageType.VIDEO, "") }
-         , Observable.defer { Observable.just(builder(*ids)) })
+      return GifRecipeProvider.Response(
+          ids.map { GifRecipe("", it, "", ImageType.VIDEO, "") }
+          , Observable.defer { Observable.just(builder(*ids)) })
     }
+
     val provider1 = object : GifRecipeProvider {
       override val id: String
         get() = "1"
@@ -96,7 +97,7 @@ class GifRecipeRepositoryImplTests {
 
   @Test
   fun testProperContinuationMerging() {
-    fun builder(vararg ids: String): GifRecipeProvider.Response{
+    fun builder(vararg ids: String): GifRecipeProvider.Response {
       return GifRecipeProvider.Response(
           ids.map { GifRecipe("", it, "", ImageType.VIDEO, "") }
           , Observable.defer { Observable.just(builder(*ids)) })
@@ -148,6 +149,43 @@ class GifRecipeRepositoryImplTests {
     Assert.assertEquals(1, continuationObserver.valueCount())
     val continuationRecipes = continuationObserver.values().first().recipes
     Assert.assertEquals(8, continuationRecipes.size)
+  }
+
+  @Test
+  fun testOneProviderEndingDoesntEndAll() {
+    val provider1 = object : GifRecipeProvider {
+      override val id: String
+        get() = "1"
+
+      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProvider.Response> {
+        val recipes = listOf(createRecipe(), createRecipe(), createRecipe(), createRecipe())
+        val continuationRecipes = listOf(createRecipe(), createRecipe(), createRecipe(), createRecipe(), createRecipe())
+        val emptyObservable = Observable.empty<GifRecipeProvider.Response>()
+        return Observable.just(GifRecipeProvider.Response(recipes, Observable.just(GifRecipeProvider.Response(continuationRecipes, emptyObservable))))
+      }
+    }
+
+    val provider2 = object : GifRecipeProvider {
+      override val id: String
+        get() = "2"
+
+      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProvider.Response> {
+        val recipes = listOf(createRecipe(), createRecipe(), createRecipe(), createRecipe())
+        return Observable.just(GifRecipeProvider.Response(recipes, Observable.empty()))
+      }
+    }
+
+    val repo = GifRecipeRepositoryImpl(listOf(provider1, provider2))
+    val observer = repo.consumeGifRecipes(5, "").test()
+    Assert.assertTrue(observer.awaitTerminalEvent())
+    observer.assertComplete()
+    Assert.assertEquals(1, observer.valueCount())
+    val response = observer.values().first()
+    Assert.assertEquals(8, response.recipes.size)
+    val continuationObserver = response.continuation.test()
+    Assert.assertEquals(1, continuationObserver.valueCount())
+    val continuationResponse = continuationObserver.values().first()
+    Assert.assertEquals(5, continuationResponse.recipes.size)
   }
 
 
