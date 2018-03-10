@@ -67,3 +67,14 @@ fun createRVeganGifRecipesProvider(deviceId: String, logger: Logger): RedditGifR
 
   return create(deviceId, logger, factory)
 }
+
+fun createRAlcoholGifRecipesProvider(deviceId: String, logger: Logger): RedditGifRecipesProvider {
+  val factory = fun (service: RedditService,
+                     manipulators: List<UrlManipulator>,
+                     checker: DynamicMediaChecker,
+                     logger: Logger,
+                     scheduler: Scheduler): SubredditGifRecipeProvider =
+      RAlcoholGifRecipesProvider(service, manipulators, checker, logger, scheduler)
+
+  return create(deviceId, logger, factory)
+}

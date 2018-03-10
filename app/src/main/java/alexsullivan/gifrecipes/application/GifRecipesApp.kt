@@ -5,6 +5,7 @@ import alexsullivan.gifrecipes.preferences.RecipePreferences
 import android.app.Application
 import android.util.Log
 import com.alexsullivan.ApplicationInitialization.CoreInitializer
+import com.alexsullivan.reddit.providers.createRAlcoholGifRecipesProvider
 import com.alexsullivan.reddit.providers.createRGifRecipesProvider
 import com.alexsullivan.reddit.providers.createRVeganGifRecipesProvider
 import com.facebook.drawee.backends.pipeline.Fresco
@@ -35,7 +36,8 @@ class GifRecipesApp : Application() {
   private fun initModules() {
     CoreInitializer.initialize(
         createRGifRecipesProvider(RecipePreferences.deviceId, AndroidLogger),
-        createRVeganGifRecipesProvider(RecipePreferences.deviceId, AndroidLogger)
+        createRVeganGifRecipesProvider(RecipePreferences.deviceId, AndroidLogger),
+        createRAlcoholGifRecipesProvider(RecipePreferences.deviceId, AndroidLogger)
     )
   }
 
