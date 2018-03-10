@@ -1,0 +1,5 @@
+package com.alexsullivan.reddit.providers
+
+import com.alexsullivan.GifRecipeProvider
+
+interface RedditGifRecipesProvider: GifRecipeProvider

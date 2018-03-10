@@ -5,7 +5,8 @@ import alexsullivan.gifrecipes.preferences.RecipePreferences
 import android.app.Application
 import android.util.Log
 import com.alexsullivan.ApplicationInitialization.CoreInitializer
-import com.alexsullivan.reddit.RedditGifRecipeProvider
+import com.alexsullivan.reddit.providers.createRGifRecipesProvider
+import com.alexsullivan.reddit.providers.createRVeganGifRecipesProvider
 import com.facebook.drawee.backends.pipeline.Fresco
 import io.reactivex.exceptions.UndeliverableException
 import io.reactivex.functions.Consumer
@@ -15,61 +16,64 @@ import java.net.SocketException
 import java.util.*
 
 
-class GifRecipesApp: Application(){
+class GifRecipesApp : Application() {
 
-    override fun onCreate() {
-        super.onCreate()
-        initDeviceId()
-        initModules()
-        initLibraries()
-    }
+  override fun onCreate() {
+    super.onCreate()
+    initDeviceId()
+    initModules()
+    initLibraries()
+  }
 
-    private fun initDeviceId() {
-        RecipePreferences.init(this)
-        if (RecipePreferences.deviceId.isEmpty()) {
-            RecipePreferences.deviceId = UUID.randomUUID().toString()
-        }
+  private fun initDeviceId() {
+    RecipePreferences.init(this)
+    if (RecipePreferences.deviceId.isEmpty()) {
+      RecipePreferences.deviceId = UUID.randomUUID().toString()
     }
+  }
 
-    private fun initModules() {
-        CoreInitializer.initialize(RedditGifRecipeProvider.create(RecipePreferences.deviceId, AndroidLogger))
-    }
+  private fun initModules() {
+    CoreInitializer.initialize(
+        createRGifRecipesProvider(RecipePreferences.deviceId, AndroidLogger),
+        createRVeganGifRecipesProvider(RecipePreferences.deviceId, AndroidLogger)
+    )
+  }
 
-    private fun initLibraries() {
-        CacheServerImpl.initialize(this)
-        Fresco.initialize(this)
-    }
+  private fun initLibraries() {
+    CacheServerImpl.initialize(this)
+    Fresco.initialize(this)
+  }
 
-    private fun initErrorHandling() {
-        RxJavaPlugins.setErrorHandler(Consumer<Throwable>({
-            var updated: Throwable? = it
-            if (it is UndeliverableException) {
-                updated = it.cause
-            }
-            if (updated is IOException || it is SocketException) {
-                // fine, irrelevant network problem or API that throws on cancellation
-                return@Consumer
-            }
-            if (updated is InterruptedException) {
-                // fine, some blocking code was interrupted by a dispose call
-                return@Consumer
-            }
-            if (updated is NullPointerException || updated is IllegalArgumentException) {
-                // that's likely a bug in the application
-                Thread.currentThread().uncaughtExceptionHandler.uncaughtException(Thread.currentThread(), updated)
-                return@Consumer
-            }
-            if (updated is IllegalStateException) {
-                // that's a bug in RxJava or in a custom operator
-                Thread.currentThread().uncaughtExceptionHandler.uncaughtException(Thread.currentThread(), updated)
-                return@Consumer
-            }
-            if (updated is RuntimeException) {
-                // Probably our bug.
-                Thread.currentThread().uncaughtExceptionHandler.uncaughtException(Thread.currentThread(), updated)
-            }
-            Log.w("Application", "Undeliverable exception received, not sure what to do", it)
-        }))
-    }
+  private fun initErrorHandling() {
+    RxJavaPlugins.setErrorHandler(Consumer<Throwable>({
+      var updated: Throwable? = it
+      if (it is UndeliverableException) {
+        updated = it.cause
+      }
+      if (updated is IOException || it is SocketException) {
+        // fine, irrelevant network problem or API that throws on cancellation
+        return@Consumer
+      }
+      if (updated is InterruptedException) {
+        // fine, some blocking code was interrupted by a dispose call
+        return@Consumer
+      }
+      if (updated is NullPointerException || updated is IllegalArgumentException) {
+        // that's likely a bug in the application
+        Thread.currentThread().uncaughtExceptionHandler.uncaughtException(Thread.currentThread(), updated)
+        return@Consumer
+      }
+      if (updated is IllegalStateException) {
+        // that's a bug in RxJava or in a custom operator
+        Thread.currentThread().uncaughtExceptionHandler.uncaughtException(Thread.currentThread(), updated)
+        return@Consumer
+      }
+      if (updated is RuntimeException) {
+        // Probably our bug.
+        Thread.currentThread().uncaughtExceptionHandler.uncaughtException(Thread.currentThread(), updated)
+      }
+      Log.w("Application", "Undeliverable exception received, not sure what to do", it)
+    }))
+  }
 }
 
