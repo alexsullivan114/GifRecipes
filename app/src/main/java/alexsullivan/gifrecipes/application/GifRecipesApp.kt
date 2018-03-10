@@ -5,7 +5,8 @@ import alexsullivan.gifrecipes.preferences.RecipePreferences
 import android.app.Application
 import android.util.Log
 import com.alexsullivan.ApplicationInitialization.CoreInitializer
-import com.alexsullivan.reddit.RedditGifRecipeProvider
+import com.alexsullivan.reddit.providers.createRGifRecipesProvider
+import com.alexsullivan.reddit.providers.createRVeganGifRecipesProvider
 import com.facebook.drawee.backends.pipeline.Fresco
 import io.reactivex.exceptions.UndeliverableException
 import io.reactivex.functions.Consumer
@@ -33,8 +34,8 @@ class GifRecipesApp : Application() {
 
   private fun initModules() {
     CoreInitializer.initialize(
-        RedditGifRecipeProvider.createGifRecipesSubredditProvider(RecipePreferences.deviceId, AndroidLogger),
-        RedditGifRecipeProvider.createVeganGifRecipesSubredditProvider(RecipePreferences.deviceId, AndroidLogger)
+        createRGifRecipesProvider(RecipePreferences.deviceId, AndroidLogger),
+        createRVeganGifRecipesProvider(RecipePreferences.deviceId, AndroidLogger)
     )
   }
 

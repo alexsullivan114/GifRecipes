@@ -8,6 +8,7 @@ import com.alexsullivan.reddit.models.RedditListingItem
 import com.alexsullivan.reddit.models.RedditListingResponse
 import com.alexsullivan.reddit.models.RedditListingResponseData
 import com.alexsullivan.reddit.network.RedditService
+import com.alexsullivan.reddit.providers.RGifRecipesProvider
 import com.alexsullivan.reddit.testutils.EmptyLogger
 import com.alexsullivan.reddit.urlmanipulation.UrlManipulator
 import io.reactivex.Observable
@@ -160,7 +161,7 @@ class RedditGifRecipeProviderTests {
 
     private fun buildProvider(service: RedditService, scheduler: Scheduler, urlManipulator: List<UrlManipulator> = listOf(),
                               mediaChecker: (url: String) -> Boolean = fun(_: String) = true,
-                              logger: Logger = EmptyLogger) = RedditGifRecipeProviderImpl(service, urlManipulator, mediaChecker, logger, scheduler, "fake")
+                              logger: Logger = EmptyLogger) = RGifRecipesProvider(service, urlManipulator, mediaChecker, logger, scheduler)
 
     private fun buildService(ids: List<String> = listOf(),
                              urls: List<String> = listOf(),

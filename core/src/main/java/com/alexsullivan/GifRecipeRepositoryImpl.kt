@@ -20,7 +20,8 @@ internal class GifRecipeRepositoryImpl(private val providers: List<GifRecipeProv
     return Observable.mergeDelayError(responses)
         .toList()
         .map { responseList ->
-          val recipes = responseList.flatMap { it.recipes }
+          val recipes = responseList.flatMap { it.recipes }.toMutableList()
+          recipes.shuffle()
           val observable = mergeResponses(responseList.map { it.continuation })
           GifRecipeProvider.Response(recipes, observable)
         }

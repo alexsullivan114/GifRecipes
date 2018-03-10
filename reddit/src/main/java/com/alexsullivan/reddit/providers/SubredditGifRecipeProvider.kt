@@ -1,71 +1,30 @@
-package com.alexsullivan.reddit
+package com.alexsullivan.reddit.providers
 
 import com.alexsullivan.GifRecipe
 import com.alexsullivan.GifRecipeProvider.Response
 import com.alexsullivan.ImageType
-import com.alexsullivan.isPlayingMedia
-import com.alexsullivan.isStaticImgae
 import com.alexsullivan.logging.Logger
 import com.alexsullivan.reddit.models.RedditGifRecipe
-import com.alexsullivan.reddit.models.RedditListingItem
 import com.alexsullivan.reddit.models.RedditListingResponse
-import com.alexsullivan.reddit.network.RedditOkHttpClient
 import com.alexsullivan.reddit.network.RedditService
-import com.alexsullivan.reddit.serialization.RedditResponseItemDeserializer
-import com.alexsullivan.reddit.urlmanipulation.GfycatUrlManipulator
-import com.alexsullivan.reddit.urlmanipulation.ImgurUrlManipulator
 import com.alexsullivan.reddit.urlmanipulation.UrlManipulator
 import com.alexsullivan.utils.TAG
-import com.gfycat.GfycatRepositoryImpl
-import com.google.gson.GsonBuilder
-import com.imgur.ImgurRepositoryImpl
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.Scheduler
-import io.reactivex.schedulers.Schedulers
-import retrofit2.Retrofit
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
 import java.net.SocketTimeoutException
 
 /**
  * Created by Alexs on 5/10/2017.
  */
-internal class RedditGifRecipeProviderImpl(private val service: RedditService,
-                                           private val urlManipulators: List<UrlManipulator>,
-                                           private val dynamicMediaChecker: (String) -> Boolean,
-                                           private val logger: Logger,
-                                           private val backgroundScheduler: Scheduler,
-                                           private val subreddit: String) : RedditGifRecipeProvider {
+internal abstract class SubredditGifRecipeProvider(private val service: RedditService,
+                                                   private val urlManipulators: List<UrlManipulator>,
+                                                   private val dynamicMediaChecker: (String) -> Boolean,
+                                                   private val logger: Logger,
+                                                   private val backgroundScheduler: Scheduler): RedditGifRecipesProvider {
 
-  override val id: String
-    get() = "RedditProvider"
-
-  companion object Factory {
-    fun create(deviceId: String, logger: Logger, subreddit: String): RedditGifRecipeProviderImpl {
-      val okClient = RedditOkHttpClient(deviceId, logger).client
-      val gson = GsonBuilder().registerTypeAdapter(RedditListingItem::class.java, RedditResponseItemDeserializer()).create()
-      val retrofit = Retrofit.Builder()
-          .client(okClient)
-          .baseUrl(RedditService.baseUrl)
-          .addConverterFactory(GsonConverterFactory.create(gson))
-          .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-          .build()
-      val imgurRepo = ImgurRepositoryImpl.create(logger)
-      val gfycatRepo = GfycatRepositoryImpl.create(logger)
-      val dynamicMediaChecker = fun(url: String) = isPlayingMedia(url, okClient)
-      val staticMediaChecker = fun(url: String) = isStaticImgae(url, okClient)
-      return RedditGifRecipeProviderImpl(retrofit.create(RedditService::class.java),
-          listOf(
-              ImgurUrlManipulator(imgurRepo, staticMediaChecker),
-              GfycatUrlManipulator(gfycatRepo, staticMediaChecker)),
-          dynamicMediaChecker,
-          logger,
-          Schedulers.io(),
-          subreddit)
-    }
-  }
+  abstract val subreddit: String
 
   override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<Response> {
     logger.d(TAG, "Consume recipes called with limit: $limit and search term: $searchTerm and page key: $pageKey")
