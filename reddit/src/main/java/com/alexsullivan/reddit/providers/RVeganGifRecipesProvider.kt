@@ -1,6 +1,6 @@
 package com.alexsullivan.reddit.providers
 
-import com.alexsullivan.GifRecipeRepository
+import com.alexsullivan.GifRecipeProvider.GifRecipeProviderResponse
 import com.alexsullivan.logging.Logger
 import com.alexsullivan.reddit.network.RedditService
 import com.alexsullivan.reddit.urlmanipulation.UrlManipulator
@@ -21,7 +21,7 @@ internal class RVeganGifRecipesProvider(
 
   override val subreddit = "vegangifrecipes"
 
-  override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeRepository.Response> {
+  override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> {
     return searchTerm.trim().toLowerCase().run {
       return if (this == "vegan" || this == "vegetarian") {
         super.consumeRecipes(limit, "", pageKey)

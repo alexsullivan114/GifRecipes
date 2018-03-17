@@ -1,5 +1,6 @@
 package com.alexsullivan
 
+import com.alexsullivan.GifRecipeProvider.GifRecipeProviderResponse
 import io.reactivex.Observable
 import io.reactivex.observers.TestObserver
 import org.junit.Assert
@@ -24,7 +25,7 @@ class GifRecipeRepositoryImplTests {
       override val id: String
         get() = "1"
 
-      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeRepository.Response> {
+      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> {
         Assert.assertEquals(count / 2, limit)
         return Observable.empty()
       }
@@ -34,7 +35,7 @@ class GifRecipeRepositoryImplTests {
       override val id: String
         get() = "2"
 
-      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeRepository.Response> {
+      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> {
         Assert.assertEquals(count / 2, limit)
         return Observable.empty()
       }
@@ -48,17 +49,17 @@ class GifRecipeRepositoryImplTests {
 
   @Test
   fun testProperMerging() {
-    fun builder(vararg ids: String): GifRecipeRepository.Response {
-      return GifRecipeRepository.Response(
+    fun builder(vararg ids: String): GifRecipeProviderResponse {
+      return GifRecipeProviderResponse(
           ids.map { GifRecipe("", it, "", ImageType.VIDEO, "") }
-          , Observable.defer { Observable.just(builder(*ids)) })
+          , { Observable.defer { Observable.just(builder(*ids)) } })
     }
 
     val provider1 = object : GifRecipeProvider {
       override val id: String
         get() = "1"
 
-      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeRepository.Response> =
+      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> =
           Observable.just(builder(id))
     }
 
@@ -66,7 +67,7 @@ class GifRecipeRepositoryImplTests {
       override val id: String
         get() = "2"
 
-      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeRepository.Response> =
+      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> =
           Observable.empty()
     }
 
@@ -74,7 +75,7 @@ class GifRecipeRepositoryImplTests {
       override val id: String
         get() = "3"
 
-      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeRepository.Response> =
+      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> =
           Observable.fromArray(builder(id, id, id))
     }
 
@@ -82,7 +83,7 @@ class GifRecipeRepositoryImplTests {
       override val id: String
         get() = "4"
 
-      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeRepository.Response> =
+      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> =
           Observable.fromArray(builder(id, id, id, id))
     }
 
@@ -97,17 +98,17 @@ class GifRecipeRepositoryImplTests {
 
   @Test
   fun testProperContinuationMerging() {
-    fun builder(vararg ids: String): GifRecipeRepository.Response {
-      return GifRecipeRepository.Response(
+    fun builder(vararg ids: String): GifRecipeProviderResponse {
+      return GifRecipeProviderResponse(
           ids.map { GifRecipe("", it, "", ImageType.VIDEO, "") }
-          , Observable.defer { Observable.just(builder(*ids)) })
+          ,{ Observable.defer { Observable.just(builder(*ids)) } })
     }
 
     val provider1 = object : GifRecipeProvider {
       override val id: String
         get() = "1"
 
-      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeRepository.Response> =
+      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> =
           Observable.just(builder(id))
     }
 
@@ -115,7 +116,7 @@ class GifRecipeRepositoryImplTests {
       override val id: String
         get() = "2"
 
-      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeRepository.Response> =
+      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> =
           Observable.empty()
     }
 
@@ -123,7 +124,7 @@ class GifRecipeRepositoryImplTests {
       override val id: String
         get() = "3"
 
-      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeRepository.Response> =
+      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> =
           Observable.fromArray(builder(id, id, id))
     }
 
@@ -131,7 +132,7 @@ class GifRecipeRepositoryImplTests {
       override val id: String
         get() = "4"
 
-      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeRepository.Response> =
+      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> =
           Observable.fromArray(builder(id, id, id, id))
     }
 
@@ -157,11 +158,11 @@ class GifRecipeRepositoryImplTests {
       override val id: String
         get() = "1"
 
-      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeRepository.Response> {
+      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> {
         val recipes = listOf(createRecipe(), createRecipe(), createRecipe(), createRecipe())
         val continuationRecipes = listOf(createRecipe(), createRecipe(), createRecipe(), createRecipe(), createRecipe())
-        val emptyObservable = Observable.empty<GifRecipeRepository.Response>()
-        return Observable.just(GifRecipeRepository.Response(recipes, Observable.just(GifRecipeRepository.Response(continuationRecipes, emptyObservable))))
+        val emptyContinuation = { _: Int -> Observable.empty<GifRecipeProviderResponse>() }
+        return Observable.just(GifRecipeProviderResponse(recipes, { Observable.just(GifRecipeProviderResponse(continuationRecipes, emptyContinuation)) }))
       }
     }
 
@@ -169,9 +170,9 @@ class GifRecipeRepositoryImplTests {
       override val id: String
         get() = "2"
 
-      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeRepository.Response> {
+      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> {
         val recipes = listOf(createRecipe(), createRecipe(), createRecipe(), createRecipe())
-        return Observable.just(GifRecipeRepository.Response(recipes, Observable.empty()))
+        return Observable.just(GifRecipeProviderResponse(recipes, { Observable.empty() }))
       }
     }
 
@@ -194,17 +195,13 @@ class GifRecipeRepositoryImplTests {
       override val id: String
         get() = "1"
 
-      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeRepository.Response> {
+      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> {
         val recipes = mutableListOf<GifRecipe>()
-        for (i in 0..limit) {
+        for (i in 0 until limit) {
           recipes.add(createRecipe())
         }
-        val continuationRecipes = mutableListOf<GifRecipe>()
-        for (i in 0..limit) {
-          continuationRecipes.add(createRecipe())
-        }
-        val emptyObservable = Observable.empty<GifRecipeRepository.Response>()
-        return Observable.just(GifRecipeRepository.Response(recipes, Observable.just(GifRecipeRepository.Response(continuationRecipes, emptyObservable))))
+
+        return Observable.just(GifRecipeProviderResponse(recipes, { requestCount -> consumeRecipes(requestCount, searchTerm, pageKey)}))
       }
     }
 
@@ -212,8 +209,8 @@ class GifRecipeRepositoryImplTests {
       override val id: String
         get() = "2"
 
-      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeRepository.Response> {
-        return Observable.just(GifRecipeRepository.Response(emptyList(), Observable.empty()))
+      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> {
+        return Observable.just(GifRecipeProviderResponse(emptyList(), { Observable.empty() }))
       }
     }
 
@@ -232,16 +229,16 @@ class GifRecipeRepositoryImplTests {
   @Test
   @Ignore("Going to postpone getting the kill stream situation resolved")
   fun testErrorDoesntKillStream() {
-    val builder = fun(id: String) = GifRecipeRepository.Response(
+    val builder = fun(id: String) = GifRecipeProviderResponse(
         listOf(
             GifRecipe("", id, "", ImageType.VIDEO, "")
-        ), Observable.empty())
+        ), { Observable.empty() })
     val exception = RuntimeException()
     val provider1 = object : GifRecipeProvider {
       override val id: String
         get() = "1"
 
-      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeRepository.Response> =
+      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> =
           Observable.just(builder(id))
     }
 
@@ -249,7 +246,7 @@ class GifRecipeRepositoryImplTests {
       override val id: String
         get() = "2"
 
-      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeRepository.Response> =
+      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> =
           Observable.error(exception)
     }
 
@@ -257,7 +254,7 @@ class GifRecipeRepositoryImplTests {
       override val id: String
         get() = "3"
 
-      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeRepository.Response> =
+      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> =
           Observable.fromArray(builder(id), builder(id), builder(id))
     }
 
@@ -265,7 +262,7 @@ class GifRecipeRepositoryImplTests {
       override val id: String
         get() = "4"
 
-      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeRepository.Response> =
+      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> =
           Observable.fromArray(builder(id), builder(id), builder(id), builder(id))
     }
 

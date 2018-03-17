@@ -1,7 +1,7 @@
 package com.alexsullivan.reddit.providers
 
 import com.alexsullivan.GifRecipe
-import com.alexsullivan.GifRecipeRepository.Response
+import com.alexsullivan.GifRecipeProvider.GifRecipeProviderResponse
 import com.alexsullivan.ImageType
 import com.alexsullivan.logging.Logger
 import com.alexsullivan.reddit.models.RedditGifRecipe
@@ -26,12 +26,14 @@ internal abstract class SubredditGifRecipeProvider(private val service: RedditSe
 
   abstract val subreddit: String
 
-  override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<Response> {
+  override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> {
     logger.d(TAG, "Consume recipes called with limit: $limit and search term: $searchTerm and page key: $pageKey")
     val shouldSearch = !searchTerm.isEmpty()
     val observable = if (shouldSearch) fetchWithSearchTerm(limit, searchTerm, pageKey) else fetchHot(limit, searchTerm, pageKey)
     return observable
-        .map { data -> Response(data.second, buildContinuation(limit, searchTerm, data.first)) }
+        .map { data -> GifRecipeProviderResponse(data.second, { requestedSize ->
+          buildContinuation(requestedSize, searchTerm, data.first)
+        }) }
   }
 
   private fun fetchWithSearchTerm(limit: Int, searchTerm: String, pageKey: String): Observable<Pair<String, List<GifRecipe>>> {
@@ -88,7 +90,7 @@ internal abstract class SubredditGifRecipeProvider(private val service: RedditSe
     return observable ?: Flowable.just(recipe)
   }
 
-  private fun buildContinuation(limit: Int, searchTerm: String, pageKey: String?): Observable<Response> {
-    return if (pageKey != null) consumeRecipes(limit, searchTerm, pageKey) else return Observable.empty<Response>()
+  private fun buildContinuation(limit: Int, searchTerm: String, pageKey: String?): Observable<GifRecipeProviderResponse> {
+    return if (pageKey != null) consumeRecipes(limit, searchTerm, pageKey) else return Observable.empty<GifRecipeProviderResponse>()
   }
 }

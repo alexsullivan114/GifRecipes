@@ -6,5 +6,7 @@ interface GifRecipeProvider {
 
     val id: String
 
-    fun consumeRecipes(limit: Int, searchTerm: String = "", pageKey: String = ""): Observable<GifRecipeRepository.Response>
+    fun consumeRecipes(limit: Int, searchTerm: String = "", pageKey: String = ""): Observable<GifRecipeProviderResponse>
+
+    data class GifRecipeProviderResponse(val recipes: List<GifRecipe>, val continuation: (Int) -> Observable<GifRecipeProviderResponse>)
 }
