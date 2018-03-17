@@ -4,7 +4,7 @@ import io.reactivex.Observable
 
 internal class GifRecipeRepositoryImpl(private val providers: List<GifRecipeProvider>) : GifRecipeRepository {
 
-  override fun consumeGifRecipes(totalDesiredGifs: Int, searchTerm: String): Observable<GifRecipeProvider.Response> {
+  override fun consumeGifRecipes(totalDesiredGifs: Int, searchTerm: String): Observable<GifRecipeRepository.Response> {
     if (providers.isEmpty()) {
       return Observable.empty()
     }
@@ -16,14 +16,14 @@ internal class GifRecipeRepositoryImpl(private val providers: List<GifRecipeProv
     return mergeResponses(observables)
   }
 
-  private fun mergeResponses(responses: List<Observable<GifRecipeProvider.Response>>): Observable<GifRecipeProvider.Response> {
+  private fun mergeResponses(responses: List<Observable<GifRecipeRepository.Response>>): Observable<GifRecipeRepository.Response> {
     return Observable.mergeDelayError(responses)
         .toList()
         .map { responseList ->
           val recipes = responseList.flatMap { it.recipes }.toMutableList()
           recipes.shuffle()
           val observable = mergeResponses(responseList.map { it.continuation })
-          GifRecipeProvider.Response(recipes, observable)
+          GifRecipeRepository.Response(recipes, observable)
         }
         .toObservable()
   }

@@ -1,7 +1,7 @@
 package com.alexsullivan.reddit.providers
 
 import com.alexsullivan.GifRecipe
-import com.alexsullivan.GifRecipeProvider.Response
+import com.alexsullivan.GifRecipeRepository.Response
 import com.alexsullivan.ImageType
 import com.alexsullivan.logging.Logger
 import com.alexsullivan.reddit.models.RedditGifRecipe

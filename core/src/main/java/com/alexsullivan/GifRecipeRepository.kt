@@ -10,5 +10,7 @@ interface GifRecipeRepository {
         }
     }
 
-    fun consumeGifRecipes(totalDesiredGifs: Int, searchTerm: String = ""): Observable<GifRecipeProvider.Response>
+    fun consumeGifRecipes(totalDesiredGifs: Int, searchTerm: String = ""): Observable<Response>
+
+    data class Response(val recipes: List<GifRecipe>, val continuation: Observable<Response>)
 }

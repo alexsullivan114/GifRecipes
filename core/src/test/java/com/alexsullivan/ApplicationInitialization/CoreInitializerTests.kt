@@ -2,6 +2,7 @@ package com.alexsullivan.ApplicationInitialization
 
 import com.alexsullivan.GifRecipeProvider
 import com.alexsullivan.GifRecipeRegistrar
+import com.alexsullivan.GifRecipeRepository
 import io.reactivex.Observable
 import org.junit.Assert
 import org.junit.Test
@@ -12,7 +13,7 @@ class CoreInitializerTests {
             override val id: String
                 get() = "1"
 
-            override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProvider.Response> =
+            override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeRepository.Response> =
                 Observable.empty()
         }
 
@@ -20,7 +21,7 @@ class CoreInitializerTests {
             override val id: String
                 get() = "2"
 
-            override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProvider.Response> =
+            override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeRepository.Response> =
                 Observable.empty()
         }
 
@@ -28,7 +29,7 @@ class CoreInitializerTests {
             override val id: String
                 get() = "3"
 
-            override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProvider.Response> =
+            override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeRepository.Response> =
                 Observable.empty()
         }
 
@@ -36,7 +37,7 @@ class CoreInitializerTests {
             override val id: String
                 get() = "4"
 
-            override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProvider.Response> =
+            override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeRepository.Response> =
                 Observable.empty()
         }
 

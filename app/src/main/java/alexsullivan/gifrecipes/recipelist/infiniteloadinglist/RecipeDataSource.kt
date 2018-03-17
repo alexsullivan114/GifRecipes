@@ -8,13 +8,12 @@ import alexsullivan.gifrecipes.utils.datasourceutils.DataSourceErrorProvider
 import alexsullivan.gifrecipes.utils.datasourceutils.GifDataSourceFactory
 import android.arch.paging.DataSource
 import android.arch.paging.PageKeyedDataSource
-import com.alexsullivan.GifRecipeProvider
 import com.alexsullivan.GifRecipeRepository
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Observable
 import io.reactivex.subjects.BehaviorSubject
 
-class RecipeDataSource(private val gifRecipeUiProvider: GifRecipeUiProvider) : PageKeyedDataSource<Observable<GifRecipeProvider.Response>, GifRecipeUI>(), DataSourceErrorProvider {
+class RecipeDataSource(private val gifRecipeUiProvider: GifRecipeUiProvider) : PageKeyedDataSource<Observable<GifRecipeRepository.Response>, GifRecipeUI>(), DataSourceErrorProvider {
 
   private val initialLoadingSubject = BehaviorSubject.create<Boolean>()
   private val furtherLoadingSubject = BehaviorSubject.create<Boolean>()
@@ -28,7 +27,7 @@ class RecipeDataSource(private val gifRecipeUiProvider: GifRecipeUiProvider) : P
   override val initialLoadingErrorFlowable = initialLoadingErrorSubject.toFlowable(BackpressureStrategy.BUFFER)
   override val futherLoadingErrorFlowable = furtherLoadingErrorSubject.toFlowable(BackpressureStrategy.BUFFER)
 
-  override fun loadAfter(params: LoadParams<Observable<GifRecipeProvider.Response>>, callback: LoadCallback<Observable<GifRecipeProvider.Response>, GifRecipeUI>) {
+  override fun loadAfter(params: LoadParams<Observable<GifRecipeRepository.Response>>, callback: LoadCallback<Observable<GifRecipeRepository.Response>, GifRecipeUI>) {
     gifRecipeUiProvider.fetchRecipes(params.key)
         .doOnSubscribe { furtherLoadingSubject.onNext(true) }
         .doFinally { furtherLoadingSubject.onNext(false) }
@@ -39,7 +38,7 @@ class RecipeDataSource(private val gifRecipeUiProvider: GifRecipeUiProvider) : P
         })
   }
 
-  override fun loadInitial(params: LoadInitialParams<Observable<GifRecipeProvider.Response>>, callback: LoadInitialCallback<Observable<GifRecipeProvider.Response>, GifRecipeUI>) {
+  override fun loadInitial(params: LoadInitialParams<Observable<GifRecipeRepository.Response>>, callback: LoadInitialCallback<Observable<GifRecipeRepository.Response>, GifRecipeUI>) {
     gifRecipeUiProvider.fetchRecipes(params.requestedLoadSize)
         .doOnSubscribe { initialLoadingSubject.onNext(true) }
         .doFinally { initialLoadingSubject.onNext(false) }
@@ -50,7 +49,7 @@ class RecipeDataSource(private val gifRecipeUiProvider: GifRecipeUiProvider) : P
         })
   }
 
-  override fun loadBefore(params: LoadParams<Observable<GifRecipeProvider.Response>>, callback: LoadCallback<Observable<GifRecipeProvider.Response>, GifRecipeUI>) {
+  override fun loadBefore(params: LoadParams<Observable<GifRecipeRepository.Response>>, callback: LoadCallback<Observable<GifRecipeRepository.Response>, GifRecipeUI>) {
     //no-op, we always keep the whole gif recipe list in memory.
   }
 
