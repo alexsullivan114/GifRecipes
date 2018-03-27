@@ -11,4 +11,5 @@ import com.alexsullivan.ImageType
     var thumbnail: String? = null
     var imageType: ImageType? = null
     var title: String? = null
+    var recipeSourceThumbnail: Int? = null
 }

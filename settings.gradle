@@ -1,1 +1,1 @@
-include ':app', ':reddit', ':core', ':imgur-core', ':gfycat-core', ':gfycat'
+include ':app', ':reddit', ':core', ':imgur-core', ':gfycat-core', ':gfycat', ':mylibrary'
