@@ -44,69 +44,102 @@
     <com.github.lzyzsd.circleprogress.DonutProgress
         android:id="@+id/progress"
         style="?android:attr/progressBarStyleHorizontal"
-        android:visibility="gone"
         android:layout_width="120dp"
         android:layout_height="120dp"
+        android:layout_marginLeft="0dp"
         android:progressDrawable="@drawable/circular_determinate_progess"
-        app:donut_max="100"
+        android:visibility="gone"
+        app:donut_background_color="#AAFFFFFF"
         app:donut_finished_color="@color/colorAccent"
         app:donut_finished_stroke_width="5dp"
+        app:donut_max="100"
         app:donut_text_color="@color/colorAccent"
         app:donut_text_size="20sp"
-        app:donut_background_color="#AAFFFFFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginLeft="0dp"/>
+        app:layout_constraintTop_toTopOf="parent"/>
 
-    <LinearLayout
+    <View
         android:id="@+id/bottomBar"
         android:layout_width="0dp"
         android:layout_height="60dp"
         android:layout_marginLeft="0dp"
         android:layout_marginRight="0dp"
-        android:padding="12dp"
-        android:orientation="horizontal"
         android:background="@color/transparentViewOverlayBackground"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginBottom="0dp">
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"/>
 
-        <TextView
-            android:id="@+id/titleText"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:textAppearance="@style/BaseTextAppearance"
-            android:textColor="@android:color/white"
-            android:textSize="14sp"
-            android:layout_weight="4"
-            tools:text="Testing"/>
+    <TextView
+        android:id="@+id/titleText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_weight="4"
+        android:textAppearance="@style/BaseTextAppearance"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/guideline"
+        app:layout_constraintStart_toStartOf="@+id/bottomBar"
+        app:layout_constraintTop_toTopOf="@+id/bottomBar"
+        tools:text="Testing"/>
 
-        <android.support.v4.widget.Space
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"/>
+    <ImageView
+        android:id="@+id/source_image"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:tint="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/guideline"
+        app:layout_constraintTop_toTopOf="@+id/bottomBar"
+        tools:src="@drawable/ic_icons8_reddit"/>
 
-        <ImageButton
-            android:id="@+id/share"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingLeft="12dp"
-            android:paddingRight="24dp"
-            android:src="@drawable/ic_share"
-            android:layout_gravity="center"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:tint="@android:color/white"/>
+    <ImageButton
+        android:id="@+id/share"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="16dp"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:src="@drawable/ic_share"
+        android:tint="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/favorite"
+        app:layout_constraintStart_toEndOf="@+id/source_image"
+        app:layout_constraintTop_toTopOf="@+id/bottomBar"
+        app:layout_constraintVertical_bias="1.0"/>
 
-        <alexsullivan.gifrecipes.components.LikeButton
-            android:id="@+id/favorite"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:tint="@android:color/white"/>
+    <alexsullivan.gifrecipes.components.LikeButton
+        android:id="@+id/favorite"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="16dp"
+        android:tint="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/bottomBar"
+        app:layout_constraintTop_toTopOf="@+id/bottomBar"
+        app:layout_constraintVertical_bias="1.0"/>
 
-    </LinearLayout>
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.7"/>
+
 </android.support.constraint.ConstraintLayout>

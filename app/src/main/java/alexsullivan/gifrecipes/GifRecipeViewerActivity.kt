@@ -31,7 +31,6 @@ import kotlin.properties.Delegates
 
 class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipeViewerPresenter>() {
 
-    private val PLAYBACK_POSITION_KEY = "PLAYBACK_POSITION_KEY"
     private var mediaPlayer: StateAwareMediaPlayer? = null
     private var initPlaybackPosition = 0
     private var shouldPlayVideo = false
@@ -51,13 +50,14 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
 
     companion object IntentFactory {
 
-        val RECIPE_KEY = "RECIPE_KEY"
+        const val RECIPE_KEY = "RECIPE_KEY"
 
         fun build(context: Context, recipe: GifRecipeUI): Intent {
-            val intent = Intent(context, GifRecipeViewerActivity::class.java)
+            return Intent(context, GifRecipeViewerActivity::class.java)
                     .putExtra(RECIPE_KEY, recipe)
-            return intent
         }
+
+        private val PLAYBACK_POSITION_KEY = "PLAYBACK_POSITION_KEY"
     }
 
     override fun initPresenter(): GifRecipeViewerPresenter {
@@ -75,7 +75,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
         // If our activity is being recreated, the shared element transition already happened.
         savedInstanceState?.let {
             sharedElementTransitionDone = true
-            initPlaybackPosition = it.getInt(PLAYBACK_POSITION_KEY)
+            initPlaybackPosition = it.getInt(IntentFactory.PLAYBACK_POSITION_KEY)
         }
         setContentView(R.layout.layout_gif_recipe_viewer)
         postponeEnterTransition()
@@ -97,7 +97,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
     override fun onSaveInstanceState(outState: Bundle?) {
         super.onSaveInstanceState(outState)
         mediaPlayer?.safeApply {
-            outState?.putInt(PLAYBACK_POSITION_KEY, currentPosition)
+            outState?.putInt(IntentFactory.PLAYBACK_POSITION_KEY, currentPosition)
         }
     }
 
@@ -131,11 +131,11 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
         }
     }
 
-
     private fun showPreloadingState(viewState: Preloading) {
         loadPlaceholderImage(viewState.recipe)
         progress.animateVisible()
         titleText.text = viewState.recipe.title
+        source_image.setImageResource(viewState.recipe.recipeSourceThumbnail)
         shareUrl = viewState.recipe.url
     }
 
@@ -144,6 +144,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
         progress.animateVisible()
         progress.progress = viewState.progress.toFloat()
         titleText.text = viewState.recipe.title
+        source_image.setImageResource(viewState.recipe.recipeSourceThumbnail)
         shouldPlayVideo = false
         url = viewState.url
         shareUrl = viewState.recipe.url
@@ -154,6 +155,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
         progress.animateVisible()
         progress.progress = viewState.progress.toFloat()
         titleText.text = viewState.recipe.title
+        source_image.setImageResource(viewState.recipe.recipeSourceThumbnail)
         url = viewState.url
         shouldPlayVideo = true
         toggleVideoMode()
@@ -167,6 +169,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
         progress.animateVisible()
         progress.progress = viewState.progress.toFloat()
         titleText.text = viewState.recipe.title
+        source_image.setImageResource(viewState.recipe.recipeSourceThumbnail)
         url = viewState.url
         shouldPlayVideo = true
         animateProgressDown()
@@ -177,6 +180,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
         progress.animateGone()
         titleText.text = viewState.recipe.title
         loadPlaceholderImage(viewState.recipe)
+        source_image.setImageResource(viewState.recipe.recipeSourceThumbnail)
         url = viewState.url
         shouldPlayVideo = true
         toggleVideoMode()
@@ -186,6 +190,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
     private fun showPlayingGifState(viewState: PlayingGif) {
         progress.animateGone()
         titleText.text = viewState.recipe.title
+        source_image.setImageResource(viewState.recipe.recipeSourceThumbnail)
         loadPlaceholderImage(viewState.recipe, { aspectRatio ->
             toggleGifMode(aspectRatio, viewState.url)
         })
