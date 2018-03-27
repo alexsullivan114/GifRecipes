@@ -127,7 +127,7 @@ class RecipeCategoryListFragment : BaseFragment<RecipeCategoryListViewState, Rec
       }
     }
     val adapter = list.castedAdapter<RecipeCategoryListAdapter>()
-    adapter.setList(state.list)
+    adapter.submitList(state.list)
     savedListState?.let {
       list.layoutManager?.onRestoreInstanceState(it)
       savedListState = null

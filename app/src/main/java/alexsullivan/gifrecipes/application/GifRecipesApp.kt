@@ -1,5 +1,6 @@
 package alexsullivan.gifrecipes.application
 
+import alexsullivan.com.gfycat.createGfycatRecipeProvider
 import alexsullivan.gifrecipes.cache.CacheServerImpl
 import alexsullivan.gifrecipes.preferences.RecipePreferences
 import android.app.Application
@@ -37,7 +38,8 @@ class GifRecipesApp : Application() {
     CoreInitializer.initialize(
         createRGifRecipesProvider(RecipePreferences.deviceId, AndroidLogger),
         createRVeganGifRecipesProvider(RecipePreferences.deviceId, AndroidLogger),
-        createRAlcoholGifRecipesProvider(RecipePreferences.deviceId, AndroidLogger)
+        createRAlcoholGifRecipesProvider(RecipePreferences.deviceId, AndroidLogger),
+        createGfycatRecipeProvider()
     )
   }
 
