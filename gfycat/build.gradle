@@ -1,0 +1,19 @@
+apply plugin: 'java'
+apply plugin: 'kotlin'
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile project(':core')
+    compile project(':imgur-core')
+    compile project(':gfycat-core')
+    compile "com.squareup.retrofit2:retrofit:$project.ext.retrofitVersion"
+    compile "com.squareup.retrofit2:converter-gson:$project.ext.retrofitVersion"
+    compile "com.squareup.retrofit2:adapter-rxjava2:$project.ext.retrofitVersion"
+    compile "com.google.code.gson:gson:$project.ext.gsonVersion"
+    compile "com.squareup.okhttp3:okhttp:$project.ext.okHttpVersion"
+    compile "com.squareup.okhttp3:logging-interceptor:$project.ext.okHttpVersion"
+    testCompile "junit:junit:$project.ext.junitVersion"
+}
+
+sourceCompatibility = project.ext.sourceCompat
+targetCompatibility = project.ext.targetCompat

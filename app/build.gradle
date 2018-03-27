@@ -33,15 +33,16 @@ dependencies {
 
     compile project(':core')
     compile project(':reddit')
-    def supportVersion = '27.0.2'
+    compile project(':gfycat')
+    def supportVersion = '27.1.0'
     def frescoVersion = '1.3.0'
     def componentsVersion = '1.0.0'
     def glideVersion = '4.0.0-RC1'
     compile "android.arch.lifecycle:runtime:$componentsVersion"
-    compile "android.arch.lifecycle:extensions:$componentsVersion"
+    compile "android.arch.lifecycle:extensions:1.1.0"
     compile "android.arch.persistence.room:runtime:$componentsVersion"
     compile "android.arch.persistence.room:rxjava2:$componentsVersion"
-    compile "android.arch.paging:runtime:1.0.0-alpha5"
+    compile "android.arch.paging:runtime:1.0.0-alpha6"
     compile "com.android.support:appcompat-v7:$supportVersion"
     compile "com.android.support:recyclerview-v7:$supportVersion"
     compile "com.android.support:design:$supportVersion"
@@ -54,7 +55,7 @@ dependencies {
     compile 'de.hdodenhof:circleimageview:2.1.0'
     compile 'com.danikula:videocache:2.7.0'
     compile 'com.github.lzyzsd:circleprogress:1.2.1'
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     kapt "android.arch.persistence.room:compiler:$componentsVersion"
     kapt "android.arch.lifecycle:compiler:$componentsVersion"
     kapt "com.github.bumptech.glide:compiler:$glideVersion"

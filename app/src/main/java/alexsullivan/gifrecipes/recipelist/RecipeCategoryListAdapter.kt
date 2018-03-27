@@ -6,8 +6,8 @@ import alexsullivan.gifrecipes.favoriting.FavoriteCache
 import alexsullivan.gifrecipes.recipelist.RecipeCategoryListAdapter.GifRecipeViewHolder
 import alexsullivan.gifrecipes.utils.previewImageUrl
 import android.arch.paging.PagedListAdapter
-import android.support.v7.recyclerview.extensions.DiffCallback
-import android.support.v7.recyclerview.extensions.ListAdapterConfig
+import android.support.v7.recyclerview.extensions.AsyncDifferConfig
+import android.support.v7.util.DiffUtil
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -70,9 +70,9 @@ class RecipeCategoryListAdapter(private val clickCallback: ClickCallback,
   }
 }
 
-private fun buildConfig(): ListAdapterConfig<GifRecipeUI> {
-  return ListAdapterConfig.Builder<GifRecipeUI>()
-      .setDiffCallback(object : DiffCallback<GifRecipeUI>() {
+private fun buildConfig(): AsyncDifferConfig<GifRecipeUI> {
+  return AsyncDifferConfig.Builder<GifRecipeUI>(
+      object : DiffUtil.ItemCallback<GifRecipeUI>() {
         override fun areItemsTheSame(oldItem: GifRecipeUI, newItem: GifRecipeUI) =
             oldItem.id == newItem.id
 
