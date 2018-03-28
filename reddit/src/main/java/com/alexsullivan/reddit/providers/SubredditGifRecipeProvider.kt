@@ -1,5 +1,6 @@
 package com.alexsullivan.reddit.providers
 
+import alexsullivan.com.reddit.R
 import com.alexsullivan.GifRecipe
 import com.alexsullivan.GifRecipeProvider.GifRecipeProviderResponse
 import com.alexsullivan.ImageType
@@ -70,7 +71,7 @@ internal abstract class SubredditGifRecipeProvider(private val service: RedditSe
         .map { RedditGifRecipe(it.url, it.id, ImageType.GIF, it.thumbnail, it.previewUrl, it.domain, it.title, it.pageKey) }
         .flatMap(this::applyFilters)
         .filter { item -> dynamicMediaChecker(item.url) }
-        .map { item -> GifRecipe(item.url, item.id, item.thumbnail, item.imageType, item.title) }
+        .map { item -> GifRecipe(item.url, item.id, item.thumbnail, item.imageType, item.title, R.drawable.ic_icons8_reddit) }
         .sequential()
         .toObservable()
         .toList()

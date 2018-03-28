@@ -10,8 +10,9 @@ fun GifRecipe.toFavorite(): FavoriteRecipe {
     recipe.thumbnail = thumbnail
     recipe.imageType = imageType
     recipe.title = title
+    recipe.recipeSourceThumbnail = recipeSourceThumbnail
     return recipe
 }
 
 fun FavoriteRecipe.toGifRecipe() =
-    GifRecipe(url!!, id, thumbnail!!, imageType!!, title!!)
+    GifRecipe(url!!, id, thumbnail!!, imageType!!, title!!, recipeSourceThumbnail!!)

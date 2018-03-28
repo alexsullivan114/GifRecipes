@@ -1,5 +1,26 @@
-apply plugin: 'java'
-apply plugin: 'kotlin'
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+android {
+    compileSdkVersion 27
+
+    defaultConfig {
+        minSdkVersion 22
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
@@ -13,7 +34,11 @@ dependencies {
     compile "com.squareup.okhttp3:okhttp:$project.ext.okHttpVersion"
     compile "com.squareup.okhttp3:logging-interceptor:$project.ext.okHttpVersion"
     testCompile "junit:junit:$project.ext.junitVersion"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }
 
 sourceCompatibility = project.ext.sourceCompat
 targetCompatibility = project.ext.targetCompat
+repositories {
+    mavenCentral()
+}
