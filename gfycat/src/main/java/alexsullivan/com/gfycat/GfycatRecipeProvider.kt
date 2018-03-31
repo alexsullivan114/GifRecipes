@@ -24,5 +24,6 @@ internal class GfycatRecipeProvider(private val service: GfycatService) : GifRec
       { newLimit -> consumeRecipes(newLimit, searchTerm, pageKey) }
 
   private fun List<GfycatRecipe>.toGifRecipes(): List<GifRecipe> =
-      map { GifRecipe(it.mp4Url, it.mp4Url, it.thumb100PosterUrl, ImageType.VIDEO, it.title, R.drawable.ic_gfycat_logo) }
+      map { GifRecipe(it.mp4Url, it.mp4Url, it.thumb100PosterUrl, ImageType.VIDEO, it.title,
+          R.drawable.ic_gfycat_logo, it.mp4Url) }
 }

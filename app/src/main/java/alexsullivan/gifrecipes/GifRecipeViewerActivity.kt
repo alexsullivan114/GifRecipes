@@ -36,6 +36,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
     private var shouldPlayVideo = false
     private var hasRepositionedLoadingView = false
     private var shareUrl = ""
+    private var linkUrl = ""
 
     private var url: String? by Delegates.observable<String?>(null) {
         _, oldValue, newValue ->  triggerPlaybackCheck()
@@ -92,6 +93,9 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
         share.setOnClickListener {
             shareUrl.ifPresent(this::shareRecipe)
         }
+        source_image.setOnClickListener {
+            linkUrl.ifPresent(this::link)
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
@@ -137,6 +141,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
         titleText.text = viewState.recipe.title
         source_image.setImageResource(viewState.recipe.recipeSourceThumbnail)
         shareUrl = viewState.recipe.url
+        linkUrl = viewState.recipe.recipeSourceLink
     }
 
     private fun showLoadingGifState(viewState: LoadingGif) {
@@ -148,6 +153,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
         shouldPlayVideo = false
         url = viewState.url
         shareUrl = viewState.recipe.url
+        linkUrl = viewState.recipe.recipeSourceLink
     }
 
     private fun showLoadingVideoState(viewState: LoadingVideo) {
@@ -163,6 +169,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
             repositionLoadingIndicator()
         }
         shareUrl = viewState.recipe.url
+        linkUrl = viewState.recipe.recipeSourceLink
     }
 
     private fun showTransitioningVideoState(viewState: TransitioningVideo) {
@@ -174,6 +181,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
         shouldPlayVideo = true
         animateProgressDown()
         shareUrl = viewState.recipe.url
+        linkUrl = viewState.recipe.recipeSourceLink
     }
 
     private fun showPlayingVideoState(viewState: PlayingVideo) {
@@ -185,6 +193,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
         shouldPlayVideo = true
         toggleVideoMode()
         shareUrl = viewState.recipe.url
+        linkUrl = viewState.recipe.recipeSourceLink
     }
 
     private fun showPlayingGifState(viewState: PlayingGif) {
@@ -196,6 +205,7 @@ class GifRecipeViewerActivity : BaseActivity<GifRecipeViewerViewState, GifRecipe
         })
         shouldPlayVideo = false
         shareUrl = viewState.recipe.url
+        linkUrl = viewState.recipe.recipeSourceLink
     }
 
 

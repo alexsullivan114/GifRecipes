@@ -9,7 +9,8 @@ internal data class RedditListingItem(val type: String, val id: String, val url:
                                       val domain: String, val thumbnail: String? = null,
                                       val previewUrl: String? = null, val title: String,
                                       val pageKey: String?,
-                                      val removed: Boolean = false)
+                                      val removed: Boolean = false,
+                                      val permaLink: String)
 
 internal class RedditListingResponse(val kind: String, val data: RedditListingResponseData)
 

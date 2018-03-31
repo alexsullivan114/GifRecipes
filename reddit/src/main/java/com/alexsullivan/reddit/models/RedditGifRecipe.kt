@@ -7,4 +7,4 @@ import com.alexsullivan.ImageType
  */
 internal data class RedditGifRecipe(val url: String, val id: String, val imageType: ImageType,
                                     val thumbnail: String?, val previewUrl: String?, val domain: String, val title: String,
-                                    val pageKey: String?)
+                                    val pageKey: String?, val recipeSourceLink: String)

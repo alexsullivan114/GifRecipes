@@ -51,7 +51,7 @@ class GifRecipeRepositoryImplTests {
   fun testProperMerging() {
     fun builder(vararg ids: String): GifRecipeProviderResponse {
       return GifRecipeProviderResponse(
-          ids.map { GifRecipe("", it, "", ImageType.VIDEO, "") }
+          ids.map { GifRecipe("", it, "", ImageType.VIDEO, "", 0, "") }
           , { Observable.defer { Observable.just(builder(*ids)) } })
     }
 
@@ -100,7 +100,7 @@ class GifRecipeRepositoryImplTests {
   fun testProperContinuationMerging() {
     fun builder(vararg ids: String): GifRecipeProviderResponse {
       return GifRecipeProviderResponse(
-          ids.map { GifRecipe("", it, "", ImageType.VIDEO, "") }
+          ids.map { GifRecipe("", it, "", ImageType.VIDEO, "", 0, "") }
           ,{ Observable.defer { Observable.just(builder(*ids)) } })
     }
 
@@ -231,7 +231,7 @@ class GifRecipeRepositoryImplTests {
   fun testErrorDoesntKillStream() {
     val builder = fun(id: String) = GifRecipeProviderResponse(
         listOf(
-            GifRecipe("", id, "", ImageType.VIDEO, "")
+            GifRecipe("", id, "", ImageType.VIDEO, "", 0, "")
         ), { Observable.empty() })
     val exception = RuntimeException()
     val provider1 = object : GifRecipeProvider {

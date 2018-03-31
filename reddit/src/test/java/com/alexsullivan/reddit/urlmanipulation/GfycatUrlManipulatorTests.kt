@@ -43,7 +43,7 @@ class GfycatUrlManipulatorTests {
     @Test fun testHappyPathLookup() {
         val url = "https://gfycat.com/PlayfulIckyApisdorsatalaboriosa"
         val manipulator = GfycatUrlManipulator(buildMockRepository("PlayfulIckyApisdorsatalaboriosa"), { true })
-        val recipe = RedditGifRecipe(url, "fake", ImageType.VIDEO, "fake", "fake", "fake", "fake", "")
+        val recipe = RedditGifRecipe(url, "fake", ImageType.VIDEO, "fake", "fake", "fake", "fake", "", "")
         val testObserver = TestObserver<RedditGifRecipe>()
         manipulator.modifyRedditItem(recipe).subscribe(testObserver)
         testObserver.assertComplete()
@@ -55,7 +55,7 @@ class GfycatUrlManipulatorTests {
     @Test fun testHappyPathLookupAlternativeUrl() {
         val url = "https://giant.gfycat.com/PlayfulIckyApisdorsatalaboriosa"
         val manipulator = GfycatUrlManipulator(buildMockRepository("PlayfulIckyApisdorsatalaboriosa"), { true })
-        val recipe = RedditGifRecipe(url, "fake", ImageType.VIDEO, "fake", "fake", "fake", "fake", "")
+        val recipe = RedditGifRecipe(url, "fake", ImageType.VIDEO, "fake", "fake", "fake", "fake", "", "")
         val testObserver = TestObserver<RedditGifRecipe>()
         manipulator.modifyRedditItem(recipe).subscribe(testObserver)
         testObserver.assertComplete()
@@ -67,7 +67,7 @@ class GfycatUrlManipulatorTests {
     @Test fun testFailedLookup() {
         val url = "https://giant.gfycat.com/PlayfulIckyApisdorsatalaboriosa"
         val manipulator = GfycatUrlManipulator(buildErrorRepository(), { true })
-        val recipe = RedditGifRecipe(url, "fake", ImageType.VIDEO, "fake", "fake", "fake", "fake", "")
+        val recipe = RedditGifRecipe(url, "fake", ImageType.VIDEO, "fake", "fake", "fake", "fake", "", "")
         val testObserver = TestObserver<RedditGifRecipe>()
         manipulator.modifyRedditItem(recipe).subscribe(testObserver)
         testObserver.assertComplete()
@@ -79,7 +79,7 @@ class GfycatUrlManipulatorTests {
     @Test fun testReturnThumbnailNotImage() {
         val url = "https://gfycat.com/PlayfulIckyApisdorsatalaboriosa"
         val manipulator = GfycatUrlManipulator(buildMockRepository("PlayfulIckyApisdorsatalaboriosa"), { false })
-        val recipe = RedditGifRecipe(url, "fake", ImageType.VIDEO, "fake", "fake", "fake", "fake", "")
+        val recipe = RedditGifRecipe(url, "fake", ImageType.VIDEO, "fake", "fake", "fake", "fake", "", "")
         val testObserver = TestObserver<RedditGifRecipe>()
         manipulator.modifyRedditItem(recipe).subscribe(testObserver)
         testObserver.assertComplete()

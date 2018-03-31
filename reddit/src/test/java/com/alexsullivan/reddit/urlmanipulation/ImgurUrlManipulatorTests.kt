@@ -33,7 +33,7 @@ class ImgurUrlManipulatorTests {
     @Test fun testHappyPathLookup() {
         val url = "https://imgur.com/sef12fsefes"
         val manipulator = ImgurUrlManipulator(buildMockRepository("sef12fsefes"), { true })
-        val recipe = RedditGifRecipe(url, "fake", ImageType.VIDEO, "fake", "fake", "fake", "fake", "")
+        val recipe = RedditGifRecipe(url, "fake", ImageType.VIDEO, "fake", "fake", "fake", "fake", "", "")
         val testObserver = TestObserver<RedditGifRecipe>()
         manipulator.modifyRedditItem(recipe).subscribe(testObserver)
         testObserver.assertComplete()
@@ -45,7 +45,7 @@ class ImgurUrlManipulatorTests {
     @Test fun testHappyPathLookupAlternativeUrl() {
         val url = "https://imgur.com/PlayfulIckyApisdorsatalaboriosa"
         val manipulator = ImgurUrlManipulator(buildMockRepository("PlayfulIckyApisdorsatalaboriosa"), { true })
-        val recipe = RedditGifRecipe(url, "fake", ImageType.VIDEO, "fake", "fake", "fake", "fake", "")
+        val recipe = RedditGifRecipe(url, "fake", ImageType.VIDEO, "fake", "fake", "fake", "fake", "", "")
         val testObserver = TestObserver<RedditGifRecipe>()
         manipulator.modifyRedditItem(recipe).subscribe(testObserver)
         testObserver.assertComplete()
@@ -57,7 +57,7 @@ class ImgurUrlManipulatorTests {
     @Test fun testFailedLookup() {
         val url = "https://i.imgur.com/PlayfulIckyApisdorsatalaboriosa"
         val manipulator = ImgurUrlManipulator(buildErrorRepository(), { true })
-        val recipe = RedditGifRecipe(url, "fake", ImageType.VIDEO, "fake", "fake", "fake", "fake", "")
+        val recipe = RedditGifRecipe(url, "fake", ImageType.VIDEO, "fake", "fake", "fake", "fake", "", "")
         val testObserver = TestObserver<RedditGifRecipe>()
         manipulator.modifyRedditItem(recipe).subscribe(testObserver)
         testObserver.assertComplete()
@@ -69,7 +69,7 @@ class ImgurUrlManipulatorTests {
     @Test fun testReturnThumbnailNotImage() {
         val url = "https://gfycat.com/PlayfulIckyApisdorsatalaboriosa"
         val manipulator = ImgurUrlManipulator(buildMockRepository("PlayfulIckyApisdorsatalaboriosa"), { false })
-        val recipe = RedditGifRecipe(url, "fake", ImageType.VIDEO, "fake", "fake", "fake", "fake", "")
+        val recipe = RedditGifRecipe(url, "fake", ImageType.VIDEO, "fake", "fake", "fake", "fake", "", "")
         val testObserver = TestObserver<RedditGifRecipe>()
         manipulator.modifyRedditItem(recipe).subscribe(testObserver)
         testObserver.assertComplete()
