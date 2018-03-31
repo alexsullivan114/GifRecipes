@@ -173,7 +173,7 @@ class RedditGifRecipeProviderTests {
         for (i in 0 until count) {
             val id = ids.elementAtOrElse(i, {"id${i+1}"})
             val item = RedditListingItem("t3", id, urls.elementAtOrElse(i, {"url${i+1}"}), "Gfycat", "", "",
-                titles.elementAtOrElse(i, {"Test Title ${i+1}"}), "key${i+1}", removedIds.contains(id))
+                titles.elementAtOrElse(i, {"Test Title ${i+1}"}), "key${i+1}", removedIds.contains(id), "")
             items.add(i, item)
         }
 
