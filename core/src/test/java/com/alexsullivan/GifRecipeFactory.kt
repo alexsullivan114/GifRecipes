@@ -6,4 +6,5 @@ fun createRecipe(url: String = "",
                  imageType: ImageType = ImageType.VIDEO,
                  title: String = "",
                  sourceThumbnail: Int = 0,
-                 recipeSourceLink: String = ""): GifRecipe = GifRecipe(url, id, thumbnail, imageType, title, sourceThumbnail, recipeSourceLink)
+                 recipeSourceLink: String = "",
+                 creationDate: Long = 0): GifRecipe = GifRecipe(url, id, thumbnail, imageType, title, sourceThumbnail, recipeSourceLink, creationDate)
