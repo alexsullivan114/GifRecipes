@@ -15,7 +15,7 @@ internal class RedditResponseItemDeserializer : JsonDeserializer<RedditListingIt
             // If this post was removed for legal reasons, we're not going to try and gather its
             // details.
             if (removed != JsonNull.INSTANCE) {
-                return RedditListingItem("", "", "", "", "", "", "", null, true, "")
+                return RedditListingItem("", "", "", "", "", "", "", null, true, "", 0)
             }
             val id = data.get("id").asString
             val url = data.get("url").asString
@@ -35,7 +35,8 @@ internal class RedditResponseItemDeserializer : JsonDeserializer<RedditListingIt
                 }
             }
             val domain: String = data.get("domain").asString
-            return RedditListingItem(kind, id, url, domain, thumbnail, previewUrl, title, null, permaLink = permaLink)
+            val createdTime = data.get("created").asLong
+            return RedditListingItem(kind, id, url, domain, thumbnail, previewUrl, title, null, permaLink = permaLink, created = createdTime)
         }
         catch (exception: JsonParseException) {
             throw JsonParseException("Json doesn't match expected reddit listing format! " + exception)

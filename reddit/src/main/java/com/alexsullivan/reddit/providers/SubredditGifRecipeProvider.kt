@@ -68,10 +68,10 @@ internal abstract class SubredditGifRecipeProvider(private val service: RedditSe
         .parallel()
         .runOn(backgroundScheduler)
         .filter { !it.removed }
-        .map { RedditGifRecipe(it.url, it.id, ImageType.GIF, it.thumbnail, it.previewUrl, it.domain, it.title, it.pageKey, it.permaLink) }
+        .map { RedditGifRecipe(it.url, it.id, ImageType.GIF, it.thumbnail, it.previewUrl, it.domain, it.title, it.pageKey, it.permaLink, it.created) }
         .flatMap(this::applyFilters)
         .filter { item -> dynamicMediaChecker(item.url) }
-        .map { item -> GifRecipe(item.url, item.id, item.thumbnail, item.imageType, item.title, R.drawable.ic_icons8_reddit, item.recipeSourceLink) }
+        .map { item -> GifRecipe(item.url, item.id, item.thumbnail, item.imageType, item.title, R.drawable.ic_icons8_reddit, item.recipeSourceLink, item.creationDate) }
         .sequential()
         .toObservable()
         .toList()

@@ -35,7 +35,7 @@ class CategorySelectionPresenterImpl(repository: GifRecipeRepository,
         .flatMap { Observable.fromIterable(it.recipes) }
         .map { it.copy(url = it.url, imageType = it.imageType) }
         .map { GifRecipeUI(it.url, it.id, it.thumbnail, it.imageType, it.title,
-            recipeSourceThumbnail = it.recipeSourceThumbnail, recipeSourceLink = it.recipeSourceLink) }
+            recipeSourceThumbnail = it.recipeSourceThumbnail, recipeSourceLink = it.recipeSourceLink, creationDate = it.creationDate) }
         .toList()
         .subscribe({ list: MutableList<GifRecipeUI> ->
           val endTime = System.currentTimeMillis() - startTime

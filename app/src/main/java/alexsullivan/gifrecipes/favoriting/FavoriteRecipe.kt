@@ -12,4 +12,5 @@ import com.alexsullivan.ImageType
     var title: String? = null
     var recipeSourceThumbnail: Int? = null
     var recipeSourceLink: String? = null
+    var creationDate: Long? = null
 }

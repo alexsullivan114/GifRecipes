@@ -23,7 +23,7 @@ internal class GifRecipeRepositoryImpl(private val providers: List<GifRecipeProv
         .toList()
         .map { responseList ->
           val recipes = responseList.flatMap { it.recipes }.toMutableList()
-          recipes.shuffle()
+          recipes.sortByDescending { it.creationDate }
           val observable = mergeResponses(requestedSize, responseList.map { it.continuation(requestedSize / responseList.size) })
           GifRecipeRepository.Response(recipes, observable)
         }

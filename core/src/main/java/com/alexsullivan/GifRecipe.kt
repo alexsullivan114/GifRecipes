@@ -2,7 +2,7 @@ package com.alexsullivan
 
 data class GifRecipe (val url: String, val id: String, val thumbnail: String?,
                       val imageType: ImageType, val title: String, val recipeSourceThumbnail: Int,
-                      val recipeSourceLink: String)
+                      val recipeSourceLink: String, val creationDate: Long)
 
 enum class ImageType(val value: Int) {
     GIF(0),

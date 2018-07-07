@@ -8,12 +8,13 @@ import com.alexsullivan.ImageType
 // intents.
 data class GifRecipeUI(val url: String, val id: String, val thumbnail: String?,
                        val imageType: ImageType, val title: String, val favorite: Boolean = false,
-                       val recipeSourceThumbnail: Int, val recipeSourceLink: String) : Parcelable {
+                       val recipeSourceThumbnail: Int, val recipeSourceLink: String, val creationDate: Long) : Parcelable {
   constructor(parcel: Parcel) : this(parcel.readString(), parcel.readString(),
       parcel.readString(), parcel.readSerializable() as ImageType,
       parcel.readString(), parcel.readInt() == 1,
       parcel.readInt(),
-      parcel.readString())
+      parcel.readString(),
+          parcel.readLong())
 
   override fun writeToParcel(parcel: Parcel, flags: Int) {
     parcel.writeString(url)
@@ -24,6 +25,7 @@ data class GifRecipeUI(val url: String, val id: String, val thumbnail: String?,
     parcel.writeInt(if (favorite) 1 else 0)
     parcel.writeInt(recipeSourceThumbnail)
     parcel.writeString(recipeSourceLink)
+    parcel.writeLong(creationDate)
   }
 
   override fun describeContents(): Int {
