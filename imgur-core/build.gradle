@@ -6,15 +6,15 @@ repositories {
 }
 
 dependencies {
-    compile project(':core')
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-    compile "com.squareup.retrofit2:retrofit:$project.ext.retrofitVersion"
-    compile "com.squareup.retrofit2:converter-gson:$project.ext.retrofitVersion"
-    compile "com.squareup.retrofit2:adapter-rxjava2:$project.ext.retrofitVersion"
-    compile "com.google.code.gson:gson:$project.ext.gsonVersion"
-    compile "com.squareup.okhttp3:okhttp:$project.ext.okHttpVersion"
-    testCompile "junit:junit:$project.ext.junitVersion"
+    implementation project(':core')
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation "com.squareup.retrofit2:retrofit:$project.ext.retrofitVersion"
+    implementation "com.squareup.retrofit2:converter-gson:$project.ext.retrofitVersion"
+    implementation "com.squareup.retrofit2:adapter-rxjava2:$project.ext.retrofitVersion"
+    implementation "com.google.code.gson:gson:$project.ext.gsonVersion"
+    implementation "com.squareup.okhttp3:okhttp:$project.ext.okHttpVersion"
+    testImplementation "junit:junit:$project.ext.junitVersion"
 }
 
 sourceCompatibility = project.ext.sourceCompat

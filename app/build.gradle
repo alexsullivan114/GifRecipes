@@ -29,42 +29,42 @@ allprojects {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    compile project(':core')
-    compile project(':reddit')
-    compile project(':gfycat')
-    def supportVersion = '27.1.0'
+    implementation project(':core')
+    implementation project(':reddit')
+    implementation project(':gfycat')
+    def supportVersion = '27.1.1'
     def frescoVersion = '1.3.0'
-    def componentsVersion = '1.0.0'
+    def componentsVersion = '1.1.1'
     def glideVersion = '4.0.0-RC1'
-    compile "android.arch.lifecycle:runtime:$componentsVersion"
-    compile "android.arch.lifecycle:extensions:1.1.0"
-    compile "android.arch.persistence.room:runtime:$componentsVersion"
-    compile "android.arch.persistence.room:rxjava2:$componentsVersion"
-    compile "android.arch.paging:runtime:1.0.0-alpha6"
-    compile "com.android.support:appcompat-v7:$supportVersion"
-    compile "com.android.support:recyclerview-v7:$supportVersion"
-    compile "com.android.support:design:$supportVersion"
-    compile "com.facebook.fresco:fresco:$frescoVersion"
-    compile "com.facebook.fresco:animated-gif:$frescoVersion"
-    compile "com.github.bumptech.glide:glide:$glideVersion"
-    compile "com.github.bumptech.glide:recyclerview-integration:$glideVersion"
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
-    compile 'de.hdodenhof:circleimageview:2.1.0'
-    compile 'com.danikula:videocache:2.7.0'
-    compile 'com.github.lzyzsd:circleprogress:1.2.1'
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation "android.arch.lifecycle:runtime:$componentsVersion"
+    implementation "android.arch.lifecycle:extensions:1.1.1"
+    implementation "android.arch.persistence.room:runtime:$componentsVersion"
+    implementation "android.arch.persistence.room:rxjava2:$componentsVersion"
+    implementation "android.arch.paging:runtime:1.0.1"
+    implementation "com.android.support:appcompat-v7:$supportVersion"
+    implementation "com.android.support:recyclerview-v7:$supportVersion"
+    implementation "com.android.support:design:$supportVersion"
+    implementation "com.facebook.fresco:fresco:$frescoVersion"
+    implementation "com.facebook.fresco:animated-gif:$frescoVersion"
+    implementation "com.github.bumptech.glide:glide:$glideVersion"
+    implementation "com.github.bumptech.glide:recyclerview-integration:$glideVersion"
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    implementation 'de.hdodenhof:circleimageview:2.1.0'
+    implementation 'com.danikula:videocache:2.7.0'
+    implementation 'com.github.lzyzsd:circleprogress:1.2.1'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     kapt "android.arch.persistence.room:compiler:$componentsVersion"
     kapt "android.arch.lifecycle:compiler:$componentsVersion"
     kapt "com.github.bumptech.glide:compiler:$glideVersion"
 
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+    androidTestImplementation('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 
-    testCompile "junit:junit:$project.ext.junitVersion"
+    testImplementation "junit:junit:$project.ext.junitVersion"
 
     sourceCompatibility = project.ext.sourceCompat
     targetCompatibility = project.ext.targetCompat

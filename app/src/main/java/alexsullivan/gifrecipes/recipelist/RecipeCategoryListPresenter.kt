@@ -75,21 +75,22 @@ class RecipeCategoryListPresenterImpl(searchTerm: String,
         .addTo(disposables)
   }
 
-  private fun bindSearchTermStream() {
-    searchTermObservable
-        .subscribeOn(Schedulers.io())
-        .distinctUntilChanged()
-        .subscribe {
-          val factory = Factory<Any, GifRecipeUI> { createAndBindDataSource(it) as DataSource<Any, GifRecipeUI>? }
-          val config = PagedList.Config.Builder().setEnablePlaceholders(false).setPageSize(10).build()
-          LivePagedListBuilder(factory, config).build().observeForever { list: PagedList<GifRecipeUI>? ->
-            list?.let {
-              pushValue(RecipeCategoryListViewState.PagingList(it, false))
-            }
+  private fun bindSearchTermStream() = searchTermObservable
+      .subscribeOn(Schedulers.io())
+      .distinctUntilChanged()
+      .subscribe {
+        val factory = object: Factory<Any, GifRecipeUI>() {
+          override fun create(): DataSource<Any, GifRecipeUI> =
+              createAndBindDataSource(it) as DataSource<Any, GifRecipeUI>
+        }
+        val config = PagedList.Config.Builder().setEnablePlaceholders(false).setPageSize(10).build()
+        LivePagedListBuilder(factory, config).build().observeForever { list: PagedList<GifRecipeUI>? ->
+          list?.let {
+            pushValue(RecipeCategoryListViewState.PagingList(it, false))
           }
         }
-        .addTo(disposables)
-  }
+      }
+      .addTo(disposables)
 
   private fun createAndBindDataSource(searchTerm: String): DataSource<*, GifRecipeUI> {
     val dataSource = gifDataSourceFactory.create(searchTerm, favoriteCache)
