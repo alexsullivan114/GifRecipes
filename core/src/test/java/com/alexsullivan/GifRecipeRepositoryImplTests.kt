@@ -10,7 +10,7 @@ import org.junit.Test
 class GifRecipeRepositoryImplTests {
 
   @Test
-  fun testEmptyConsumption() {
+  fun `empty providers return 0 recipes`() {
     val repo = GifRecipeRepositoryImpl(listOf())
     val observer = TestObserver<GifRecipeRepository.Response>()
     repo.consumeGifRecipes(5, "").subscribe(observer)
@@ -19,7 +19,7 @@ class GifRecipeRepositoryImplTests {
   }
 
   @Test
-  fun testProperCountCalled() {
+  fun `providers are called with a proper count`() {
     val count = 10
     val provider1 = object : GifRecipeProvider {
       override val id: String
@@ -48,47 +48,14 @@ class GifRecipeRepositoryImplTests {
   }
 
   @Test
-  fun testProperMerging() {
-    fun builder(vararg ids: String): GifRecipeProviderResponse {
-      return GifRecipeProviderResponse(
-          ids.map { createRecipe("", it, "", ImageType.VIDEO, "", 0, "") }
-          , { Observable.defer { Observable.just(builder(*ids)) } })
-    }
-
-    val provider1 = object : GifRecipeProvider {
-      override val id: String
-        get() = "1"
-
-      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> =
-          Observable.just(builder(id))
-    }
-
-    val provider2 = object : GifRecipeProvider {
-      override val id: String
-        get() = "2"
-
-      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> =
-          Observable.empty()
-    }
-
-    val provider3 = object : GifRecipeProvider {
-      override val id: String
-        get() = "3"
-
-      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> =
-          Observable.fromArray(builder(id, id, id))
-    }
-
-    val provider4 = object : GifRecipeProvider {
-      override val id: String
-        get() = "4"
-
-      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> =
-          Observable.fromArray(builder(id, id, id, id))
-    }
+  fun `providers merge all of their recipes together`() {
+    val provider1 = createProvider("1", 1)
+    val provider2 = createProvider("2", 0)
+    val provider3 = createProvider("3", 3)
+    val provider4 = createProvider("4", 4)
 
     val repo = GifRecipeRepositoryImpl(listOf(provider1, provider2, provider3, provider4))
-    val observer = repo.consumeGifRecipes(5, "").test()
+    val observer = repo.consumeGifRecipes(100, "").test()
     Assert.assertTrue(observer.awaitTerminalEvent())
     observer.assertComplete()
     Assert.assertEquals(1, observer.valueCount())
@@ -97,63 +64,59 @@ class GifRecipeRepositoryImplTests {
   }
 
   @Test
-  fun testProperContinuationMerging() {
-    fun builder(vararg ids: String): GifRecipeProviderResponse {
-      return GifRecipeProviderResponse(
-          ids.map { createRecipe("", it, "", ImageType.VIDEO, "", 0, "") }
-          ,{ Observable.defer { Observable.just(builder(*ids)) } })
-    }
-
-    val provider1 = object : GifRecipeProvider {
-      override val id: String
-        get() = "1"
-
-      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> =
-          Observable.just(builder(id))
-    }
-
-    val provider2 = object : GifRecipeProvider {
-      override val id: String
-        get() = "2"
-
-      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> =
-          Observable.empty()
-    }
-
-    val provider3 = object : GifRecipeProvider {
-      override val id: String
-        get() = "3"
-
-      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> =
-          Observable.fromArray(builder(id, id, id))
-    }
-
-    val provider4 = object : GifRecipeProvider {
-      override val id: String
-        get() = "4"
-
-      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> =
-          Observable.fromArray(builder(id, id, id, id))
-    }
+  fun `continuations are merged correctly`() {
+    val provider1 = createProvider("1", 1)
+    val provider2 = createProvider("2", 0)
+    val provider3 = createProvider("3", 3)
+    val provider4 = createProvider("4", 20)
 
     val repo = GifRecipeRepositoryImpl(listOf(provider1, provider2, provider3, provider4))
-    val observer = repo.consumeGifRecipes(5, "").test()
+    // We're asking for 20 gifs at a time. Across 4 providers, that mean each should be tasked
+    // with getting 5 gifs.
+    val observer = repo.consumeGifRecipes(20, "").test()
     Assert.assertTrue(observer.awaitTerminalEvent())
     observer.assertComplete()
     Assert.assertEquals(1, observer.valueCount())
     val recipes = observer.values().first().recipes
-    Assert.assertEquals(8, recipes.size)
+    // Each provider was tasked with getting 5 gifs. We got 1 from the first provider, 0 from the
+    // second provider, 3 from the third provider, and 5 from the fourth (since each was tasked with
+    // getting up to 5, so it was maxed out for the fourth provider) for a total of 9 gifs.
+    Assert.assertEquals(9, recipes.size)
+    // Now we're looking at the continuation, so the next round of gifs.
     val continuation = observer.values().first().continuation
     val continuationObserver = continuation.test()
     Assert.assertTrue(continuationObserver.awaitTerminalEvent())
     continuationObserver.assertComplete()
     Assert.assertEquals(1, continuationObserver.valueCount())
     val continuationRecipes = continuationObserver.values().first().recipes
-    Assert.assertEquals(8, continuationRecipes.size)
+    // In the last iteration we got results from the first, third, and fourth providers and nothing
+    // from the second provider. So we've exhausted the second provider. Now we're going to ask
+    // each provider for 20/3 gifs, so about 6 for each provider. That being said, providers
+    // 1 and 3 actually don't have anything left to give (though we don't know that at this point
+    // in the real code). So we'll ask each provider for 6 recipes.
+    // As a result, on our continuation run we'll get 0 + 0 + 6 recipes back.
+    Assert.assertEquals(6, continuationRecipes.size)
+    // Now we're looking at the second, and final, continuation.
+    val secondContinuation = continuationObserver.values().first().continuation
+    val secondContinuationObserver = secondContinuation.test()
+    Assert.assertTrue(secondContinuationObserver.awaitTerminalEvent())
+    secondContinuationObserver.assertComplete()
+    Assert.assertEquals(1, secondContinuationObserver.valueCount())
+    val secondContinuationRecipes = secondContinuationObserver.values().first().recipes
+    // In the last continuation we exhausted the first and third providers. So all we've got left
+    // is the fourth provider. As such, he gets asked for the full 20 gifs. BUT he's only got 9
+    // gifs left! So we expect to get back 9 gifs.
+    Assert.assertEquals(9, secondContinuationRecipes.size)
+    val thirdContinuation = secondContinuationObserver.values().first().continuation
+    val thirdContinuationObserver = thirdContinuation.test()
+    Assert.assertTrue(thirdContinuationObserver.awaitTerminalEvent())
+    thirdContinuationObserver.assertComplete()
+    // And we're done!
+    thirdContinuationObserver.assertComplete()
   }
 
   @Test
-  fun testOneProviderEndingDoesntEndAll() {
+  fun `one provider ending doesnt kill the stream`() {
     val provider1 = object : GifRecipeProvider {
       override val id: String
         get() = "1"
@@ -201,7 +164,7 @@ class GifRecipeRepositoryImplTests {
           recipes.add(createRecipe())
         }
 
-        return Observable.just(GifRecipeProviderResponse(recipes, { requestCount -> consumeRecipes(requestCount, searchTerm, pageKey)}))
+        return Observable.just(GifRecipeProviderResponse(recipes, { requestCount -> consumeRecipes(requestCount, searchTerm, pageKey) }))
       }
     }
 
@@ -209,9 +172,8 @@ class GifRecipeRepositoryImplTests {
       override val id: String
         get() = "2"
 
-      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> {
-        return Observable.just(GifRecipeProviderResponse(emptyList(), { Observable.empty() }))
-      }
+      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> =
+          Observable.just(GifRecipeProviderResponse(emptyList(), { Observable.empty() }))
     }
 
     val repo = GifRecipeRepositoryImpl(listOf(provider1, provider2))
@@ -273,4 +235,31 @@ class GifRecipeRepositoryImplTests {
     Assert.assertTrue(observer.awaitTerminalEvent())
     observer.assertError(exception)
   }
+
+//  @Test
+//  fun `repository returns recipes chronologically`() {
+//
+//    fun builder(id: String) = GifRecipeProviderResponse(
+//        listOf(
+//            createRecipe("", id, "", ImageType.VIDEO, "", 0, "")
+//        ), { Observable.empty() })
+//
+//    val provider1 = object : GifRecipeProvider {
+//      override val id: String
+//        get() = "1"
+//
+//      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> {
+//
+//      }
+//    }
+//  }
+
+  // TODO: I just introduced the createProvider function in TestFactories to make writing these tests
+  // easier. It's shown some weirdness in the tests - specifically, the way I had written them before
+  // the providers ignored the actual number of recipes that were being requested. Now they don't,
+  // so I have to adjust accordingly. In the test where I used the function I set the total requested
+  // recipes count super high so that each provider would exhaust its total number of recipes on the
+  // first pass. I think that's fine for now, but presumably it won't work in further tests.
+  // After I convert the other tests over to using the new factory method, I want to actually write
+  // a (failing) test that presumes we're pulling down recipes in chronological order.
 }
