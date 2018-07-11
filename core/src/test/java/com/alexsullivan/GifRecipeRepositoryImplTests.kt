@@ -117,69 +117,39 @@ class GifRecipeRepositoryImplTests {
 
   @Test
   fun `one provider ending doesnt kill the stream`() {
-    val provider1 = object : GifRecipeProvider {
-      override val id: String
-        get() = "1"
-
-      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> {
-        val recipes = listOf(createRecipe(), createRecipe(), createRecipe(), createRecipe())
-        val continuationRecipes = listOf(createRecipe(), createRecipe(), createRecipe(), createRecipe(), createRecipe())
-        val emptyContinuation = { _: Int -> Observable.empty<GifRecipeProviderResponse>() }
-        return Observable.just(GifRecipeProviderResponse(recipes, { Observable.just(GifRecipeProviderResponse(continuationRecipes, emptyContinuation)) }))
-      }
-    }
-
-    val provider2 = object : GifRecipeProvider {
-      override val id: String
-        get() = "2"
-
-      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> {
-        val recipes = listOf(createRecipe(), createRecipe(), createRecipe(), createRecipe())
-        return Observable.just(GifRecipeProviderResponse(recipes, { Observable.empty() }))
-      }
-    }
-
+    val provider1 = createProvider("1", 5)
+    val provider2 = createProvider("2", 1)
     val repo = GifRecipeRepositoryImpl(listOf(provider1, provider2))
     val observer = repo.consumeGifRecipes(5, "").test()
     Assert.assertTrue(observer.awaitTerminalEvent())
     observer.assertComplete()
     Assert.assertEquals(1, observer.valueCount())
     val response = observer.values().first()
-    Assert.assertEquals(8, response.recipes.size)
+    Assert.assertEquals(3, response.recipes.size)
     val continuationObserver = response.continuation.test()
     Assert.assertEquals(1, continuationObserver.valueCount())
     val continuationResponse = continuationObserver.values().first()
-    Assert.assertEquals(5, continuationResponse.recipes.size)
+    // Same as above - we don't know that the second provider has finished yet, so we again
+    // ask each divider for 5/2 = 2 items.
+    Assert.assertEquals(2, continuationResponse.recipes.size)
+    val finalContinuation = continuationResponse.continuation
+    val finalResponse = finalContinuation.test()
+    finalResponse.awaitTerminalEvent()
+    finalResponse.assertComplete()
+    Assert.assertEquals(1, finalResponse.valueCount())
+    Assert.assertEquals(1, finalResponse.values().first().recipes.size)
   }
 
   @Test
-  fun testOneProviderEndingMaintainsRequestCount() {
-    val provider1 = object : GifRecipeProvider {
-      override val id: String
-        get() = "1"
-
-      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> {
-        val recipes = mutableListOf<GifRecipe>()
-        for (i in 0 until limit) {
-          recipes.add(createRecipe())
-        }
-
-        return Observable.just(GifRecipeProviderResponse(recipes, { requestCount -> consumeRecipes(requestCount, searchTerm, pageKey) }))
-      }
-    }
-
-    val provider2 = object : GifRecipeProvider {
-      override val id: String
-        get() = "2"
-
-      override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String): Observable<GifRecipeProviderResponse> =
-          Observable.just(GifRecipeProviderResponse(emptyList(), { Observable.empty() }))
-    }
-
+  fun `one provider ending maintains the request count`() {
+    val provider1 = createProvider("1", 45)
+    val provider2 = createProvider("2", 0)
     val repo = GifRecipeRepositoryImpl(listOf(provider1, provider2))
     val observer = repo.consumeGifRecipes(15, "").test()
     Assert.assertTrue(observer.awaitTerminalEvent())
     Assert.assertEquals(1, observer.values().size)
+    val recipes = observer.values().first().recipes
+    Assert.assertEquals(7, recipes.size)
     val continuation = observer.values().first().continuation
     val continuationObserver = continuation.test()
     Assert.assertTrue(continuationObserver.awaitTerminalEvent())

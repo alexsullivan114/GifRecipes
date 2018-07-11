@@ -17,13 +17,13 @@ fun createRecipe(
 
 fun createProvider(
     id: String = "",
-    actualReturnCount: Int
+    totalRecipesInProvider: Int
 ): GifRecipeProvider = object : GifRecipeProvider {
   override val id: String
     get() = id
 
   override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String) =
-      consumeRecipes(limit, searchTerm, pageKey, actualReturnCount)
+      consumeRecipes(limit, searchTerm, pageKey, totalRecipesInProvider)
 }
 
 // TODO: Limit might be a bit misleading here. Man I sure should comment stuff...
