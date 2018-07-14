@@ -10,12 +10,14 @@ internal class GifRecipeRepositoryImpl(private val providers: List<GifRecipeProv
       return Observable.empty()
     }
     // Each provider will be in charge of fetching 1/providers.size portion of the total desired
-    // gifs. At some point we may want to introduce weighting, so that we could, for example,
-    // weigh reddit gif recipes more heavily then, say, tasty gif recipes.
-    val fetchCount = totalPageSize / providers.size
+    // gifs. The last provider will be tasked with picking up the remainder so we achieve the
+    // expected page size.
+    val sizes = pageSizeList(totalPageSize, providers.size)
     // Call consume recipes on each of our providers. This will net us a list of observables
     // that hold a GifRecipeRepositoryResponse
-    val observables = providers.map { it.consumeRecipes(fetchCount, searchTerm) }
+    val observables = providers.mapIndexed { index, gifRecipeProvider ->
+      gifRecipeProvider.consumeRecipes(sizes[index], searchTerm)
+    }
     // And now we need to merge that list of responses into a single observable.
     return mergeResponses(totalPageSize, observables)
   }
@@ -45,10 +47,24 @@ internal class GifRecipeRepositoryImpl(private val providers: List<GifRecipeProv
           // the total number of recipes we want (though this is kind of confusing - is it just
           // for each "page" or is that the total period? I'm pretty sure its really total for each
           // page.) and for our list of responses, we just call the continuation provided in each
-          // response with the total count divided by the number of responses we got!
-          val observable = mergeResponses(requestedSize, responseList.map { it.continuation(requestedSize / responseList.size) })
+          // response with the total count divided by the number of responses we got! To make sure
+          // we hit the our total requested size, the last provider will _also_ take on the
+          // remainder difference.
+          val sizes = pageSizeList(requestedSize, responseList.size)
+          val continuations = responseList.mapIndexed { index, gifRecipeProviderResponse ->
+            gifRecipeProviderResponse.continuation(sizes[index])
+          }
+          val observable = mergeResponses(requestedSize, continuations)
           GifRecipeRepository.Response(recipes, observable)
         }
         .toObservable()
+  }
+
+  private fun pageSizeList(totalPageSize: Int, numProviders: Int): List<Int> {
+    val sizes = (1..numProviders)
+        .map { totalPageSize / numProviders }
+        .toMutableList()
+    sizes[sizes.lastIndex] = totalPageSize / numProviders + totalPageSize % numProviders
+    return sizes.toList()
   }
 }

@@ -2,7 +2,6 @@ package com.alexsullivan
 
 import com.alexsullivan.GifRecipeProvider.GifRecipeProviderResponse
 import io.reactivex.Observable
-import kotlin.math.max
 import kotlin.math.min
 
 fun createRecipe(
@@ -17,37 +16,37 @@ fun createRecipe(
 
 fun createProvider(
     id: String = "",
-    totalRecipesInProvider: Int
+    totalRecipesInProvider: Int,
+    creationDates: List<Long> = emptyList()
 ): GifRecipeProvider = object : GifRecipeProvider {
   override val id: String
     get() = id
 
   override fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String) =
-      consumeRecipes(limit, searchTerm, pageKey, totalRecipesInProvider)
+      consumeRecipes(limit, totalRecipesInProvider, creationDates)
 }
 
-// TODO: Limit might be a bit misleading here. Man I sure should comment stuff...
-fun consumeRecipes(limit: Int, searchTerm: String, pageKey: String, totalRecipeCount: Int = 0): Observable<GifRecipeProviderResponse> {
+fun consumeRecipes(pageSize: Int, totalRecipeCount: Int, creationDates: List<Long>): Observable<GifRecipeProviderResponse> {
 
   fun buildChain(remainingCount: Int): (Int) -> Observable<GifRecipeProviderResponse> {
-    if (remainingCount == 0) {
-      return {
-        Observable.empty()
-      }
-    }
-
-    // TODO: We need to actually care about the integer value passed through here
-    return {
-      val items = (1..min(remainingCount, it))
-          .map { createRecipe(id = it.toString()) }
+    return { pageSize ->
+      val items = (1..min(remainingCount, pageSize))
+          .map {
+            val creationDateIndex = (remainingCount - it)
+            val creationDate = if (creationDates.size <= creationDateIndex) 0 else creationDates[creationDateIndex]
+            createRecipe(id = "$remainingCount$it", creationDate = creationDate)
+          }
+      val updatedRemainingCount = remainingCount - pageSize
+      val emptyContinuation = { _: Int -> Observable.empty<GifRecipeProviderResponse>() }
+      val nextChainContinuation = buildChain(updatedRemainingCount)
       Observable.just(
           GifRecipeProviderResponse(
               items,
-              buildChain(max(0, remainingCount - it))
+              if (updatedRemainingCount <= 0) emptyContinuation else nextChainContinuation
           )
       )
     }
   }
 
-  return buildChain(totalRecipeCount)(limit)
+  return buildChain(totalRecipeCount)(pageSize)
 }
