@@ -60,6 +60,46 @@ internal class GifRecipeRepositoryImpl(private val providers: List<GifRecipeProv
         .toObservable()
   }
 
+  // I think this function may need to be a tail recursive function.
+  private fun fillChronologicalGaps(providerResponses: List<GifRecipeProviderResponse>,
+                                    pageSize: Int): List<GifRecipeProviderResponse> {
+
+    val providersWithSortedRecipes = providerResponses.map {
+      val recipes = it.recipes.sortedByDescending { it.creationDate }
+      GifRecipeProviderResponse(it.recipes, it.continuation)
+    }
+        .filter { it.recipes.isEmpty() }
+
+    val providersSortedByLatestRecipe = providersWithSortedRecipes.sortedByDescending {
+      it.recipes.first().creationDate
+    }
+
+    val addedRecipes = mutableListOf<GifRecipe>()
+    for (providerResponse in providersSortedByLatestRecipe) {
+      val recipes = providerResponse.recipes
+      val newestRecipe = recipes.first()
+      // Our NEWEST recipe is older than the last recipe added from the last
+      // provider response. That means we want to use that last provider
+      // response to fetch new recipes!
+      if (newestRecipe.creationDate < addedRecipes.last().creationDate) {
+        val newProviderResponse = providerResponse.continuation(pageSize).blockingFirst()
+        val combinedRecipes = providerResponse.recipes.toMutableList().apply { addAll(newProviderResponse.recipes) }
+        val combinedProviderResponse = GifRecipeProviderResponse(combinedRecipes, newProviderResponse.continuation)
+        val newProvidersList = providerResponses.filter { it != providerResponse }.toMutableList()
+        newProvidersList.add(combinedProviderResponse)
+        return fillChronologicalGaps(newProvidersList, pageSize)
+      }
+    }
+
+    return providerResponses
+  }
+
+  private fun GifRecipeProviderResponse.executeContinuation(pageSize: Int): GifRecipeProviderResponse {
+    val (recipes, continuation) = this
+    val newProvider = continuation(pageSize).blockingFirst()
+    val returnProvider = GifRecipeProviderResponse(newProvider.recipes, )
+  }
+
   private fun pageSizeList(totalPageSize: Int, numProviders: Int): List<Int> {
     val sizes = (1..numProviders)
         .map { totalPageSize / numProviders }
